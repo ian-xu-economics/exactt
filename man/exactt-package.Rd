@@ -2,9 +2,8 @@
 % Please edit documentation in R/exactt-package.R
 \docType{package}
 \name{exactt-package}
-\alias{exactt}
 \alias{exactt-package}
-\title{exactt: The Title of the Project}
+\title{exactt: Implement the Exact t-Test}
 \description{
 A paragraph providing a full description of the project (on several lines...)
 }
@@ -17,7 +16,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ian Xu \email{ianxu@uchicago.edu} (\href{https://orcid.org/{{orcid}}}{ORCID}) [copyright holder]
+\strong{Maintainer}: Ian Xu \email{ianxu@uchicago.edu}
+
+Authors:
+\itemize{
+  \item Guillaume Pouliot
+}
 
 }
 \keyword{internal}

@@ -1,18 +1,20 @@
 Package: exactt
 Type: Package
-Title: The Title of the Project
+Title: Implement the Exact t-Test
 Version: 0.0.0.9000
 Authors@R: c(
+    person(given   = "Guillaume",
+           family  = "Pouliot",
+           role    = c("aut")),
     person(given   = "Ian",
            family  = "Xu",
-           role    = c("aut", "cre", "cph"),
-           email   = "ianxu@uchicago.edu",
-           comment = c(ORCID = "{{orcid}}")))
+           role    = c("aut", "cre"),
+           email   = "ianxu@uchicago.edu"))
+URL: https://github.com/ian-xu-economics/exactt
 Description: A paragraph providing a full description of the project (on 
     several lines...)
-URL: https://github.com/ian-xu-economics/exactt
 BugReports: https://github.com/ian-xu-economics/exactt/issues
-License: GPL (>= 2)
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
@@ -21,4 +23,19 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports: 
+    combinat,
+    doParallel,
+    dplyr,
+    latex2exp,
+    GA,
+    ggplot2,
+    Matrix,
+    MASS,
+    methods,
+    parallel,
+    rootSolve,
+    rlang,
+    stats,
+    tibble
 VignetteBuilder: knitr
