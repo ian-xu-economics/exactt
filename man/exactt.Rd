@@ -5,7 +5,8 @@
 \title{Exact Testing of Linear Model Coefficients}
 \usage{
 exactt(
-  lmObject,
+  model,
+  data,
   alpha = 0.05,
   variables = NULL,
   betaNull = NULL,
@@ -13,11 +14,14 @@ exactt(
   nPerms = NULL,
   studentize = TRUE,
   permutation = NULL,
+  optimize = FALSE,
   ...
 )
 }
 \arguments{
-\item{lmObject}{A linear model object typically created using \code{\link[stats]{lm}}.}
+\item{model}{A formula specifying the model..}
+
+\item{data}{A data frame or matrix containing the variables used in the model.}
 
 \item{alpha}{The significance level used for the hypothesis tests; defaults to 0.05.}
 
@@ -34,7 +38,9 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 \item{studentize}{Logical indicating whether to use studentized residuals for the test.}
 
-\item{permutation}{Optional; a specific permutation vector to use.}
+\item{permutation}{Optional; a specific permutation vector to rearrange order of data.}
+
+\item{optimize}{Logical indicating whether to optimize the ordering of the data (default is FALSE).}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

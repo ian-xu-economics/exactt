@@ -6,7 +6,8 @@
 #' non-studentized test statistics, and allows the user to specify various
 #' parameters for the test.
 #'
-#' @param lmObject A linear model object typically created using \code{\link[stats]{lm}}.
+#' @param model A formula specifying the model..
+#' @param data A data frame or matrix containing the variables used in the model.
 #' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
 #' @param variables Optional; a character vector of predictor names to test.
 #'        If NULL, all predictors in the model are tested.
@@ -16,7 +17,8 @@
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
-#' @param permutation Optional; a specific permutation vector to use.
+#' @param permutation Optional; a specific permutation vector to rearrange order of data.
+#' @param optimize Logical indicating whether to optimize the ordering of the data (default is FALSE).
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -43,65 +45,67 @@
 #' The function allows for a high degree of customization through its parameters and can
 #' handle large datasets and complex model structures efficiently.
 #'
-#' @importFrom stats median
-#'
+#' @importFrom stats median formula
+#' @importFrom Formula Formula
+#' @importFrom cli cli_abort
+#' 
 #' @export
-exactt <- function(lmObject, 
+exactt <- function(model,
+                   data,
                    alpha = 0.05,
                    variables = NULL,
                    betaNull = NULL,
-                   nBlocks = 5, 
+                   nBlocks = 5,
                    nPerms = NULL,
                    studentize = TRUE,
                    permutation = NULL,
+                   optimize = FALSE,
                    ...) {
   
-  # If betaNull entered, check if equal length as variables
-  if(!is.null(betaNull) 
-     && is.null(variables)){
+  ####### Do checks #######
+  # Call check_model_data and update data if necessary
+  modified_data <- check_model_data(model, data)
+  if (!is.null(modified_data)){
+    data <- modified_data
+  }
+  
+  # Check if `betaNull` provided. If so, check if length equal to number of variables
+  if(!is.null(betaNull) && is.null(variables)){
     warning("'betaNull' will be ignored since 'variables' is NULL.")
   } else if(!is.null(betaNull) 
             && length(betaNull) != length(variables)){
-    stop("Length of 'betaNull' must match length of 'variables'.")
+    cli::cli_abort("Length of 'betaNull' must match length of 'variables'.")
   }
   
-  data.in <- lmObject$model
-  data.in_n <- nrow(data.in)
+  # Parse the formula using the Formula package
+  f <- Formula::Formula(model)
   
-  n <- floor(data.in_n/nBlocks)*nBlocks
-  data <- data.in[1:n, ]
+  # Extract Y (response), X (explanatory variables), and Z (instrumental variables)
+  Y.var <- as.character(attr(stats::terms(f), "variables")[[2]])
+  X.var <- all.vars(stats::formula(f, lhs = 0, rhs = 1))
+  suppressWarnings(Z.var <- all.vars(formula(f, lhs = 0, rhs = 2)))
   
-  # Demean each column of data
-  data <- apply(data, MARGIN = 2, function(x) scale(x, scale = FALSE))
+  IV <- ifelse(length(Z.var) > 0, TRUE, FALSE)
   
-  Y <- data[,1, drop = FALSE]
-  X <- data[,-1, drop = FALSE]
-  
-  # Check if desired variables in X
+  # Check variable names
   if(is.null(variables)){
-    variables <- colnames(X)
+    variables <- X.var
   } else{
-    variablesInData <- variables %in% colnames(X)
-  
-    if(all(!variablesInData)){
-      stop("None of the names in 'variables' exist in the set of regressor names.")
-    } else if(!all(variablesInData)){
-      # Construct message for warning
-      nonexistentVariables <- variables[which(!variablesInData)]
-      if (length(nonexistentVariables) > 1) {
-        formatted_vars <- sprintf('"%s"', nonexistentVariables)
-        var_string <- paste(formatted_vars[-length(formatted_vars)], collapse = ", ", sep = "")
-        last_var <- paste("and", formatted_vars[length(formatted_vars)])
-        message <- paste(var_string, last_var, "do not exist in the set of regressor names. They will be skipped.")
-      } else {
-        message <- sprintf('"%s" does not exist in the set of regressor names. It will be skipped.', nonexistentVariables)
-      }
-      
-      warning(message)
-      
-      variables <- variables[which(variablesInData)]
-    }
+    variables <- check_variables_X(variables, X.var)
   }
+  
+  # Check if length of permutation equals number of observations
+  if(!is.null(permutation) && length(permutation) != nrow(data)){
+    cli::cli_abort("The length of 'permutation' does not equal the number of observations in 'data'.")
+  }
+  
+  data.n <- nrow(data)
+  
+  n <- floor(data.n/nBlocks)*nBlocks
+  data.use <- data[1:n, ]
+  
+  # Demean each column of data.use
+  data.use <- apply(data.use, MARGIN = 2, function(x) scale(x, scale = FALSE))
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
@@ -119,17 +123,17 @@ exactt <- function(lmObject,
     permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
   }
   
-  # Convert '...' to a list to inspect and possibly modify
-  gaArgs <- list(...)
-  
-  if(length(gaArgs) == 1 && is.null(gaArgs[[1]])){ # Case 1: don't optimize
+  if(!optimize){ # Case 1: don't optimize
     if(!is.null(permutation)){
-      data <- data[permutation,]
+      data.use <- data.use[permutation,]
     }
   } else{ # Case 2: optimize
+    # Convert '...' to a list to inspect and possibly modify
+    gaArgs <- list(...)
+    
     if(!is.null(permutation)){ 
       warning("Optimization will not be implemented becasue 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
-      data <- data[permutation,]
+      data.use <- data.use[permutation,]
       gaArgs = list()
     } else if("type" %in% names(gaArgs)){
       warning("Custom 'type' value is ignored in this function.")
@@ -142,6 +146,19 @@ exactt <- function(lmObject,
       gaArgs$lower <- NULL
       gaArgs$upper <- NULL
     }
+    
+    gaArgs$type <- "permutation"
+    gaArgs$fitness <- function(permutation){ -fitness_function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations) }
+    gaArgs$lower <- rep(1, n)
+    gaArgs$upper <- rep(n, n)
+  }
+  
+  Y <- data.use[,Y.var, drop = FALSE]
+  X <- data.use[,X.var, drop = FALSE]
+  if(IV){
+    Z <- data.use[,Z.var, drop = FALSE]
+  } else{
+    lmObject <- stats::lm(model, data = data)
   }
   
   detailed.out <- vector("list", length = length(variables))
@@ -159,7 +176,7 @@ exactt <- function(lmObject,
   
   final_results <- vector("list")
   
-  if(length(gaArgs) > 0 && ncol(X) > 1){
+  if(optimize && ncol(X) > 1){
     final_results[["gaResults"]] <- vector("list")
   }
   
@@ -182,12 +199,7 @@ exactt <- function(lmObject,
     X2.temp <- X[,-i, drop = FALSE]
     Y.temp <- Y
     
-    if(length(gaArgs) > 0){
-      
-      gaArgs$type <- "permutation"
-      gaArgs$fitness <- function(permutation){ -fitness_function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations) }
-      gaArgs$lower <- rep(1, n)
-      gaArgs$upper <- rep(n, n)
+    if(optimize){
       
       if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
         
@@ -211,9 +223,10 @@ exactt <- function(lmObject,
       
       gaResults <- do.call(GA::ga, gaArgs)
       
-      # Close cluster and reset gaArgs
-      parallel::stopCluster(cl)
-      gaArgs <- list(...)
+      # Close cluster if parallel is true
+      if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
+        parallel::stopCluster(cl)
+      }
       
       X1.temp <- X1.temp[gaResults@solution,, drop = FALSE]
       X2.temp <- X2.temp[gaResults@solution,, drop = FALSE]
@@ -284,5 +297,3 @@ exactt <- function(lmObject,
   
   return(final_results) 
 }
-
-

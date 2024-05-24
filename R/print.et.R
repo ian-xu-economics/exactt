@@ -17,9 +17,9 @@
 #' @export
 print.et = function(x, ...){
   
-  cat("\nCall:\n",
+  cat(cli::style_underline(cli::col_blue("\nCall:\n")),
       paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
-  cat("\nSummary:\n")
+  cat(cli::style_underline(cli::col_blue("\nSummary:\n")))
   print.default(format(x$summary),
                 print.gap = 2L, quote = FALSE)
   
