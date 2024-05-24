@@ -21,7 +21,7 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -62,7 +62,8 @@ parameters for the test.</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">exactt</span><span class="op">(</span></span>
-<span>  <span class="va">lmObject</span>,</span>
+<span>  <span class="va">model</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  betaNull <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -70,14 +71,19 @@ parameters for the test.</p>
 <span>  nPerms <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  studentize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  permutation <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  optimize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>lmObject</dt>
-<dd><p>A linear model object typically created using <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>.</p></dd>
+    <dl><dt>model</dt>
+<dd><p>A formula specifying the model..</p></dd>
+
+
+<dt>data</dt>
+<dd><p>A data frame or matrix containing the variables used in the model.</p></dd>
 
 
 <dt>alpha</dt>
@@ -108,7 +114,11 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 
 <dt>permutation</dt>
-<dd><p>Optional; a specific permutation vector to use.</p></dd>
+<dd><p>Optional; a specific permutation vector to rearrange order of data.</p></dd>
+
+
+<dt>optimize</dt>
+<dd><p>Logical indicating whether to optimize the ordering of the data (default is FALSE).</p></dd>
 
 
 <dt>...</dt>
