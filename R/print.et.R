@@ -9,18 +9,19 @@
 #'            The 'call' is expected to be an expression representing how the object was created.
 #'            The 'summary' should contain a summary of the object, which can be any form that can be
 #'            formatted and printed.
+#' @param digits An integer controlling the number of significant digits to print.
 #' @param ... Additional arguments passed to the print function, potentially modifying 
 #'            the output or print behavior (e.g., controlling the number of digits printed).
 #'
 #' @return Invisible NULL. The function is used for its side effect of printing to the console.
 #'
 #' @export
-print.et = function(x, ...){
+print.et = function(x, digits = 3, ...){
   
-  cat(cli::style_underline(cli::col_blue("\nCall:\n")),
+  cat(cli::style_bold(cli::col_blue("\nCall:\n")),
       paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
-  cat(cli::style_underline(cli::col_blue("\nSummary:\n")))
-  print.default(format(x$summary),
+  cat(cli::style_bold(cli::col_blue("\nSummary:\n")))
+  print.default(format(signif(x$summary, digits)),
                 print.gap = 2L, quote = FALSE)
   
 }

@@ -4,13 +4,15 @@
 \alias{print.et}
 \title{Print Method for Objects of Class 'et'}
 \usage{
-\method{print}{et}(x, ...)
+\method{print}{et}(x, digits = 3, ...)
 }
 \arguments{
 \item{x}{An object of class 'et', typically containing at least a 'call' and a 'summary' component.
 The 'call' is expected to be an expression representing how the object was created.
 The 'summary' should contain a summary of the object, which can be any form that can be
 formatted and printed.}
+
+\item{digits}{An integer controlling the number of significant digits to print.}
 
 \item{...}{Additional arguments passed to the print function, potentially modifying
 the output or print behavior (e.g., controlling the number of digits printed).}

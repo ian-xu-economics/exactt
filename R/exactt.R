@@ -282,12 +282,12 @@ exactt <- function(model,
     
     idx0 <- which(betaNullVec == 0)
     
-    summaryTable.out[i,] <- c(round(beta_hat, digits = -precisionToUse),
-                              round(detailed.out[[i]]$pval[idx0], digits = -precisionToUse),
-                              round(beta_lower, digits = -precisionToUse),
-                              round(beta_upper, digits = -precisionToUse),
-                              round(max(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec <= stats::median(betaNullVec))]), digits = -precisionToUse),
-                              round(min(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec >= stats::median(betaNullVec))]), digits = -precisionToUse))
+    summaryTable.out[i,] <- c(beta_hat,
+                              detailed.out[[i]]$pval[idx0],
+                              beta_lower,
+                              beta_upper,
+                              max(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec <= stats::median(betaNullVec))]),
+                              min(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec >= stats::median(betaNullVec))]))
   }
   
   final_results[["summary"]] <- summaryTable.out

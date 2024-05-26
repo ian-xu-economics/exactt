@@ -45,20 +45,15 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     Q.X1.temp <- QGX2.temp%*%X1.temp
     eps_hat <- QGX1GX2.temp%*%Y.temp
     
-    T_numerator_hat <- 1/sqrt(n) * t(Q.X1.temp)%*%(replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec)
-    T_denominator_hat <- mean(Q.X1.temp^2 * eps_hat^2)
-    t_hats <- c(T_numerator_hat/T_denominator_hat)
-    
     Q.X1.temp.permuted <- matrix(Q.X1.temp[permIndices], nrow = n)
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
-    t_num <- sqrt(n)*t(Q.X1.temp.permuted) %*% E
+    t_num <- t(Q.X1.temp.permuted) %*% E
     t_denom <- t(Q.X1.temp.permuted^2) %*% eps_hat^2
     
     # t is M_G+1 x length(betaNullVec)
     # Each column of t is the randomization distribution of the studentized test statistics
     t <- apply(t_num, 2, function(x) x/t_denom[,1])
-    #t = t_num
     
     p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
     
@@ -69,7 +64,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     T_numerator_hat <- t(X1.temp)%*%E #Don't need to multiply by 1/sqrt(n)
     
-    t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
+    t_num <- (1/sqrt(n))*t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     
     for(i in 1:ncol(t_num)){
       p_val_seq_beta_index <- c(p_val_seq_beta_index,

@@ -1,3 +1,4 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # exactt <img src="man/figures/package-sticker.png" align="right" style="float:right; height:120px;"/>
@@ -12,7 +13,7 @@ Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.
 [![Test
 coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml)
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
-[![License: GPL (&gt;=
+[![License: GPL (\>=
 2)](https://img.shields.io/badge/License-GPL%20%28%3E%3D%202%29-blue.svg)](https://choosealicense.com/licenses/gpl-2.0/)
 <!-- badges: end -->
 
@@ -41,17 +42,21 @@ The main purpose of `exactt` is to… **{{ DESCRIBE THE MAIN FEATURES }}**
 You can install the development version from
 [GitHub](https://github.com/) with:
 
-    ## Install < remotes > package (if not already installed) ----
-    if (!requireNamespace("remotes", quietly = TRUE)) {
-      install.packages("remotes")
-    }
+``` r
+## Install < remotes > package (if not already installed) ----
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
 
-    ## Install < exactt > from GitHub ----
-    remotes::install_github("ian-xu-economics/exactt")
+## Install < exactt > from GitHub ----
+remotes::install_github("ian-xu-economics/exactt")
+```
 
 Then you can attach the package `exactt`:
 
-    library("exactt")
+``` r
+library("exactt")
+```
 
 ## Get started
 
@@ -64,10 +69,10 @@ vignette.
 `exactt` provides **{{ NUMBER OF VIGNETTES }}** vignettes to learn more
 about the package:
 
--   the [Get
-    started](https://ian-xu-economics.github.io/exactt/articles/exactt.html)
-    vignette describes the core features of the package
--   **{{ LIST ADDITIONAL VIGNETTES }}**
+- the [Get
+  started](https://ian-xu-economics.github.io/exactt/articles/exactt.html)
+  vignette describes the core features of the package
+- **{{ LIST ADDITIONAL VIGNETTES }}**
 
 ## Citation
 
