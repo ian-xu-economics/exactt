@@ -203,6 +203,8 @@ exactt <- function(model,
       
       if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
         
+        ogParArg <- gaArgs$parallel
+        
         if(gaArgs$parallel == TRUE){
           numCores <- parallel::detectCores()
         } else if(is.numeric(gaArgs$parallel) && gaArgs$parallel >= 2){
@@ -218,14 +220,15 @@ exactt <- function(model,
         parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
         parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
         
-        gaArgs$parallel = cl
+        gaArgs$parallel <- cl
       } 
       
       gaResults <- do.call(GA::ga, gaArgs)
       
       # Close cluster if parallel is true
-      if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
+      if(!is.null(gaArgs$parallel) && ogParArg != FALSE){
         parallel::stopCluster(cl)
+        gaArgs$parallel <- ogParArg
       }
       
       X1.temp <- X1.temp[gaResults@solution,, drop = FALSE]
