@@ -148,7 +148,7 @@ exactt <- function(model,
     }
     
     gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ -fitness_function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations) }
+    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations) }
     gaArgs$lower <- rep(1, n)
     gaArgs$upper <- rep(n, n)
   }
