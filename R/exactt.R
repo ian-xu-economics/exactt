@@ -104,8 +104,16 @@ exactt <- function(model,
   n <- floor(data.n/nBlocks)*nBlocks
   data.use <- data[1:n, ]
   
-  # Demean each column of data.use
-  data.use <- apply(data.use, MARGIN = 2, function(x) scale(x, scale = FALSE))
+  # Demean each column of data.use (if numeric)
+  data.use <- apply(data.use, 
+                    MARGIN = 2, 
+                    function(x) {
+                      if(is.numeric(x)){
+                        scale(x, scale = FALSE)
+                      } else{
+                        x
+                      }
+                    })
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
