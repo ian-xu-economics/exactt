@@ -45,7 +45,7 @@
 #' The function allows for a high degree of customization through its parameters and can
 #' handle large datasets and complex model structures efficiently.
 #'
-#' @importFrom stats median formula
+#' @importFrom stats median formula model.matrix
 #' @importFrom Formula Formula
 #' @importFrom cli cli_abort
 #' 
@@ -63,11 +63,6 @@ exactt <- function(model,
                    ...) {
   
   ####### Do checks #######
-  # Call check_model_data and update data if necessary
-  modified_data <- check_model_data(model, data)
-  if (!is.null(modified_data)){
-    data <- modified_data
-  }
   
   # Check if `betaNull` provided. If so, check if length equal to number of variables
   if(!is.null(betaNull) && is.null(variables)){
@@ -77,21 +72,11 @@ exactt <- function(model,
     cli::cli_abort("Length of 'betaNull' must match length of 'variables'.")
   }
   
-  # Parse the formula using the Formula package
-  f <- Formula::Formula(model)
-  
-  # Extract Y (response), X (explanatory variables), and Z (instrumental variables)
-  Y.var <- as.character(attr(stats::terms(f), "variables")[[2]])
-  X.var <- all.vars(stats::formula(f, lhs = 0, rhs = 1))
-  suppressWarnings(Z.var <- all.vars(formula(f, lhs = 0, rhs = 2)))
-  
-  IV <- ifelse(length(Z.var) > 0, TRUE, FALSE)
-  
-  # Check variable names
-  if(is.null(variables)){
-    variables <- X.var
-  } else{
-    variables <- check_variables_X(variables, X.var)
+  # Check if `model` provided and is formula with LHS
+  if(is.null(model)){
+    stop("The 'model' parameter must be provided.")
+  } else if(!rlang::is_formula(model, lhs = TRUE)){
+    stop("The 'model' parameter must be a formula with a LHS.")
   }
   
   # Check if length of permutation equals number of observations
@@ -99,21 +84,30 @@ exactt <- function(model,
     cli::cli_abort("The length of 'permutation' does not equal the number of observations in 'data'.")
   }
   
-  data.n <- nrow(data)
+  # Parse the formula using the Formula package
+  formula <- Formula::Formula(model)
   
+  # Extract Y (response), X (explanatory variables), and Z (instrumental variables)
+  Y.var <- as.character(attr(stats::terms(formula), "variables")[[2]])
+  X.var <- all.vars(stats::formula(formula, lhs = 0, rhs = 1))
+  suppressWarnings(Z.var <- all.vars(formula(formula, lhs = 0, rhs = 2)))
+  
+  IV <- ifelse(length(Z.var) > 0, TRUE, FALSE)
+  
+  # Assume !IV for now
+  
+  # Convert the data to a model matrix, which will handle one-hot encoding
+  X <- stats::model.matrix(formula, data)
+  assign <- attr(X, "assign")
+  
+  Y <- data[Y.var]
+  
+  data.n <- nrow(X)
   n <- floor(data.n/nBlocks)*nBlocks
-  data.use <- data[1:n, ]
   
-  # Demean each column of data.use (if numeric)
-  data.use <- apply(data.use, 
-                    MARGIN = 2, 
-                    function(x) {
-                      if(is.numeric(x)){
-                        scale(x, scale = FALSE)
-                      } else{
-                        x
-                      }
-                    })
+  X.use <- X[1:n, , drop = FALSE]
+  Y.use <- Y[1:n, , drop = FALSE]
+  data.use <- data[1:n, , drop = FALSE]
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
@@ -133,15 +127,17 @@ exactt <- function(model,
   
   if(!optimize){ # Case 1: don't optimize
     if(!is.null(permutation)){
-      data.use <- data.use[permutation,]
+      X.use <- X.use[permutation,, drop = FALSE]
+      Y.use <- Y.use[permutation,, drop = FALSE]
     }
   } else{ # Case 2: optimize
     # Convert '...' to a list to inspect and possibly modify
     gaArgs <- list(...)
     
     if(!is.null(permutation)){ 
-      warning("Optimization will not be implemented becasue 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
-      data.use <- data.use[permutation,]
+      warning("Optimization will not be implemented because 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
+      X.use <- X.use[permutation,, drop = FALSE]
+      Y.use <- Y.use[permutation,, drop = FALSE]
       gaArgs = list()
     } else if("type" %in% names(gaArgs)){
       warning("Custom 'type' value is ignored in this function.")
@@ -160,21 +156,19 @@ exactt <- function(model,
     gaArgs$lower <- rep(1, n)
     gaArgs$upper <- rep(n, n)
   }
-  
-  Y <- data.use[,Y.var, drop = FALSE]
-  X <- data.use[,X.var, drop = FALSE]
+
   if(IV){
     Z <- data.use[,Z.var, drop = FALSE]
   } else{
     lmObject <- stats::lm(model, data = data)
   }
   
-  detailed.out <- vector("list", length = length(variables))
+  detailed.out <- vector("list", length = sum(assign %in% variables))
   
   summaryTable.out <- matrix(data = NA_real_,
-                             nrow = length(variables), 
+                             nrow = sum(assign %in% variables), 
                              ncol = 6, 
-                             dimnames = list(variables, 
+                             dimnames = list(colnames(X)[assign %in% variables], 
                                              c("Estimate", 
                                                "Pr(>|t|)", 
                                                paste0(alpha*100/2, "%", " W"), 
@@ -188,14 +182,12 @@ exactt <- function(model,
     final_results[["gaResults"]] <- vector("list")
   }
   
-  if(attr(lmObject$terms, "intercept")){
-    summaryTablelm <- summary(lmObject)$coefficients[-1,, drop = FALSE]
-  } else{
-    summaryTablelm <- summary(lmObject)$coefficients
-  }
+  summaryTablelm <- summary(lmObject)$coefficients
+
+  rowCounter <- 1
   
-  for(i in 1:nrow(summaryTablelm)){
-    if(!row.names(summaryTablelm)[i] %in% variables){
+  for(i in seq_along(assign)){
+    if(assign[i] == 0 | !assign[i] %in% variables){
       next
     }
     
@@ -203,9 +195,9 @@ exactt <- function(model,
     se <- summaryTablelm[i, 2]
     precisionToUse <- ifelse(se > 0, yes = floor(log(se, base = 10)) - 1, no = -5)
     
-    X1.temp <- X[,i, drop = FALSE]
-    X2.temp <- X[,-i, drop = FALSE]
-    Y.temp <- Y
+    X1.temp <- X.use[,i, drop = FALSE]
+    X2.temp <- X.use[,-i, drop = FALSE]
+    Y.temp <- as.matrix(Y.use)
     
     if(optimize){
       
@@ -246,8 +238,7 @@ exactt <- function(model,
       final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
     }
     
-    if(!is.null(betaNull) 
-       && !is.null(betaNull[[which(variables == row.names(summaryTablelm)[i])]])){
+    if(!is.null(betaNull) && !is.null(betaNull[[which(variables == row.names(summaryTablelm)[i])]])){
         betaNullVec <- betaNull[[which(variables == row.names(summaryTablelm)[i])]]
     } else{
       # Find LB and UB roots
@@ -293,12 +284,14 @@ exactt <- function(model,
     
     idx0 <- which(betaNullVec == 0)
     
-    summaryTable.out[i,] <- c(beta_hat,
-                              detailed.out[[i]]$pval[idx0],
-                              beta_lower,
-                              beta_upper,
-                              max(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec <= stats::median(betaNullVec))]),
-                              min(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec >= stats::median(betaNullVec))]))
+    summaryTable.out[rowCounter,] <- c(beta_hat,
+                                       detailed.out[[i]]$pval[idx0],
+                                       beta_lower,
+                                       beta_upper,
+                                       max(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec <= stats::median(betaNullVec))]),
+                                       min(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec >= stats::median(betaNullVec))]))
+    
+    rowCounter <- rowCounter + 1
   }
   
   final_results[["summary"]] <- summaryTable.out

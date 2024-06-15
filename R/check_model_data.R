@@ -35,11 +35,11 @@ check_model_data <- function(model, data) {
   # Check if all the variables in the `model` are columns in the data
   missing_vars <- setdiff(terms, names(data))
   
-  if (length(missing_vars) > 0) {
+  if(length(missing_vars) > 0) {
     stop(paste("The following variables in the 'model' parameter are not present in the data:", paste(missing_vars, collapse = ", ")))
   }
   
-  if (is.matrix(data)) {
+  if(is.matrix(data)) {
     return(data) # Return modified data if it was a matrix
   } else {
     return(NULL) # Return NULL if no modification is needed

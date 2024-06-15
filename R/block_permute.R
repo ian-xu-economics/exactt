@@ -25,11 +25,9 @@ block_permute <- function(X, blockIndexMatrix, possibleBlockPermutations = NULL)
   } else{
     possibleBlockPermutationsLeft <- nrow(possibleBlockPermutations)
     
-    row <- sample(possibleBlockPermutationsLeft, 1)
+    block_order <- possibleBlockPermutations[1, ]
     
-    block_order <- possibleBlockPermutations[row, ]
-    
-    possibleBlockPermutations <- possibleBlockPermutations[-row,, drop = FALSE]
+    possibleBlockPermutations <- possibleBlockPermutations[-1,, drop = FALSE]
   }
   
   return(list("shuffledData" = X[c(blockIndexMatrix[, block_order])],

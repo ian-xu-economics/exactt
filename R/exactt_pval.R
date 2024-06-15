@@ -30,7 +30,7 @@
 #' @noRd
 exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE){
   
-  n <- length(Y.temp)
+  n <- nrow(X1.temp)
   
   betaNullVec <- matrix(betaNullVec, nrow = 1)
   

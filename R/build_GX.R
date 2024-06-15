@@ -28,7 +28,7 @@ build_GX = function(X, blockIndexMatrix){
   rank <- 1
   
   if(nBlocks <= 9){
-    possibleBlockPermutations = do.call(rbind, combinat::permn(1:nBlocks))
+    possibleBlockPermutations = do.call(rbind, combinat::permn(1:nBlocks))[-1,, drop = FALSE] # We start out with GX = X
   
     triedAllBlockPerms <- FALSE
     
@@ -39,9 +39,13 @@ build_GX = function(X, blockIndexMatrix){
       shuffledData <- temp[[1]]
       possibleBlockPermutations <- temp[[2]]
       
-      GX <- cbind(GX, shuffledData)
+      GX.possible <- cbind(GX, shuffledData)
+      rank.GX.possible <- Matrix::rankMatrix(GX.possible)
       
-      rank <- Matrix::rankMatrix(GX)
+      if(rank.GX.possible > rank){
+        GX <- GX.possible
+        rank <- rank.GX.possible
+      }
       
       if(rank < max_rank && nrow(possibleBlockPermutations) == 0){
         warning(paste0("Unable to construct maximum rank GX. All possible block permutations attempted. \n Current GX rank: ", rank,
