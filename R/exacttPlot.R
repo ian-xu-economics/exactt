@@ -34,18 +34,24 @@ exacttPlot = function(et, variables = NULL){
       next
     }
     
-    plots[[plotsCounter]] <- ggplot2::ggplot(data = et$detailed[[i]]) + 
+    data <- et$detailed[[i]]
+    
+    if(data$betaNull[1] == 0 
+       && data$betaNull[2] - data$betaNull[1] != data$betaNull[3] - data$betaNull[2]){
+      data <- data[-1, ]
+    }
+    
+    plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
       ggplot2::geom_hline(ggplot2::aes(yintercept = alpha), color = "red", linetype = "dashed") + 
       ggplot2::geom_vline(xintercept = et$summary[i, 1], color = "blue", linetype = "dotted") + 
-      ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.1)) + 
+      ggplot2::scale_y_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
-      ggplot2::labs(x = latex2exp::TeX("$\\beta_0$"), y = "P-value") + 
+      ggplot2::labs(x = latex2exp::TeX("$\\beta^0$"), y = "P-value") + 
       ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta_0$, ", names(et$detailed)[i])))
     
     plotsCounter <- plotsCounter + 1
   }
   
   return(plots)
-  
 }

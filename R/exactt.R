@@ -62,6 +62,8 @@ exactt <- function(model,
                    optimize = FALSE,
                    ...) {
   
+  call <- match.call(expand.dots = TRUE)
+  
   ####### Do checks #######
   
   # Check if `betaNull` provided. If so, check if length equal to number of variables
@@ -84,30 +86,8 @@ exactt <- function(model,
     cli::cli_abort("The length of 'permutation' does not equal the number of observations in 'data'.")
   }
   
-  # Parse the formula using the Formula package
-  formula <- Formula::Formula(model)
-  
-  # Extract Y (response), X (explanatory variables), and Z (instrumental variables)
-  Y.var <- as.character(attr(stats::terms(formula), "variables")[[2]])
-  X.var <- all.vars(stats::formula(formula, lhs = 0, rhs = 1))
-  suppressWarnings(Z.var <- all.vars(formula(formula, lhs = 0, rhs = 2)))
-  
-  IV <- ifelse(length(Z.var) > 0, TRUE, FALSE)
-  
-  # Assume !IV for now
-  
-  # Convert the data to a model matrix, which will handle one-hot encoding
-  X <- stats::model.matrix(formula, data)
-  assign <- attr(X, "assign")
-  
-  Y <- data[Y.var]
-  
-  data.n <- nrow(X)
+  data.n <- nrow(data)
   n <- floor(data.n/nBlocks)*nBlocks
-  
-  X.use <- X[1:n, , drop = FALSE]
-  Y.use <- Y[1:n, , drop = FALSE]
-  data.use <- data[1:n, , drop = FALSE]
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
@@ -116,54 +96,104 @@ exactt <- function(model,
                              ncol = nBlocks, 
                              byrow = FALSE)
   
+  # Check if length of permutation equals number of observations
+  if(length(permutation) > n){
+    cli::cli_warn("After dropping remainder observations, 'permutation' is longer than the number of observations in the data. Remainder observations will be dropped from 'permutation' as well.")
+    permutation <- permutation[permutation %in% 1:n]
+  }
+  
+  ivregObject <- ivreg::ivreg(model,
+                              data = data,
+                              model = TRUE,
+                              x = TRUE)
+  
+  regressors <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-1]
+  Y.var <- regressors[1]
+  X.var <- regressors[-1]
+  
+  endogenous.var <- names(ivregObject$endogenous)
+  exogenous.var <- names(ivregObject$exogenous)
+
+  if(attr(ivregObject$terms$regressors, "intercept")){
+    exogenous.var <- exogenous.var[-1]
+  }
+  
+  Y <- matrix(ivregObject$y)
+  X <- ivregObject$x$regressors
+  
+  Y.use <- Y[1:n,, drop = FALSE]
+  X.use <- X[1:n,, drop = FALSE]
+  
+  Z.var <- names(ivregObject$instruments)
+  
+  if(!is.null(Z.var)){
+    IV <- TRUE
+    Z <- ivregObject$x$instruments[,Z.var]
+    Z.use <- Z[1:n,, drop = FALSE]
+  } else{
+    IV <- FALSE
+  }
+  
+  assign <- attr(X, "assign")
+  
+  summaryTableIvreg <- summary(ivregObject)$coefficients
+  
+  gaArgs = list(...)
+  
+  if(is.null(variables)){
+    variables <- 1:length(X.var)
+  }
+  
   # If `nPerms` is unspecified or greater than the number of possible permutations, then use all possible permutations. 
   # When number of possible permutations is bigger than MG, then we need to randomly sample.
   if(is.null(nPerms) || nPerms >= factorial(nBlocks)){
-    blockPermutations = do.call(rbind, combinat::permn(1:nBlocks))
+    blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
     permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
   } else{
     permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
   }
   
+  final_results <- vector("list")
+  
   if(!optimize){ # Case 1: don't optimize
     if(!is.null(permutation)){
       X.use <- X.use[permutation,, drop = FALSE]
       Y.use <- Y.use[permutation,, drop = FALSE]
+      if(IV){
+        Z.use <- Z.use[permutation,, drop = FALSE]
+      }
     }
   } else{ # Case 2: optimize
-    # Convert '...' to a list to inspect and possibly modify
-    gaArgs <- list(...)
     
     if(!is.null(permutation)){ 
-      warning("Optimization will not be implemented because 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
+      cli::cli_warn("Optimization will not be implemented because 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
       X.use <- X.use[permutation,, drop = FALSE]
       Y.use <- Y.use[permutation,, drop = FALSE]
-      gaArgs = list()
-    } else if("type" %in% names(gaArgs)){
-      warning("Custom 'type' value is ignored in this function.")
-      gaArgs$type <- NULL
-    } else if("fitness" %in% names(gaArgs)){
-      warning("Custom 'fitness' value is ignored in this function.")
-      gaArgs$fitness <- NULL
-    } else if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
-      warning("Custom 'lower' and 'upper' values are ignored in this function.")
-      gaArgs$lower <- NULL
-      gaArgs$upper <- NULL
+      if(IV){
+        Z.use <- Z.use[permutation,, drop = FALSE]
+      }
+      optimize <- FALSE
+    } else{
+      if("type" %in% names(gaArgs)){
+        warning("Custom 'type' value is ignored in this function.")
+        gaArgs$type <- NULL
+      } 
+      if("fitness" %in% names(gaArgs)){
+        warning("Custom 'fitness' value is ignored in this function.")
+        gaArgs$fitness <- NULL
+      } 
+      if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
+        warning("Custom 'lower' and 'upper' values are ignored in this function.")
+        gaArgs$lower <- NULL
+        gaArgs$upper <- NULL
+      }
+      
+      gaArgs$type <- "permutation"
+      gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations) }
+      gaArgs$lower <- rep(1, n)
+      gaArgs$upper <- rep(n, n)
     }
-    
-    gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations) }
-    gaArgs$lower <- rep(1, n)
-    gaArgs$upper <- rep(n, n)
   }
-
-  if(IV){
-    Z <- data.use[,Z.var, drop = FALSE]
-  } else{
-    lmObject <- stats::lm(model, data = data)
-  }
-  
-  detailed.out <- vector("list", length = sum(assign %in% variables))
   
   summaryTable.out <- matrix(data = NA_real_,
                              nrow = sum(assign %in% variables), 
@@ -176,28 +206,31 @@ exactt <- function(model,
                                                paste0(alpha*100/2, "%"), 
                                                paste0(100-alpha*100/2, "%"))))
   
-  final_results <- vector("list")
-  
   if(optimize && ncol(X) > 1){
     final_results[["gaResults"]] <- vector("list")
   }
   
-  summaryTablelm <- summary(lmObject)$coefficients
-
   rowCounter <- 1
   
-  for(i in seq_along(assign)){
+  for(i in seq_along(attr(X, "assign"))){
+    
     if(assign[i] == 0 | !assign[i] %in% variables){
       next
-    }
+    } 
     
-    beta_hat <- summaryTablelm[i, 1]
-    se <- summaryTablelm[i, 2]
+    exacttIV <- !colnames(X)[i] %in% exogenous.var
+    
+    beta_hat <- summaryTableIvreg[i, 1]
+    se <- summaryTableIvreg[i, 2]
     precisionToUse <- ifelse(se > 0, yes = floor(log(se, base = 10)) - 1, no = -5)
     
+    Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
     X2.temp <- X.use[,-i, drop = FALSE]
-    Y.temp <- as.matrix(Y.use)
+    
+    if(exacttIV){
+      Z.temp <- Z.use
+    }
     
     if(optimize){
       
@@ -214,7 +247,12 @@ exactt <- function(model,
         cl <- parallel::makeCluster(numCores)
         doParallel::registerDoParallel(cl)
         
-        parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "blockIndexMatrix", "blockPermutations", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
+        if(!exacttIV){
+          Z.temp <- NULL
+        } 
+        
+        parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "Z.temp", "blockIndexMatrix", "blockPermutations", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
+        
         parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
         parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
         parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
@@ -231,71 +269,64 @@ exactt <- function(model,
         gaArgs$parallel <- ogParArg
       }
       
+      Y.temp <- Y.temp[gaResults@solution,, drop = FALSE]
       X1.temp <- X1.temp[gaResults@solution,, drop = FALSE]
       X2.temp <- X2.temp[gaResults@solution,, drop = FALSE]
-      Y.temp <- Y.temp[gaResults@solution,, drop = FALSE]
+      
+      if(exacttIV){
+        Z.temp <- Z.temp[gaResults@solution,, drop = FALSE]
+      }
       
       final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
     }
     
-    if(!is.null(betaNull) && !is.null(betaNull[[which(variables == row.names(summaryTablelm)[i])]])){
-        betaNullVec <- betaNull[[which(variables == row.names(summaryTablelm)[i])]]
+    if(!is.null(betaNull) && !is.null(betaNull[[which(variables == row.names(summaryTableIvreg)[i])]])){
+      betaNullVec <- betaNull[[which(variables == row.names(summaryTableIvreg)[i])]]
     } else{
       # Find LB and UB roots
-      betaNullVec <- get_betaNullVec(Y.temp, X1.temp, X2.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+      if(exacttIV){
+        betaNullVec <- getBetaNullVec(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+      } else{
+        betaNullVec <- getBetaNullVec(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+      }
     }
     
-    exacttResults <- exactt_pval(betaNullVec, 
-                                 Y.temp, 
-                                 X1.temp,
-                                 X2.temp, 
-                                 nBlocks, 
-                                 permIndices)
-    
-    detailed.out[[i]] <- tibble::tibble("betaNull" = betaNullVec, 
-                                        "pval" = exacttResults$pval)
-                                        #"randomizationDistribution" = list(c(exacttResults$randomizationDist)))
+    if(exacttIV){
+      exacttResults <- exactt_pval_IV(betaNullVec, 
+                                      Y.temp, 
+                                      X1.temp,
+                                      X2.temp, 
+                                      Z.temp,
+                                      nBlocks, 
+                                      permIndices,
+                                      studentize)
+      
+    } else{
+      exacttResults <- exactt_pval(betaNullVec, 
+                                   Y.temp, 
+                                   X1.temp,
+                                   X2.temp, 
+                                   nBlocks, 
+                                   permIndices)
+    }
 
-    final_results[["detailed"]][[colnames(X)[i]]] <- detailed.out[[i]]
+    final_results[["detailed"]][[colnames(X)[i]]] <- data.frame("betaNull" = betaNullVec, 
+                                                                "pval" = exacttResults$pval)
     
-    # Adding weights to find midpoint
-    
-    lower_bot_idx <- max(which(detailed.out[[i]]$pval <= alpha & betaNullVec < stats::median(betaNullVec)))
-    diff_pval_lower_bot <- abs(detailed.out[[i]]$pval[lower_bot_idx] - alpha)
-    beta_lower_bot <- betaNullVec[lower_bot_idx]
-    
-    lower_top_idx <- lower_bot_idx + 1
-    diff_pval_lower_top <- abs(detailed.out[[i]]$pval[lower_top_idx] - alpha)
-    beta_lower_top <- betaNullVec[lower_top_idx]
-    
-    weight_lower_top <- 1-diff_pval_lower_top/(diff_pval_lower_bot + diff_pval_lower_top)
-    beta_lower <- (1-weight_lower_top)*beta_lower_bot + weight_lower_top*beta_lower_top
-    
-    upper_bot_idx <- min(which(detailed.out[[i]]$pval <= alpha & betaNullVec > stats::median(betaNullVec)))
-    diff_pval_upper_bot <- abs(detailed.out[[i]]$pval[upper_bot_idx] - alpha)
-    beta_upper_bot <- betaNullVec[upper_bot_idx]
-    
-    upper_top_idx <- upper_bot_idx - 1
-    diff_pval_upper_top <- abs(detailed.out[[i]]$pval[upper_top_idx] - alpha)
-    beta_upper_top <- betaNullVec[upper_top_idx]
-    
-    weight_upper_top <- 1-diff_pval_upper_top/(diff_pval_upper_bot + diff_pval_upper_top)
-    beta_upper <- (1-weight_upper_top)*beta_upper_bot + weight_upper_top*beta_upper_top
-    
-    idx0 <- which(betaNullVec == 0)
+    #"randomizationDistribution" = list(c(exacttResults$randomizationDist)))
     
     summaryTable.out[rowCounter,] <- c(beta_hat,
-                                       detailed.out[[i]]$pval[idx0],
-                                       beta_lower,
-                                       beta_upper,
-                                       max(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec <= stats::median(betaNullVec))]),
-                                       min(betaNullVec[detailed.out[[i]]$pval <= alpha & (betaNullVec >= stats::median(betaNullVec))]))
+                                       exacttResults$pval[which(betaNullVec == 0)],
+                                       ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = TRUE),
+                                       ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = FALSE))
     
     rowCounter <- rowCounter + 1
+
   }
   
   final_results[["summary"]] <- summaryTable.out
-  final_results[["call"]] <- match.call()
+  
+  final_results[["call"]] <- call
   
   class(final_results) <- "et"
   

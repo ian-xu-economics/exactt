@@ -48,8 +48,8 @@ build_GX = function(X, blockIndexMatrix){
       }
       
       if(rank < max_rank && nrow(possibleBlockPermutations) == 0){
-        warning(paste0("Unable to construct maximum rank GX. All possible block permutations attempted. \n Current GX rank: ", rank,
-                       "\n Max GX rank: ", max_rank))
+        #warning(paste0("Unable to construct maximum rank GX. All possible block permutations attempted. \n Current GX rank: ", rank,
+        #               "\n Max GX rank: ", max_rank))
         
         triedAllBlockPerms <- TRUE
       }

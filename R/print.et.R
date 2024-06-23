@@ -15,13 +15,15 @@
 #'
 #' @return Invisible NULL. The function is used for its side effect of printing to the console.
 #'
+#' @method print et
 #' @export
-print.et = function(x, digits = 3, ...){
+print.et = function(x, digits = 4, ...){
   
   cat(cli::style_bold(cli::col_blue("\nCall:\n")),
       paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
   cat(cli::style_bold(cli::col_blue("\nSummary:\n")))
-  print.default(format(signif(x$summary, digits)),
+  print.default(signif(x$summary, digits),
                 print.gap = 2L, quote = FALSE)
-  
 }
+
+registerS3method("print", "et", print.et)

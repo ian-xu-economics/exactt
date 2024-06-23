@@ -15,23 +15,39 @@
 #' @importFrom MASS ginv
 #' @importFrom methods as
 #' @noRd
-fitness_function <- function(permutation, X1.temp, X2.temp, blockIndexMatrix, blockPermutations){
+fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, blockIndexMatrix, blockPermutations){
   
   GX2 <- build_GX2(X2.temp[permutation,, drop = FALSE], blockIndexMatrix)
   
   Q <- build_QGX2(GX2)
   
-  gFF1 <- apply(blockPermutations,
-                MARGIN = 1,
-                function(x) {
-                  t(X1.temp) %*% 
-                    Matrix::t(as(permutation, "pMatrix")) %*% 
-                    Q %*% 
-                    Matrix::t(as(c(blockIndexMatrix[,x]), "pMatrix")) %*%
-                    as(permutation, "pMatrix") %*% 
-                    X1.temp %>%
-                    as.numeric()
-                })
+  if(is.null(Z.temp)){
+    gFF <- apply(blockPermutations,
+                 MARGIN = 1,
+                 function(x) {
+                   t(X1.temp) %*% 
+                     Matrix::t(as(permutation, "pMatrix")) %*% 
+                     Matrix::t(as(c(blockIndexMatrix[,x]), "pMatrix")) %*%
+                     Q %*% 
+                     as(permutation, "pMatrix") %*% 
+                     X1.temp %>%
+                     as.numeric()
+                 })
+  } else{
+    gFF <- apply(blockPermutations,
+                 MARGIN = 1,
+                 function(x) {
+                     t(Z.temp) %*% 
+                     Matrix::t(as(permutation, "pMatrix")) %*% 
+                     Matrix::t(as(c(blockIndexMatrix[,x]), "pMatrix")) %*%
+                     Q %*% 
+                     as(permutation, "pMatrix") %*% 
+                     X1.temp %>%
+                     as.numeric() %>%
+                     `^`(2) %>%
+                     sum()
+                 })
+  }
   
-  return(gFF1[1] - mean(gFF1[-1]))
+  return(gFF[1] - mean(gFF[-1]))
 }

@@ -4,7 +4,7 @@
 \alias{print.et}
 \title{Print Method for Objects of Class 'et'}
 \usage{
-\method{print}{et}(x, digits = 3, ...)
+\method{print}{et}(x, digits = 4, ...)
 }
 \arguments{
 \item{x}{An object of class 'et', typically containing at least a 'call' and a 'summary' component.

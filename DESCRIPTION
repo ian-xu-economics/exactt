@@ -1,7 +1,7 @@
 Package: exactt
 Type: Package
 Title: Implement the Exact t-Test
-Version: 1.0.1
+Version: 1.1.1
 Authors@R: c(
     person(given   = "Guillaume",
            family  = "Pouliot",
@@ -33,6 +33,7 @@ Imports:
     GA,
     ggplot2,
     glue,
+    ivreg,
     Matrix,
     MASS,
     methods,

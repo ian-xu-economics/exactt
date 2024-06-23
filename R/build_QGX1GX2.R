@@ -3,7 +3,7 @@
 #' Computes the combined projection matrix Q using matrices GX1 and GX2. The matrix
 #' GX1 is constructed from X1 and blockIndexMatrix, and then combined with GX2.
 #' The resulting matrix, GX1X2, is used to compute Q as:
-#' Q = I - GX1X2 * Ginv(GX1X2' * GX1X2) * GX1X2',
+#' \dqen{Q = I - GX1X2 * Ginv(GX1X2' * GX1X2) * GX1X2'},
 #' where Ginv denotes the generalized inverse and I is the identity matrix. This
 #' type of computation is used internally for regression analysis or other
 #' multivariate techniques where projections are needed.
@@ -26,6 +26,6 @@ build_QGX1GX2 <- function(X1, GX2, blockIndexMatrix){
   
   GX1X2 <- cbind(GX1, GX2)
   
-  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, tol = max(dim(GX2)) * .Machine$double.eps) %*% t(GX1X2))
+  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, max(dim(GX2)) * .Machine$double.eps) %*% t(GX1X2))
   
 }
