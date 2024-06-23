@@ -285,9 +285,9 @@ exactt <- function(model,
     } else{
       # Find LB and UB roots
       if(exacttIV){
-        betaNullVec <- getBetaNullVec(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
       } else{
-        betaNullVec <- getBetaNullVec(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
       }
     }
     

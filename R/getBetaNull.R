@@ -28,7 +28,7 @@
 #' @importFrom stats uniroot
 #'
 #' @noRd
-getBetaNullVec = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse){
+getBetaNull = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse){
   
   pvalCenters <- sort(rep(seq(0.85, 0, -0.05), 2),
                       decreasing = TRUE) 
@@ -114,21 +114,21 @@ getBetaNullVec = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlock
                    yes = estimatedCenter + 10*se, 
                    no = UB$root)
   
-  betaNullVec <- seq(round(LBroot - se, digits = -precisionToUse),
+  betaNull <- seq(round(LBroot - se, digits = -precisionToUse),
                      round(UBroot + se, digits = -precisionToUse),
                      10^(precisionToUse-1)) %>%
     try(silent = TRUE) 
   
-  if(class(betaNullVec)[1] == "try-error"){
-    betaNullVec <- seq(round(estimatedCenter - 12*se, digits = -precisionToUse),
+  if(class(betaNull)[1] == "try-error"){
+    betaNull <- seq(round(estimatedCenter - 12*se, digits = -precisionToUse),
                        round(estimatedCenter + 12*se, digits = -precisionToUse),
                        10^(precisionToUse-1)) 
   }
   
-  betaNullVec <- betaNullVec %>%
+  betaNull <- betaNull %>%
     c(0) %>%
     unique() %>%
     sort()
   
-  return(betaNullVec)
+  return(betaNull)
 }
