@@ -44,23 +44,39 @@ test_that("build_GX() works correctly", {
   result <- build_GX(X, blockIndexMatrix)
   
   expect_equal(unname(result), 
-               matrix(scan(text = "9 10 7 8 6 7 3 8 10 7 10 2 8 8 7 6 7 6 2 5 
-               9 2 10 5 10 1 7 10 2 9 9 10 7 8 6 7 3 8 10 7 10 2 8 8 7 6 7 6 
-               10 1 7 10 2 9 2 5 9 2 10 5 9 10 7 8 6 7 3 8 10 7 10 2 10 1 7 10 
-               2 9 8 8 7 6 7 6 2 5 9 2 10 5 9 10 7 8 6 7 10 1 7 10 2 9 3 8 10 
-               7 10 2 8 8 7 6 7 6 2 5 9 2 10 5 10 1 7 10 2 9 9 10 7 8 6 7 3 8 
-               10 7 10 2 8 8 7 6 7 6 2 5 9 2 10 5 10 1 7 10 2 9 9 10 7 8 6 7 3 
-               8 10 7 10 2 2 5 9 2 10 5 8 8 7 6 7 6 9 10 7 8 6 7 3 8 10 7 10 2 
-               2 5 9 2 10 5 10 1 7 10 2 9 8 8 7 6 7 6 9 10 7 8 6 7 2 5 9 2 10 5
-               3 8 10 7 10 2 8 8 7 6 7 6 10 1 7 10 2 9 9 10 7 8 6 7 2 5 9 2 10 
-               5 10 1 7 10 2 9 3 8 10 7 10 2 8 8 7 6 7 6 10 1 7 10 2 9 2 5 9 2 
-               10 5 9 10 7 8 6 7 3 8 10 7 10 2 8 8 7 6 7 6 2 5 9 2 10 5 10 1 7 
-               10 2 9 9 10 7 8 6 7 3 8 10 7 10 2 8 8 7 6 7 6 2 5 9 2 10 5 9 10 
-               7 8 6 7 8 8 7 6 7 6 10 1 7 10 2 9 3 8 10 7 10 2 9 10 7 8 6 7 8 8 
-               7 6 7 6 2 5 9 2 10 5 3 8 10 7 10 2 10 1 7 10 2 9 8 8 7 6 7 6 9 10 
-               7 8 6 7 3 8 10 7 10 2 2 5 9 2 10 5 10 1 7 10 2 9 8 8 7 6 7 6 2 5 
-               9 2 10 5 10 1 7 10 2 9 9 10 7 8 6 7 3 8 10 7 10 2 2 5 9 2 10 5 8 
-               8 7 6 7 6 3 8 10 7 10 2 10 1 7 10 2 9 9 10 7 8 6 7 3 8 10 7 10 2 
-               8 8 7 6 7 6 9 10 7 8 6 7 2 5 9 2 10 5 10 1 7 10 2 9", quiet = TRUE), 
+               matrix(scan(file = "tests/testthat/expected_values_build_GX.txt", 
+                           quiet = TRUE), 
                       ncol = 17))
 })
+
+test_that("build_GX2() and build_QGX2() works correctly", {
+  
+  blockIndexMatrix <- matrix(c(1:30), ncol = 5)
+  
+  # Create X vector
+  set.seed(10)
+  X1 <- matrix(sample(x = 1:10, size = 30, replace = TRUE))
+  X2 <- matrix(sample(x = 11:20, size = 30, replace = TRUE))
+  
+  X <- cbind(X1, X2) 
+  
+  # Test build_GX2()
+  result <- unname(build_GX2(X, blockIndexMatrix))
+  
+  expect_equal(unname(result), 
+               matrix(scan(file = "tests/testthat/expected_values_build_GX2.txt", 
+                           quiet = TRUE), 
+                      ncol = 34))
+  
+  # Test build_QGX2()
+  result <- build_QGX2(result)
+  
+  expect_equal(unname(result), 
+               matrix(scan(file = "tests/testthat/expected_values_build_QGX2.txt", 
+                           quiet = TRUE), 
+                      ncol = 30),
+               tolerance = 1e-6)
+  
+})
+
+
