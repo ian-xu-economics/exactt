@@ -6,7 +6,6 @@
 #' @return A character string containing the startup message.
 #' @importFrom utils packageVersion
 #' @importFrom cli col_blue
-#' @importFrom glue glue
 #'
 #' @noRd
 startupMessage <- function(){
@@ -19,15 +18,17 @@ startupMessage <- function(){
     
     # https://patorjk.com/software/taag/#p=display&f=Roman&t=exactt
     # Font Name: 'Roman'
-    ascii_art <- glue::glue("
-                                              {cli::col_blue('.')}       {cli::col_red('.')} 
-                                            {cli::col_blue('.o8')}     {cli::col_red('.o8')} 
- {cli::col_blue('.ooooo.  oooo    ooo  .oooo.    .ooooo.  .o888oo')} {cli::col_red('.o888oo')}
-{cli::col_blue('d88\\' `88b  `88b..8P\\'  `P  )88b  d88\\' `\"Y8   888')}     {cli::col_red('888')} 
-{cli::col_blue('888ooo888    Y888\\'     .oP\"888  888         888')}     {cli::col_red('888')} 
-{cli::col_blue('888    .o  .o8\"\\'88b   d8(  888  888   .o8   888 .')}   {cli::col_red('888 .')}
-{cli::col_blue('`Y8bod8P\\' o88\\'   888o `Y888\"\"8o `Y8bod8P\\'   \"888\"')}   {cli::col_red('\"888\"')}
-")
+    ascii_art <- paste0(
+      "\n                                              ", cli::col_blue('.'), "       ", cli::col_red('.'), 
+      "\n                                            ", cli::col_blue('.o8'), "     ", cli::col_red('.o8'), 
+      "\n ", cli::col_blue('.ooooo.  oooo    ooo  .oooo.    .ooooo.  .o888oo'), " ", cli::col_red('.o888oo'),
+      "\n", cli::col_blue('d88\' `88b  `88b..8P\'  `P  )88b  d88\' `\"Y8   888'), "     ", cli::col_red('888'), 
+      "\n", cli::col_blue('888ooo888    Y888\'     .oP\"888  888         888'), "     ", cli::col_red('888'), 
+      "\n", cli::col_blue('888    .o  .o8\"\'88b   d8(  888  888   .o8   888 .'), "   ", cli::col_red('888 .'),
+      "\n", cli::col_blue('`Y8bod8P\' o88\'   888o `Y888\"\"8o `Y8bod8P\'   \"888\"'), "   ", cli::col_red('\"888\"'),
+      "\n"
+    )
+    
     
     msg <- cli::col_blue(paste0(ascii_art, 
                                 "\n\u2500\u2500\u2500\u2500 It's ",

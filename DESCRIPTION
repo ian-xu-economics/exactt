@@ -32,7 +32,6 @@ Imports:
     Formula,
     GA,
     ggplot2,
-    glue,
     ivreg,
     Matrix,
     MASS,
