@@ -44,7 +44,7 @@ test_that("build_GX() works correctly", {
   result <- build_GX(X, blockIndexMatrix)
   
   expect_equal(unname(result), 
-               matrix(scan(file = "tests/testthat/expected_values_build_GX.txt", 
+               matrix(scan(file = test_path("expected_values_build_GX.txt"), 
                            quiet = TRUE), 
                       ncol = 17))
 })
@@ -64,7 +64,7 @@ test_that("build_GX2() and build_QGX2() works correctly", {
   result <- unname(build_GX2(X, blockIndexMatrix))
   
   expect_equal(unname(result), 
-               matrix(scan(file = "tests/testthat/expected_values_build_GX2.txt", 
+               matrix(scan(file = test_path("expected_values_build_GX2.txt"), 
                            quiet = TRUE), 
                       ncol = 34))
   
@@ -72,7 +72,7 @@ test_that("build_GX2() and build_QGX2() works correctly", {
   result <- build_QGX2(result)
   
   expect_equal(unname(result), 
-               matrix(scan(file = "tests/testthat/expected_values_build_QGX2.txt", 
+               matrix(scan(file = test_path("expected_values_build_QGX2.txt"), 
                            quiet = TRUE), 
                       ncol = 30),
                tolerance = 1e-6)

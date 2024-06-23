@@ -175,7 +175,7 @@ exacttReg <- function(formula,
       betaNullVec <- betaNull[[which(variables == row.names(summaryTablelm)[i])]]
     } else{
       # Find LB and UB roots
-      betaNullVec <- getBetaNullVec(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+      betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
     }
     
     exacttResults <- exactt_pval(betaNullVec, 
