@@ -14,11 +14,16 @@
 #'   the relationship between P-values and beta-null values for that variable,
 #'   highlighted with reference lines for the estimated coefficient and significance level.
 #'
-#' @importFrom ggplot2 ggplot geom_line geom_hline geom_vline scale_y_continuous scale_x_continuous labs ggtitle
-#' @importFrom latex2exp TeX
 #' @importFrom rlang sym
 #' @export
 exacttPlot = function(et, variables = NULL){
+  
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for this function. Please install it using install.packages('ggplot2').")
+  }
+  if (!requireNamespace("latex2exp", quietly = TRUE)) {
+    stop("Package 'latex2exp' is required for this function. Please install it using install.packages('latex2exp').")
+  }
   
   alpha <- ifelse(is.null(et$call$alpha), yes = 0.05, no = et$call$alpha)
   
