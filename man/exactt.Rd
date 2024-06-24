@@ -43,6 +43,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 \item{optimize}{Logical indicating whether to optimize the ordering of the data (default is FALSE).}
 
+\item{GX1}{Logical indicating whether to use GX1 or X1 when constructing eps_hat.}
+
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,
 that are used to configure the genetic algorithm. Note that when sample size is large
