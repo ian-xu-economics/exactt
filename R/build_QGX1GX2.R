@@ -13,7 +13,8 @@
 #'        It is expected that GX2 is a non-empty square or rectangular matrix.
 #' @param blockIndexMatrix Integer matrix indicating block indices, where each
 #'        column represents a block and each element is an index in X.
-#'
+#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
+#' 
 #' @return Returns the projection matrix Q, which is symmetric and has the same number
 #' of rows and columns as the number of rows in GX2.
 #'
@@ -29,6 +30,6 @@ build_QGX1GX2 <- function(X1, GX2, blockIndexMatrix, GX1 = TRUE){
     GX1X2 <- cbind(X1, GX2)
   }
   
-  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, max(dim(GX2)) * .Machine$double.eps) %*% t(GX1X2))
+  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, max(dim(GX1X2)) * .Machine$double.eps) %*% t(GX1X2))
   
 }

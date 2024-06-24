@@ -13,6 +13,7 @@
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param studentize Logical indicating whether to use studentized test statistics.
 #'        Default is TRUE.
+#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
 #'
 #' @return A list containing:
 #'   - pval: A vector of p-values computed for each null hypothesis value.

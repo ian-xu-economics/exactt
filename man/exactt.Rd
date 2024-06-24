@@ -15,6 +15,7 @@ exactt(
   studentize = TRUE,
   permutation = NULL,
   optimize = FALSE,
+  GX1 = TRUE,
   ...
 )
 }
