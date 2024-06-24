@@ -282,8 +282,8 @@ exactt <- function(model,
       final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
     }
     
-    if(!is.null(betaNull) && !is.null(betaNull[[which(variables == row.names(summaryTableIvreg)[i])]])){
-      betaNullVec <- betaNull[[which(variables == row.names(summaryTableIvreg)[i])]]
+    if(!is.null(betaNull) && !is.null(betaNull[[i-1]])){
+      betaNullVec <- betaNull[[i-1]]
     } else{
       # Find LB and UB roots
       if(exacttIV){
