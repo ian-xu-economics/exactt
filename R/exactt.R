@@ -60,6 +60,7 @@ exactt <- function(model,
                    studentize = TRUE,
                    permutation = NULL,
                    optimize = FALSE,
+                   GX1 = TRUE,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
