@@ -318,8 +318,13 @@ exactt <- function(model,
     
     #"randomizationDistribution" = list(c(exacttResults$randomizationDist)))
     
+    
+    pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(betaNullVec == 0)]) == 0, 
+                            yes = NA,
+                            no = exacttResults$pval[which(betaNullVec == 0)])
+    
     summaryTable.out[rowCounter,] <- c(beta_hat,
-                                       exacttResults$pval[which(betaNullVec == 0)],
+                                       pvalBetaNull0,
                                        ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = TRUE),
                                        ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = FALSE))
     
