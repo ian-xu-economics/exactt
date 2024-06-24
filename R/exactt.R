@@ -310,6 +310,7 @@ exactt <- function(model,
                                    X2.temp, 
                                    nBlocks, 
                                    permIndices,
+                                   studentize,
                                    GX1)
     }
 

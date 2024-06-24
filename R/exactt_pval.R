@@ -29,7 +29,7 @@
 #' If `X2.temp` is empty, the function simplifies the computations by directly using `X1.temp`.
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1 = TRUE){
+exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
