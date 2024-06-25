@@ -50,11 +50,17 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     t_num <- t(Q.X1.temp.permuted) %*% E
-    t_denom <- t(Q.X1.temp.permuted^2) %*% eps_hat^2
     
-    # t is M_G+1 x length(betaNullVec)
+    # n x nBlocks! matrix
+    eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
+    
+    # nBlocks! x 1 matrix
+    t_denom <- t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
+    
+    # t is nPerms x length(betaNullVec)
     # Each column of t is the randomization distribution of the studentized test statistics
-    t <- apply(t_num, 2, function(x) x/t_denom[,1])
+    t <- sweep(t_num, 1, t_denom, "/")
+    #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
     
     p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
     
@@ -65,12 +71,9 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     T_numerator_hat <- t(X1.temp)%*%E #Don't need to multiply by 1/sqrt(n)
     
-    t_num <- (1/sqrt(n))*t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
+    t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     
-    for(i in 1:ncol(t_num)){
-      p_val_seq_beta_index <- c(p_val_seq_beta_index,
-                                mean(abs(T_numerator_hat[i]) <= abs(t_num[,i]) + 1e-8))
-    }
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
   }
   
   return(list(pval = p_val_seq_beta_index,
