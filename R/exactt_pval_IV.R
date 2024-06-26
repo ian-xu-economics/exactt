@@ -116,7 +116,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
                  sum)
     }
     
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x)))
     
   } else{
 
@@ -197,7 +197,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
                  sum)
     }
     
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x)))
   }
   
   return(list(pval = p_val_seq_beta_index,

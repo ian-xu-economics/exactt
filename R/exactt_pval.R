@@ -62,7 +62,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     t <- sweep(t_num, 1, t_denom, "/")
     #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
     
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x)))
     
   } else{
     X1.temp.permuted <- matrix(X1.temp[permIndices], nrow = n)
@@ -73,7 +73,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x)))
   }
   
   return(list(pval = p_val_seq_beta_index,
