@@ -48,12 +48,14 @@ exacttPlot = function(et, variables = NULL){
     
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
-      ggplot2::geom_hline(ggplot2::aes(yintercept = alpha), color = "red", linetype = "dashed") + 
-      ggplot2::geom_vline(xintercept = et$summary[i, 1], color = "blue", linetype = "dotted") + 
+      ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
+      ggplot2::geom_vline(ggplot2::aes(xintercept = et$summary[i, 1], color = "estimate"), linetype = "dotted") + 
       ggplot2::scale_y_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
-      ggplot2::labs(x = latex2exp::TeX("$\\beta^0$"), y = "P-value") + 
-      ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta_0$, ", names(et$detailed)[i])))
+      ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", names(et$detailed)[i], "}$")), y = "P-value") + 
+      ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta^0_{", names(et$detailed)[i], "}$"))) + 
+      ggplot2::theme(legend.position = "bottom") +
+      ggplot2::scale_color_discrete(name = "color", labels = c(latex2exp::TeX("$\\alpha$"), latex2exp::TeX("$\\hat{\\beta}")))
     
     plotsCounter <- plotsCounter + 1
   }
