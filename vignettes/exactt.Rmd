@@ -1,8 +1,8 @@
 ---
-title: "Get started"
+title: "exactt"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started}
+  %\VignetteIndexEntry{exactt}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,13 +12,22 @@ knitr::opts_chunk$set(collapse = TRUE,
                       comment  = "#>")
 ```
 
-# Overview
+# Introduction
+
+The `exactt` package computes a $(1-\alpha)\%$ confidence interval for coefficients in a linear model using the method described in Pouliot (2023). 
 
 # Installation
 
 `exactt` is hosted on GitHub at https://github.com/ian-xu-economics/exactt/. It can be installed using the install_github() function in the remotes package:
 ```{r}
 remotes::install_github("ian-xu-economics/exactt")
+```
+
+# Attribution
+
+Citing the `exactt` package is convenient. The text version and BibTeX entry is provided by:
+```{r}
+citation("exactt")
 ```
 
 # Attaching `exactt`
@@ -30,24 +39,31 @@ library("exactt")
 
 # An Exact $t$-Test
 
-Description. The main function is exactt(). It handles IV and regular case... Accepts standard formula.
+The main function in `exactt` is `exactt()`. It computes the $(1-\alpha)\%$ confidence interval for coefficients in a linear model, with much flexibility. To see all that `exactt()` provides, it is best to run it on some examples. 
 
 # Illustration: Regress `Wind` on `Temp` and `Month`.
 
 To demonstrate the *exactt* package, we use data of daily air quality measurements in New York found in `datasets::airquality`. We'll  investigate the relationship between temperature (degrees F) and month (1--12) on wind (mph). 
-
 ```{r}
 summary(datasets::airquality[c("Wind", "Temp", "Month")])
 ```
 
-We can plug `exactt()` using standard formula notation. If we don't specify any additional parameters, then by default, the number of blocks used (nBlocks) equals 5 and the level of significance ($\alpha$) equals 0.05. 
+We can plug in standard formula notation into `exactt()`. If we don't specify any additional parameters, then by default:
+
+* The number of blocks used equals 5 (`nBlocks = 5`).
+* The confidence interval is constructed for all variables (`variables = NULL`).
+* The number of permutations is equal to  (`nPerms = factorial(nBlocks)`).
+* The level of significance equals 0.05 (`alpha = 0.05`). 
+* The test statistics are studentized (`studentize = TRUE`).
+* The ordering of the data is not permuted (`permutation = NULL`).
+* The ordering of the data is not optimized (`optimize = FALSE`).
 ```{r}
 exactt1 <- exactt(Wind ~ Temp + Month,
                   data = datasets::airquality)
 exactt1
 ```
 
-If *tidyverse*, *latex2exp* are installed, we can also use the `exacttPlot()` function by plugging in the result from calling `exactt()`. The `exacttPlot()` function plots the p-value against $\beta^0$. 
+If *tidyverse*, *latex2exp* are installed, we can also plug in the result from calling `exactt()` into the `exacttPlot()` function, which plots the p-value against $\beta^0$. 
 ```{r}
 exacttPlot(exactt1)
 ```
@@ -64,23 +80,27 @@ exactt2
 ```
 Note that the 95% confidence interval is equal to the case where all variables are of interest because these confidence intervals are marginally valid.
 
-# Optimizing the Ordering
+## Optimizing the Ordering
 
 The confidence interval generated using the `exactt()` function is dependent on the ordering of the data. Some orderings will achieve better power on average than other orderings. Furthermore, when sample size is small, and the number of blocks is large, optimization will have a larger effect on average. `exactt()` uses the genetic algorithm via the GA algorithm to find the best ordering on average. We only look at the X variables.
 
-If optimization is desired, we can set `optimize` to `TRUE`. We can also pass through whatever other parameters that the `GA::ga()` function normally accepts. For instance, we can set `maxiter = 25`, `parallel = TRUE`, and `seed = 2024`. Note that if optimize is `FALSE` and the other parameters are still passed through, optimization will _not_ be performed.
+If optimization is desired, we can set `optimize` to `TRUE`. We can also pass through whatever other parameters that the `GA::ga()` function normally accepts. For instance, we can set `maxiter = 10`, `parallel = TRUE`, and `seed = 2024`. Note that if optimize is `FALSE` and the other parameters are still passed through, optimization will _not_ be performed.
 
 ```{r}
 exactt3 <- exactt(Wind ~ Temp + Month,
                   data = datasets::airquality,
                   variables = 1,
                   optimize = TRUE,
-                  maxiter = 25,
+                  maxiter = 10,
                   parallel = TRUE,
                   seed = 2024)
 
 exactt3
 ```
-It is important to remember that we only optimize the ordering of the data based on the covariates, so optimizing only increases power on average. It is possible that optimizing the ordering of the data increases the width of the confidence interval compared to the original order.
+If the output from running the `GA::ga()` function is not desired, we can set `monitor = FALSE`.
+
+It is important to remember that optimizing only increases power on average since we optimize the ordering of the data based on the regressors. It is possible that for any singular case, optimizing the ordering of the data increases the width of the confidence interval compared to the original order.
+
+
 
 
