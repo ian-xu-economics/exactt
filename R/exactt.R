@@ -236,6 +236,10 @@ exactt <- function(model,
     
     if(optimize){
       
+      if(!exacttIV){
+        Z.temp <- NULL
+      } 
+      
       if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
         
         ogParArg <- gaArgs$parallel
@@ -248,10 +252,6 @@ exactt <- function(model,
         
         cl <- parallel::makeCluster(numCores)
         doParallel::registerDoParallel(cl)
-        
-        if(!exacttIV){
-          Z.temp <- NULL
-        } 
         
         parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "Z.temp", "blockIndexMatrix", "blockPermutations", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
         

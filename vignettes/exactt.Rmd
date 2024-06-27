@@ -19,21 +19,22 @@ The `exactt` package computes a $(1-\alpha)\%$ confidence interval for coefficie
 # Installation
 
 `exactt` is hosted on GitHub at https://github.com/ian-xu-economics/exactt/. It can be installed using the install_github() function in the remotes package:
-```{r}
+``` r
+# install.packages("remotes")
 remotes::install_github("ian-xu-economics/exactt")
 ```
 
 # Attribution
 
 Citing the `exactt` package is convenient. The text version and BibTeX entry is provided by:
-```{r}
+``` r
 citation("exactt")
 ```
 
 # Attaching `exactt`
 
 After installing `exactt`, we can attach the package to our session using the base `library()` function:
-```{r}
+```{r echo = F, message = F, warning = F}
 library("exactt")
 ```
 
@@ -84,15 +85,14 @@ Note that the 95% confidence interval is equal to the case where all variables a
 
 The confidence interval generated using the `exactt()` function is dependent on the ordering of the data. Some orderings will achieve better power on average than other orderings. Furthermore, when sample size is small, and the number of blocks is large, optimization will have a larger effect on average. `exactt()` uses the genetic algorithm via the GA algorithm to find the best ordering on average. We only look at the X variables.
 
-If optimization is desired, we can set `optimize` to `TRUE`. We can also pass through whatever other parameters that the `GA::ga()` function normally accepts. For instance, we can set `maxiter = 10`, `parallel = TRUE`, and `seed = 2024`. Note that if optimize is `FALSE` and the other parameters are still passed through, optimization will _not_ be performed.
+If optimization is desired, we can set `optimize` to `TRUE`. We can also pass through whatever other parameters that the `GA::ga()` function normally accepts. For instance, we can set `maxiter = 10`, and `seed = 2024`. Note that if optimize is `FALSE` and the other parameters are still passed through, optimization will _not_ be performed.
 
 ```{r}
-exactt3 <- exactt(Wind ~ Temp + Month,
+exactt3 <- exactt(Wind ~ Temp + as.factor(Month),
                   data = datasets::airquality,
                   variables = 1,
                   optimize = TRUE,
-                  maxiter = 10,
-                  parallel = TRUE,
+                  maxiter = 1,
                   seed = 2024)
 
 exactt3
