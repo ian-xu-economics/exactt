@@ -97,7 +97,7 @@ package:</p>
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
 </h2>
 <p>Citing the <code>exactt</code> package is convenient. The text
-version and BibTeX entry is provided by:</p>
+version and BibTeX entry are provided by:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -110,11 +110,10 @@ our session using the base <code><a href="https://rdrr.io/r/base/library.html" c
 <div class="section level2">
 <h2 id="an-exact-t-test">An Exact <span class="math inline">\(t\)</span>-Test<a class="anchor" aria-label="anchor" href="#an-exact-t-test"></a>
 </h2>
-<p>The main function in <code>exactt</code> is <code><a href="../reference/exactt.html">exactt()</a></code>. It
-computes the <span class="math inline">\((1-\alpha)\%\)</span>
-confidence interval for coefficients in a linear model, with much
-flexibility. To see all that <code><a href="../reference/exactt.html">exactt()</a></code> provides, it is best
-to run it on some examples.</p>
+<p>The main function to compute the <span class="math inline">\((1-\alpha)\%\)</span> confidence interval is
+<code><a href="../reference/exactt.html">exactt()</a></code>. It is very flexible and provides much
+customization. To see all that <code><a href="../reference/exactt.html">exactt()</a></code> provides, it is
+best to run it on some examples.</p>
 </div>
 <div class="section level2">
 <h2 id="illustration-regress-wind-on-temp-and-month-">Illustration: Regress <code>Wind</code> on <code>Temp</code> and
@@ -162,7 +161,7 @@ If we don’t specify any additional parameters, then by default:</p>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
 <span><span class="co">#&gt; Temp   -0.17320   0.01667  -0.3137  -0.0821  -0.3137  -0.0821</span></span>
-<span><span class="co">#&gt; Month   0.04382   0.99170     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
+<span><span class="co">#&gt; Month   0.04382   0.99170  -4.9520   3.2810  -4.9520   3.2810</span></span></code></pre></div>
 <p>If <em>tidyverse</em>, <em>latex2exp</em> are installed, we can also
 plug in the result from calling <code><a href="../reference/exactt.html">exactt()</a></code> into the
 <code><a href="../reference/exacttPlot.html">exacttPlot()</a></code> function, which plots the p-value against
