@@ -19,23 +19,23 @@
 exacttPlot = function(et, variables = NULL){
   
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("Package 'ggplot2' is required for this function. Please install it using install.packages('ggplot2').")
+    stop("Package 'ggplot2' is required for this function. Please install it using `install.packages('ggplot2')`.")
   }
   if (!requireNamespace("latex2exp", quietly = TRUE)) {
-    stop("Package 'latex2exp' is required for this function. Please install it using install.packages('latex2exp').")
+    stop("Package 'latex2exp' is required for this function. Please install it using `install.packages('latex2exp')`.")
   }
   
   alpha <- ifelse(is.null(et$call$alpha), yes = 0.05, no = et$call$alpha)
   
   if(is.null(variables)){
-    variables <- names(et$detailed)
+    variables <- 1:length(et$detailed)
   }
   
   plots <- vector("list", length = length(variables))
   plotsCounter <- 1
   
   for(i in 1:length(et$detailed)){
-    if(!names(et$detailed)[i] %in% variables){
+    if(!i %in% variables){
       next
     }
     
@@ -46,16 +46,20 @@ exacttPlot = function(et, variables = NULL){
       data <- data[-1, ]
     }
     
+    point_estimate <- et$summary[i, 1]
+    variable_name <- names(et$detailed)[i]
+    
+    # Create plot with correct settings
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
-      ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
-      ggplot2::geom_vline(ggplot2::aes(xintercept = et$summary[i, 1], color = "estimate"), linetype = "dotted") + 
+      ggplot2::geom_hline(yintercept = alpha, color = "blue", linetype = "dashed") + 
+      ggplot2::geom_vline(xintercept = point_estimate, color = "red", linetype = "dotted") + 
       ggplot2::scale_y_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
-      ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", names(et$detailed)[i], "}$")), y = "P-value") + 
-      ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta^0_{", names(et$detailed)[i], "}$"))) + 
+      ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", variable_name, "}$")), y = "P-value") + 
+      ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta^0_{", variable_name, "}$"))) + 
       ggplot2::theme(legend.position = "bottom") +
-      ggplot2::scale_color_discrete(name = "color", labels = c(latex2exp::TeX("$\\alpha$"), latex2exp::TeX("$\\hat{\\beta}")))
+      ggplot2::scale_color_manual(name = "color", values = c("blue", "red"), labels = c(latex2exp::TeX("$\\alpha$"), latex2exp::TeX("$\\hat{\\beta}$")))
     
     plotsCounter <- plotsCounter + 1
   }

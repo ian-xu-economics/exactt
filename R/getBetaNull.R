@@ -36,7 +36,7 @@ getBetaNull = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, 
   for(i in seq_along(pvalCenters)){
     
     if(is.null(Z.temp)){
-      estimatedCenter <- rootSolve::uniroot.all(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices)$pval - pvalCenters[i], 
+      estimatedCenter <- rootSolve::uniroot.all(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - pvalCenters[i], 
                                                 lower = beta_hat - 3*se, 
                                                 upper = beta_hat + 3*se, 
                                                 maxiter = 35,
@@ -67,7 +67,7 @@ getBetaNull = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, 
   }
   
   if(is.null(Z.temp)){
-    LB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices)$pval - alpha, 
+    LB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - alpha, 
                        lower = estimatedCenter - 4*se, 
                        upper = estimatedCenter, 
                        extendInt = "upX",
@@ -91,7 +91,7 @@ getBetaNull = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, 
                    no = LB$root)
   
   if(is.null(Z.temp)){
-    UB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices)$pval - alpha, 
+    UB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - alpha, 
                        lower = estimatedCenter, 
                        upper = estimatedCenter + 3*se, 
                        extendInt = "downX",

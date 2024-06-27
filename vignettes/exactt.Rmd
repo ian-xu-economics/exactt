@@ -26,7 +26,7 @@ remotes::install_github("ian-xu-economics/exactt")
 
 # Attribution
 
-Citing the `exactt` package is convenient. The text version and BibTeX entry is provided by:
+Citing the `exactt` package is convenient. The text version and BibTeX entry are provided by:
 ``` r
 citation("exactt")
 ```
@@ -40,7 +40,7 @@ library("exactt")
 
 # An Exact $t$-Test
 
-The main function in `exactt` is `exactt()`. It computes the $(1-\alpha)\%$ confidence interval for coefficients in a linear model, with much flexibility. To see all that `exactt()` provides, it is best to run it on some examples. 
+The main function to compute the  $(1-\alpha)\%$ confidence interval is `exactt()`. It is very flexible and provides much customization. To see all that `exactt()` provides, it is best to run it on some examples. 
 
 # Illustration: Regress `Wind` on `Temp` and `Month`.
 
