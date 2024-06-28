@@ -70,72 +70,176 @@
 </h1></div>
 <!-- badges: start -->
 
-<p align="left">
-• <a href="#overview">Overview</a><br> • <a href="#features">Features</a><br> • <a href="#installation">Installation</a><br> • <a href="#get-started">Get started</a><br> • <a href="#long-form-documentations">Long-form documentations</a><br> • <a href="#citation">Citation</a><br> • <a href="#contributing">Contributing</a><br> • <a href="#acknowledgments">Acknowledgments</a><br> • <a href="#references">References</a>
-</p>
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The R package <code>exactt</code>… <strong>{{ DESCRIBE YOUR PACKAGE }}</strong></p>
-</div>
-<div class="section level2">
-<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
-</h2>
-<p>The main purpose of <code>exactt</code> is to… <strong>{{ DESCRIBE THE MAIN FEATURES }}</strong></p>
+<p>The <code>exactt</code> package computes a <span class="math inline">(1−<em>α</em>)%</span> confidence interval for coefficients in a linear model using the method described in Pouliot (2023).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be installed using the <code>remotes::install_github()</code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Install &lt; remotes &gt; package (if not already installed) ----</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co">## Install &lt; exactt &gt; from GitHub ----</span></span>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
-<p>Then you can attach the package <code>exactt</code>:</p>
+</div>
+<div class="section level2">
+<h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
+</h2>
+<p>To cite the <code>exactt</code> package in publications, use the <code><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation()</a></code> function, which provides both the text version and the BibTeX entry for referencing:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
+<h2 id="using-exactt">Using <code>exactt</code>
+<a class="anchor" aria-label="anchor" href="#using-exactt"></a>
 </h2>
-<p>For an overview of the main features of <code>exactt</code>, please read the <a href="https://ian-xu-economics.github.io/exactt/articles/exactt.html" class="external-link">Get started</a> vignette.</p>
+<p>After installing <code>exactt</code>, we can attach the package to our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Package 'exactt' | Version 1.1.3</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="long-form-documentations">Long-form documentations<a class="anchor" aria-label="anchor" href="#long-form-documentations"></a>
+<h2 id="example-usage">Example Usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
 </h2>
-<p><code>exactt</code> provides <strong>{{ NUMBER OF VIGNETTES }}</strong> vignettes to learn more about the package:</p>
+<p>To compute the <span class="math inline">(1−<em>α</em>)%</span> confidence interval, use the <code><a href="reference/exactt.html">exactt()</a></code> function. Here’s an example using daily air quality measurements in New York found in <code><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">datasets::airquality</a></code>. We’ll investigate the relationship between temperature (degrees F) and month (1–12) on wind (mph).</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Wind"</span>, <span class="st">"Temp"</span>, <span class="st">"Month"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       Wind             Temp           Month      </span></span>
+<span><span class="co">#&gt;  Min.   : 1.700   Min.   :56.00   Min.   :5.000  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 7.400   1st Qu.:72.00   1st Qu.:6.000  </span></span>
+<span><span class="co">#&gt;  Median : 9.700   Median :79.00   Median :7.000  </span></span>
+<span><span class="co">#&gt;  Mean   : 9.958   Mean   :77.88   Mean   :6.993  </span></span>
+<span><span class="co">#&gt;  3rd Qu.:11.500   3rd Qu.:85.00   3rd Qu.:8.000  </span></span>
+<span><span class="co">#&gt;  Max.   :20.700   Max.   :97.00   Max.   :9.000</span></span></code></pre></div>
+<p>Suppose our model is <span class="math display"><em>W</em><em>i</em><em>n</em><em>d</em><sub><em>i</em></sub> = <em>β</em><sub>0</sub> + <em>β</em><sub><em>T</em><em>e</em><em>m</em><em>p</em></sub> × <em>T</em><em>e</em><em>m</em><em>p</em><sub><em>i</em></sub> + <em>β</em><sub><em>M</em><em>o</em><em>n</em><em>t</em><em>h</em></sub> × <em>M</em><em>o</em><em>n</em><em>t</em><em>h</em><sub><em>i</em></sub> + <em>ε</em><sub><em>i</em></sub>.</span> We can create a <span class="math inline">(1−<em>α</em>)%</span> confidence interval by plugging in standard formula notation into <code><a href="reference/exactt.html">exactt()</a></code>. If we don’t specify any additional parameters, then by default:</p>
 <ul>
-<li>the <a href="https://ian-xu-economics.github.io/exactt/articles/exactt.html" class="external-link">Get started</a> vignette describes the core features of the package</li>
-<li><strong>{{ LIST ADDITIONAL VIGNETTES }}</strong></li>
+<li>The number of blocks used equals 5 (<code>nBlocks = 5</code>).</li>
+<li>The confidence interval is constructed for all variables (<code>variables = NULL</code>).</li>
+<li>The number of permutations is equal to (<code>nPerms = factorial(nBlocks)</code>).</li>
+<li>The level of significance equals 0.05 (<code>alpha = 0.05</code>).</li>
+<li>The test statistics are studentized (<code>studentize = TRUE</code>).</li>
+<li>The ordering of the data is not permuted (<code>permutation = NULL</code>).</li>
+<li>The ordering of the data is not optimized (<code>optimize = FALSE</code>).</li>
 </ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="va">Month</span>,</span>
+<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">)</span></span>
+<span><span class="va">exactt1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = Wind ~ Temp + Month, data = datasets::airquality)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;        Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
+<span><span class="co">#&gt; Temp   -0.17320   0.01667  -0.3137  -0.0821  -0.3137  -0.0821</span></span>
+<span><span class="co">#&gt; Month   0.04382   0.99170  -4.9520   3.2810  -4.9520   3.2810</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+<h2 id="visualization-of-results">Visualization of Results<a class="anchor" aria-label="anchor" href="#visualization-of-results"></a>
 </h2>
-<p>Please cite <code>exactt</code> as:</p>
-<blockquote>
-<p>Xu Ian (2024) exactt: An R package to <strong>{{ TITLE }}</strong>. R package version 0.0.0.9000. <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a></p>
-</blockquote>
+<p>If <strong>tidyverse</strong> and <strong>latex2exp</strong> are installed, you can visualize the results by plotting the p-value against <span class="math inline"><em>β</em><sup>0</sup></span> using the <code><a href="reference/exacttPlot.html">exacttPlot()</a></code> function:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/exacttPlot.html">exacttPlot</a></span><span class="op">(</span><span class="va">exactt1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
+<p><img src="reference/figures/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span></code></pre></div>
+<p><img src="reference/figures/unnamed-chunk-5-2.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
-<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+<h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
 </h2>
-<p>All types of contributions are encouraged and valued. For more information, check out our <a href="https://github.com/ian-xu-economics/exactt/blob/main/CONTRIBUTING.md" class="external-link">Contributor Guidelines</a>.</p>
-<p>Please note that the <code>exactt</code> project is released with a <a href="https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html" class="external-link">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<p>To focus on specific coefficients, set the <code>variables</code> parameter. The number entered corresponds to the index of the regressors in the model (note that the intercept is never counted). For example. set <code>variables = 1</code> for <code>Temp</code>, and set <code>variables = 2</code> for <code>Month</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="va">Month</span>,</span>
+<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span>,</span>
+<span>                  variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">exactt2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = Wind ~ Temp + Month, data = datasets::airquality, </span></span>
+<span><span class="co">#&gt;     variables = 1)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
+<span><span class="co">#&gt; Temp   -0.1732   0.01667  -0.3137  -0.0821  -0.3137  -0.0821</span></span></code></pre></div>
+<p>This creates a 95% confidence interval for <code>Temp</code> only. It is equivalent to the case where <code>variables = NULL</code> (all variables are of interest) because these confidence intervals are marginally valid.</p>
 </div>
 <div class="section level2">
-<h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
+<h2 id="model-flexibility">Model Flexibility<a class="anchor" aria-label="anchor" href="#model-flexibility"></a>
 </h2>
-<p><strong>{{ OPTIONAL SECTION }}</strong></p>
+<p>The <code><a href="reference/exactt.html">exactt()</a></code> function is designed to allow easy modification of your model to fit various analytical needs. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating <code>Month</code> as a categorical variable to explore its discrete impact on wind speed in a dataset of daily air quality measurements:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt4</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">Month</span><span class="op">)</span>,</span>
+<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">exactt4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;                    Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
+<span><span class="co">#&gt; Temp                -0.1953   0.01667  -0.3112  -0.0851  -0.3112  -0.0851</span></span>
+<span><span class="co">#&gt; as.factor(Month)6    1.2900   0.02500     -Inf  -4.3270     -Inf  -4.3270</span></span>
+<span><span class="co">#&gt; as.factor(Month)7    0.9035   0.75830     -Inf      Inf     -Inf      Inf</span></span>
+<span><span class="co">#&gt; as.factor(Month)8    0.7677   0.41670     -Inf      Inf     -Inf      Inf</span></span>
+<span><span class="co">#&gt; as.factor(Month)9    0.7740   0.60830     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
+<p>The confidence intervals for each category of Month is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 id="optimizing-data-ordering">Optimizing Data Ordering<a class="anchor" aria-label="anchor" href="#optimizing-data-ordering"></a>
 </h2>
-<p><strong>{{ OPTIONAL SECTION }}</strong></p>
+<p>The confidence intervals produced by the <code><a href="reference/exactt.html">exactt()</a></code> function can change with the ordering of the data. Certain data orderings can enhance statistical power, particularly when the sample size is small and the number of blocks is large. The impact of optimization is even more pronounced when dealing with categorical variables, where appropriate ordering can substantially increase the test’s power.</p>
+<p>The <code><a href="reference/exactt.html">exactt()</a></code> function utilizes a genetic algorithm (provided by the <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code> function) to optimize data ordering. This approach systematically explores various data arrangements to find the one that maximizes statistical power on average.</p>
+</div>
+<div class="section level2">
+<h2 id="enabling-optimization">Enabling Optimization<a class="anchor" aria-label="anchor" href="#enabling-optimization"></a>
+</h2>
+<p>To activate the optimization feature, set <code>optimize = TRUE</code>. Additionally, <code><a href="reference/exactt.html">exactt()</a></code> allows for the specification of various parameters of the <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code> function to tailor the optimization process. For instance, you can limit the number of iterations with <code>maxiter</code> or specify the seed with <code>seed</code> for reproducibility:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt5</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">Month</span><span class="op">)</span>,</span>
+<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span>,</span>
+<span>                  optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                  maxiter <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                  seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">exactt5</span></span>
+<span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality, </span></span>
+<span><span class="co">#&gt;     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;                    Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
+<span><span class="co">#&gt; Temp                -0.1953  0.008333  -0.2673  -0.1127  -0.2673  -0.1127</span></span>
+<span><span class="co">#&gt; as.factor(Month)6    1.2900  0.375000  -1.2300   2.7040  -1.2300   2.7040</span></span>
+<span><span class="co">#&gt; as.factor(Month)7    0.9035  0.533300  -1.4200   2.4800  -1.4200   2.4800</span></span>
+<span><span class="co">#&gt; as.factor(Month)8    0.7677  0.850000  -3.6100   2.1600  -3.6100   2.1600</span></span>
+<span><span class="co">#&gt; as.factor(Month)9    0.7740  0.408300  -2.3220   3.9110  -2.3220   3.9110</span></span></code></pre></div>
+<p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative <span class="math inline">(1−<em>α</em>)%</span> confidence intervals for each category of <code>Month</code>. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt5$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>Temp</code> variable, use:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt5</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">Temp</span><span class="op">@</span><span class="va">summary</span></span>
+<span></span>
+<span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
+<span><span class="co">#&gt; [1,] 3373.156 2466.905 2756.414 2491.108 2149.217 1628.742</span></span>
+<span><span class="co">#&gt; [2,] 3379.420 2557.049 2804.535 2564.529 2331.299 1548.839</span></span>
+<span><span class="co">#&gt; [3,] 3379.420 2550.141 2816.223 2561.671 2278.764 1730.608</span></span>
+<span><span class="co">#&gt; [4,] 3379.420 2555.116 2761.960 2605.983 2245.362 1538.921</span></span>
+<span><span class="co">#&gt; [5,] 3379.420 2574.320 2779.467 2574.736 2277.046 1701.787</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
+</h3>
+<p>While optimization generally improves statistical power, it is essential to remember that it increases the average power and may not universally reduce the confidence interval’s width in every instance.</p>
+</div>
 </div>
 </div>
   </div>
