@@ -1,55 +1,53 @@
 ---
 title: "exactt"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    self_contained: yes
+    model: selfcontained
 vignette: >
   %\VignetteIndexEntry{exactt}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE,
-                      comment  = "#>")
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment  = "#>")
 ```
 
-# Introduction
+## Introduction
 
 The `exactt` package computes a $(1-\alpha)\%$ confidence interval for coefficients in a linear model using the method described in Pouliot (2023). 
 
-# Installation
+## Installation
 
-`exactt` is hosted on GitHub at https://github.com/ian-xu-economics/exactt/. It can be installed using the install_github() function in the remotes package:
+The `exactt` package is hosted on GitHub at https://github.com/ian-xu-economics/exactt/. It can be installed using the `remotes::install_github()` function:
 ``` r
 # install.packages("remotes")
 remotes::install_github("ian-xu-economics/exactt")
 ```
 
-# Attribution
+## Attribution
 
-Citing the `exactt` package is convenient. The text version and BibTeX entry are provided by:
+To cite the `exactt` package in publications, use the `citation()` function, which provides both the text version and the BibTeX entry for referencing:
 ``` r
 citation("exactt")
 ```
 
-# Attaching `exactt`
+## Using `exactt`
 
 After installing `exactt`, we can attach the package to our session using the base `library()` function:
-```{r echo = F, message = F, warning = F}
+```{r, eval=TRUE}
 library("exactt")
 ```
 
-# An Exact $t$-Test
+## Example Usage
 
-The main function to compute the  $(1-\alpha)\%$ confidence interval is `exactt()`. It is very flexible and provides much customization. To see all that `exactt()` provides, it is best to run it on some examples. 
-
-# Illustration: Regress `Wind` on `Temp` and `Month`.
-
-To demonstrate the *exactt* package, we use data of daily air quality measurements in New York found in `datasets::airquality`. We'll  investigate the relationship between temperature (degrees F) and month (1--12) on wind (mph). 
+To compute the $(1-\alpha)\%$ confidence interval, use the `exactt()` function. Here's an example using daily air quality measurements in New York found in `datasets::airquality`. We'll investigate the relationship between temperature (degrees F) and month (1--12) on wind (mph). 
 ```{r}
 summary(datasets::airquality[c("Wind", "Temp", "Month")])
 ```
 
-We can plug in standard formula notation into `exactt()`. If we don't specify any additional parameters, then by default:
+Suppose our model is $$Wind_i = \beta_0 + \beta_{Temp} \times Temp_i + \beta_{Month} \times Month_i + \varepsilon_i.$$ We can create a $(1-\alpha)\%$ confidence interval by plugging in standard formula notation into `exactt()`. If we don't specify any additional parameters, then by default:
 
 * The number of blocks used equals 5 (`nBlocks = 5`).
 * The confidence interval is constructed for all variables (`variables = NULL`).
@@ -64,14 +62,16 @@ exactt1 <- exactt(Wind ~ Temp + Month,
 exactt1
 ```
 
-If *tidyverse*, *latex2exp* are installed, we can also plug in the result from calling `exactt()` into the `exacttPlot()` function, which plots the p-value against $\beta^0$. 
-```{r}
+## Visualization of Results
+
+If **tidyverse** and **latex2exp** are installed, you can visualize the results by plotting the p-value against $\beta^0$ using the `exacttPlot()` function: 
+```{r, fig.width = 7, fig.height = 7, fig.align = "center"}
 exacttPlot(exactt1)
 ```
 
-## Interest in Coefficients for Specific Variables
+## Focusing on Specific Variables
 
-Suppose we are only interested in the coefficient on the first variable (Temp), then we can set `variables` equal to 1. Likewise, if we are interested in the coefficient on the second variable (Month), then we can set `variables` equal to 2. 
+To focus on specific coefficients, set the `variables` parameter. The number entered corresponds to the index of the regressors in the model (note that the intercept is never counted). For example. set `variables = 1` for `Temp`, and set `variables = 2` for `Month`.
 ```{r}
 exactt2 <- exactt(Wind ~ Temp + Month,
                   data = datasets::airquality,
@@ -79,28 +79,66 @@ exactt2 <- exactt(Wind ~ Temp + Month,
 
 exactt2
 ```
-Note that the 95% confidence interval is equal to the case where all variables are of interest because these confidence intervals are marginally valid.
+This creates a 95% confidence interval for `Temp` only. It is equivalent to the case where `variables = NULL` (all variables are of interest) because these confidence intervals are marginally valid.
 
-## Optimizing the Ordering
-
-The confidence interval generated using the `exactt()` function is dependent on the ordering of the data. Some orderings will achieve better power on average than other orderings. Furthermore, when sample size is small, and the number of blocks is large, optimization will have a larger effect on average. `exactt()` uses the genetic algorithm via the GA algorithm to find the best ordering on average. We only look at the X variables.
-
-If optimization is desired, we can set `optimize` to `TRUE`. We can also pass through whatever other parameters that the `GA::ga()` function normally accepts. For instance, we can set `maxiter = 10`, and `seed = 2024`. Note that if optimize is `FALSE` and the other parameters are still passed through, optimization will _not_ be performed.
-
+## Model Flexibility
+The `exactt()` function is designed to allow easy modification of your model to fit various analytical needs. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating `Month` as a categorical variable to explore its discrete impact on wind speed in a dataset of daily air quality measurements:
 ```{r}
-exactt3 <- exactt(Wind ~ Temp + as.factor(Month),
+exactt4 <- exactt(Wind ~ Temp + as.factor(Month),
+                  data = datasets::airquality)
+
+exactt4
+```
+The confidence intervals for each category of Month is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.
+
+## Optimizing Data Ordering
+
+The confidence intervals produced by the `exactt()` function can change with the ordering of the data. Certain data orderings can enhance statistical power, particularly when the sample size is small and the number of blocks is large. The impact of optimization is even more pronounced when dealing with categorical variables, where appropriate ordering can substantially increase the test's power.
+
+The `exactt()` function utilizes a genetic algorithm (provided by the `GA::ga()` function) to optimize data ordering. This approach systematically explores various data arrangements to find the one that maximizes statistical power on average.
+
+## Enabling Optimization
+
+To activate the optimization feature, set `optimize = TRUE`. Additionally, `exactt()` allows for the specification of various parameters of the `GA::ga()` function to tailor the optimization process. For instance, you can limit the number of iterations with `maxiter` or specify the seed with `seed` for reproducibility:
+
+```{r, eval = FALSE}
+exactt5 <- exactt(Wind ~ Temp + as.factor(Month),
                   data = datasets::airquality,
-                  variables = 1,
                   optimize = TRUE,
-                  maxiter = 1,
+                  parallel = TRUE,
+                  maxiter = 5,
                   seed = 2024)
 
-exactt3
+exactt5
+
+#> 
+#> Call:
+#> exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality, 
+#>     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)
+#> 
+#> 
+#> Summary:
+#>                    Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%    97.5%
+#> Temp                -0.1953  0.008333  -0.2673  -0.1127  -0.2673  -0.1127
+#> as.factor(Month)6    1.2900  0.375000  -1.2300   2.7040  -1.2300   2.7040
+#> as.factor(Month)7    0.9035  0.533300  -1.4200   2.4800  -1.4200   2.4800
+#> as.factor(Month)8    0.7677  0.850000  -3.6100   2.1600  -3.6100   2.1600
+#> as.factor(Month)9    0.7740  0.408300  -2.3220   3.9110  -2.3220   3.9110
 ```
-If the output from running the `GA::ga()` function is not desired, we can set `monitor = FALSE`.
 
-It is important to remember that optimizing only increases power on average since we optimize the ordering of the data based on the regressors. It is possible that for any singular case, optimizing the ordering of the data increases the width of the confidence interval compared to the original order.
+Note that by optimizing the data ordering, `exactt()` is now able to construct informative $(1-\alpha) \%$ confidence intervals for each category of `Month`. Furthermore, the detailed results of the optimization process, including the genetic algorithm's configurations and outcomes for each variable, are stored in the `exactt5$gaResults`. For instance, to review a summary of the genetic algorithm's performance for the `Temp` variable, use:
+```{r, eval = FALSE}
+exactt5$gaResults$Temp@summary
 
+#>           max     mean       q3   median       q1      min
+#> [1,] 3373.156 2466.905 2756.414 2491.108 2149.217 1628.742
+#> [2,] 3379.420 2557.049 2804.535 2564.529 2331.299 1548.839
+#> [3,] 3379.420 2550.141 2816.223 2561.671 2278.764 1730.608
+#> [4,] 3379.420 2555.116 2761.960 2605.983 2245.362 1538.921
+#> [5,] 3379.420 2574.320 2779.467 2574.736 2277.046 1701.787
+```
 
+### Note on Optimization Effects
 
+While optimization generally improves statistical power, it is essential to remember that it increases the average power and may not universally reduce the confidence interval's width in every instance. 
 

@@ -42,9 +42,9 @@ exacttPlot = function(et, variables = NULL){
     point_estimate <- et$summary[i, 1]
     variable_name <- names(et$detailed)[i]
     
-    data <- et$detailed[[i]] %>%
-      add_column(point_estimate = point_estimate,
-                 alpha = alpha)
+    data <- et$detailed[[i]]
+    data$point_estimate = point_estimate
+    data$alpha = alpha
     
     if(data$betaNull[1] == 0 
        && data$betaNull[2] - data$betaNull[1] != data$betaNull[3] - data$betaNull[2]){
@@ -54,8 +54,8 @@ exacttPlot = function(et, variables = NULL){
     # Create plot with correct settings
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
-      ggplot2::geom_hline(aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
-      ggplot2::geom_vline(aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
+      ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
+      ggplot2::geom_vline(ggplot2::aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
       ggplot2::scale_y_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", variable_name, "}$")), y = "P-value") + 
