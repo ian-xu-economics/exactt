@@ -88,15 +88,15 @@ exactt <- function(model,
     cli::cli_abort("The length of 'permutation' does not equal the number of observations in 'data'.")
   }
   
+  ivregObject <- ivreg::ivreg(model,
+                              data = data,
+                              model = TRUE,
+                              x = TRUE)
+  
+  data <- ivregObject$model
+  
   data.n <- nrow(data)
   n <- floor(data.n/nBlocks)*nBlocks
-  
-  # Construct matrix of block indices
-  blockSize <- n/nBlocks
-  blockIndexMatrix <- matrix(1:n, 
-                             nrow = blockSize, 
-                             ncol = nBlocks, 
-                             byrow = FALSE)
   
   # Check if length of permutation equals number of observations
   if(length(permutation) > n){
@@ -104,10 +104,12 @@ exactt <- function(model,
     permutation <- permutation[permutation %in% 1:n]
   }
   
-  ivregObject <- ivreg::ivreg(model,
-                              data = data,
-                              model = TRUE,
-                              x = TRUE)
+  # Construct matrix of block indices
+  blockSize <- n/nBlocks
+  blockIndexMatrix <- matrix(1:n, 
+                             nrow = blockSize, 
+                             ncol = nBlocks, 
+                             byrow = FALSE)
   
   regressors <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-1]
   Y.var <- regressors[1]
