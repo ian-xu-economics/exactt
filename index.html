@@ -73,7 +73,7 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The <code>exactt</code> package computes a <span class="math inline">(1−<em>α</em>)%</span> confidence interval for coefficients in a linear model using the method described in Pouliot (2023).</p>
+<p>The <code>exactt</code> package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -240,6 +240,33 @@
 </h3>
 <p>While optimization generally improves statistical power, it is essential to remember that it increases the average power and may not universally reduce the confidence interval’s width in every instance.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="example-usage-iv-case">Example Usage: IV Case<a class="anchor" aria-label="anchor" href="#example-usage-iv-case"></a>
+</h2>
+<p>The <code><a href="reference/exactt.html">exactt()</a></code> function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (<code>educ</code>) on <code>log(wage)</code>, using parental education levels—mother’s education (<code>motheduc</code>) and father’s education (<code>fatheduc</code>)—as instruments. The model controls for experience (<code>exper</code>) and its square (<code>expersq</code>), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt_iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
+<span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va">mroz</span>,</span>
+<span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                    monitor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                    seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">exactt_iv</span></span>
+<span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
+<span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
+<span><span class="co">#&gt;     optimize = TRUE, parallel = TRUE, maxiter = 10, monitor = FALSE, </span></span>
+<span><span class="co">#&gt;     seed = 2024)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)  2.5% W  97.5% W    2.5%  97.5%</span></span>
+<span><span class="co">#&gt; educ    0.0614    0.1417  -0.041    0.148  -0.041  0.148</span></span></code></pre></div>
 </div>
 </div>
   </div>
