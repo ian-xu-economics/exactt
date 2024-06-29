@@ -19,9 +19,10 @@ coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-cove
 
 ## Introduction
 
-The `exactt` package computes a $(1-\alpha)\%$ confidence interval for
-coefficients in a linear model using the method described in Pouliot
-(2023).
+The `exactt` package tests whether a slope coefficient is equal to some
+null value using the novel method described in Pouliot (2023).
+Importantly, inverting such a test produces a marginally valid
+confidence interval.
 
 ## Installation
 
@@ -255,3 +256,39 @@ exactt5$gaResults$Temp@summary
 While optimization generally improves statistical power, it is essential
 to remember that it increases the average power and may not universally
 reduce the confidence interval’s width in every instance.
+
+## Example Usage: IV Case
+
+The `exactt()` function is capable of handling models with instrumental
+variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge
+reanalyzes Mroz (1987). This example explores the impact of education
+(`educ`) on `log(wage)`, using parental education levels—mother’s
+education (`motheduc`) and father’s education (`fatheduc`)—as
+instruments. The model controls for experience (`exper`) and its square
+(`expersq`), with education being the primary variable of interest,
+hence we set variables = 1. Optionally, as before, we can optimize the
+data ordering to enhance statistical power.
+
+``` r
+exactt_iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+                    data = wooldridge::mroz,
+                    variables = 1,
+                    optimize = TRUE,
+                    parallel = TRUE,
+                    maxiter = 10,
+                    monitor = FALSE,
+                    seed = 2024)
+
+exactt_iv
+
+#> Call:
+#> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
+#>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
+#>     optimize = TRUE, parallel = TRUE, maxiter = 10, monitor = FALSE, 
+#>     seed = 2024)
+#> 
+#> 
+#> Summary:
+#>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%  97.5%
+#> educ    0.0614    0.1417  -0.041    0.148  -0.041  0.148
+```

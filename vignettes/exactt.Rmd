@@ -16,7 +16,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment  = "#>")
 
 ## Introduction
 
-The `exactt` package computes a $(1-\alpha)\%$ confidence interval for coefficients in a linear model using the method described in Pouliot (2023). 
+The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.
 
 ## Installation
 
