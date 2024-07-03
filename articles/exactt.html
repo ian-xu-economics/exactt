@@ -159,8 +159,8 @@ don’t specify any additional parameters, then by default:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp   -0.17320   0.01667  -0.3137  -0.0821  -0.3137  -0.0821</span></span>
-<span><span class="co">#&gt; Month   0.04382   0.99170  -4.9520   3.2810  -4.9520   3.2810</span></span></code></pre></div>
+<span><span class="co">#&gt; Temp   -0.17320  0.008333  -0.2936  -0.1087  -0.2936  -0.1087</span></span>
+<span><span class="co">#&gt; Month   0.04382  0.991700  -3.8580   2.9420  -3.8580   2.9420</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization-of-results">Visualization of Results<a class="anchor" aria-label="anchor" href="#visualization-of-results"></a>
@@ -199,7 +199,7 @@ set <code>variables = 1</code> for <code>Temp</code>, and set
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp   -0.1732   0.01667  -0.3137  -0.0821  -0.3137  -0.0821</span></span></code></pre></div>
+<span><span class="co">#&gt; Temp   -0.1732  0.008333  -0.2936  -0.1087  -0.2936  -0.1087</span></span></code></pre></div>
 <p>This creates a 95% confidence interval for <code>Temp</code> only. It
 is equivalent to the case where <code>variables = NULL</code> (all
 variables are of interest) because these confidence intervals are
@@ -229,11 +229,11 @@ measurements:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                   Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp                -0.1953   0.01667  -0.3112  -0.0851  -0.3112  -0.0851</span></span>
-<span><span class="co">#&gt; as.factor(Month)6    1.2900   0.89170     -Inf      Inf     -Inf      Inf</span></span>
-<span><span class="co">#&gt; as.factor(Month)7    0.9035   0.38330     -Inf      Inf     -Inf      Inf</span></span>
-<span><span class="co">#&gt; as.factor(Month)8    0.7677   0.45000     -Inf  11.2400     -Inf  11.2400</span></span>
-<span><span class="co">#&gt; as.factor(Month)9    0.7740   0.61670     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
+<span><span class="co">#&gt; Temp                -0.1953  0.008333  -0.2939  -0.1094  -0.2939  -0.1094</span></span>
+<span><span class="co">#&gt; as.factor(Month)6    1.2900  0.975000     -Inf      Inf     -Inf      Inf</span></span>
+<span><span class="co">#&gt; as.factor(Month)7    0.9035  0.283300     -Inf      Inf     -Inf      Inf</span></span>
+<span><span class="co">#&gt; as.factor(Month)8    0.7677  0.391700     -Inf  10.5800     -Inf  10.5800</span></span>
+<span><span class="co">#&gt; as.factor(Month)9    0.7740  0.608300     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
 <p>The confidence intervals for each category of Month is not
 informative due to suboptimal data ordering, which can diminish the
 statistical power of the test. This issue can be addressed by optimizing
