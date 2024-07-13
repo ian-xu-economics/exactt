@@ -7,7 +7,7 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -21,7 +21,7 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.5</span>
       </span>
     </div>
 
@@ -35,20 +35,20 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/ian-xu-economics/exactt/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Exact Testing of Linear Model Coefficients</h1>
-    <small class="dont-index">Source: <a href="https://github.com/ian-xu-economics/exactt/blob/HEAD/R/exactt.R" class="external-link"><code>R/exactt.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/ian-xu-economics/exactt/blob/main/R/exactt.R" class="external-link"><code>R/exactt.R</code></a></small>
     <div class="hidden name"><code>exactt.Rd</code></div>
     </div>
 
@@ -71,6 +71,7 @@ parameters for the test.</p>
 <span>  nPerms <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  studentize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  permutation <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  randomizationDist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  optimize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  GX1 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -79,54 +80,60 @@ parameters for the test.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>model</dt>
+
+
+<dl><dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>A formula specifying the model..</p></dd>
 
 
-<dt>data</dt>
+<dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame or matrix containing the variables used in the model.</p></dd>
 
 
-<dt>alpha</dt>
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
 <dd><p>The significance level used for the hypothesis tests; defaults to 0.05.</p></dd>
 
 
-<dt>variables</dt>
+<dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
 <dd><p>Optional; a character vector of predictor names to test.
 If NULL, all predictors in the model are tested.</p></dd>
 
 
-<dt>betaNull</dt>
+<dt id="arg-betanull">betaNull<a class="anchor" aria-label="anchor" href="#arg-betanull"></a></dt>
 <dd><p>Optional; a numeric vector of null hypothesis values for the coefficients.
 Must be the same length as <code>variables</code> if not NULL.</p></dd>
 
 
-<dt>nBlocks</dt>
+<dt id="arg-nblocks">nBlocks<a class="anchor" aria-label="anchor" href="#arg-nblocks"></a></dt>
 <dd><p>The number of blocks to use for permutations.</p></dd>
 
 
-<dt>nPerms</dt>
+<dt id="arg-nperms">nPerms<a class="anchor" aria-label="anchor" href="#arg-nperms"></a></dt>
 <dd><p>Optional; the number of permutations to perform.
 If NULL or greater than the number of possible permutations, all permutations are used.</p></dd>
 
 
-<dt>studentize</dt>
+<dt id="arg-studentize">studentize<a class="anchor" aria-label="anchor" href="#arg-studentize"></a></dt>
 <dd><p>Logical indicating whether to use studentized residuals for the test.</p></dd>
 
 
-<dt>permutation</dt>
+<dt id="arg-permutation">permutation<a class="anchor" aria-label="anchor" href="#arg-permutation"></a></dt>
 <dd><p>Optional; a specific permutation vector to rearrange order of data.</p></dd>
 
 
-<dt>optimize</dt>
-<dd><p>Logical indicating whether to optimize the ordering of the data (default is FALSE).</p></dd>
+<dt id="arg-randomizationdist">randomizationDist<a class="anchor" aria-label="anchor" href="#arg-randomizationdist"></a></dt>
+<dd><p>Logical indicating whether to return randomization distribution for each null hypothesis value.</p></dd>
 
 
-<dt>GX1</dt>
+<dt id="arg-optimize">optimize<a class="anchor" aria-label="anchor" href="#arg-optimize"></a></dt>
+<dd><p>Logical indicating whether to optimize the ordering of the data.</p></dd>
+
+
+<dt id="arg-gx-">GX1<a class="anchor" aria-label="anchor" href="#arg-gx-"></a></dt>
 <dd><p>Logical indicating whether to use GX1 or X1 when constructing eps_hat.</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code> for optimizing power.
 This can include parameters like <code>popSize</code>, <code>maxiter</code>, <code>parallel</code>, etc.,
 that are used to configure the genetic algorithm. Note that when sample size is large
@@ -135,9 +142,7 @@ optimizing is computationally expensive and has little effect.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>An object of class 'et', which includes:</p><ul><li><p><code>summary</code>: A matrix summarizing the test results for each variable.</p></li>
+    <p>An object of class 'et', which includes:</p><ul><li><p><code>summary</code>: A matrix summarizing the test results for each variable.</p></li>
 <li><p><code>detailed</code>: A list containing detailed test results for each variable.</p></li>
 <li><p><code>gaResults</code>: Optional; a list of results from the <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code> function, included only when
 power optimization is performed via genetic algorithm parameters. Each element of the list
@@ -169,15 +174,15 @@ handle large datasets and complex model structures efficiently.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

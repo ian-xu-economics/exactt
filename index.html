@@ -19,7 +19,7 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.5</span>
       </span>
     </div>
 
@@ -50,7 +50,7 @@
 <li>
   <a href="https://github.com/ian-xu-economics/exactt/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -61,7 +61,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
@@ -102,7 +102,7 @@
 <div class="section level2">
 <h2 id="example-usage">Example Usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
 </h2>
-<p>To compute the <span class="math inline">(1−<em>α</em>)%</span> confidence interval, use the <code><a href="reference/exactt.html">exactt()</a></code> function. Here’s an example using daily air quality measurements in New York found in <code><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">datasets::airquality</a></code>. We’ll investigate the relationship between temperature (degrees F) and month (1–12) on wind (mph).</p>
+<p>To compute the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha)\%</annotation></semantics></math> confidence interval, use the <code><a href="reference/exactt.html">exactt()</a></code> function. Here’s an example using daily air quality measurements in New York found in <code><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">datasets::airquality</a></code>. We’ll investigate the relationship between temperature (degrees F) and month (1–12) on wind (mph).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Wind"</span>, <span class="st">"Temp"</span>, <span class="st">"Month"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Wind             Temp           Month      </span></span>
@@ -112,7 +112,7 @@
 <span><span class="co">#&gt;  Mean   : 9.958   Mean   :77.88   Mean   :6.993  </span></span>
 <span><span class="co">#&gt;  3rd Qu.:11.500   3rd Qu.:85.00   3rd Qu.:8.000  </span></span>
 <span><span class="co">#&gt;  Max.   :20.700   Max.   :97.00   Max.   :9.000</span></span></code></pre></div>
-<p>Suppose our model is <span class="math display"><em>W</em><em>i</em><em>n</em><em>d</em><sub><em>i</em></sub> = <em>β</em><sub>0</sub> + <em>β</em><sub><em>T</em><em>e</em><em>m</em><em>p</em></sub> × <em>T</em><em>e</em><em>m</em><em>p</em><sub><em>i</em></sub> + <em>β</em><sub><em>M</em><em>o</em><em>n</em><em>t</em><em>h</em></sub> × <em>M</em><em>o</em><em>n</em><em>t</em><em>h</em><sub><em>i</em></sub> + <em>ε</em><sub><em>i</em></sub>.</span> We can create a <span class="math inline">(1−<em>α</em>)%</span> confidence interval by plugging in standard formula notation into <code><a href="reference/exactt.html">exactt()</a></code>. If we don’t specify any additional parameters, then by default:</p>
+<p>Suppose our model is <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>i</mi><mi>n</mi><msub><mi>d</mi><mi>i</mi></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>T</mi><mi>e</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>×</mo><mi>T</mi><mi>e</mi><mi>m</mi><msub><mi>p</mi><mi>i</mi></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>M</mi><mi>o</mi><mi>n</mi><mi>t</mi><mi>h</mi></mrow></msub><mo>×</mo><mi>M</mi><mi>o</mi><mi>n</mi><mi>t</mi><msub><mi>h</mi><mi>i</mi></msub><mo>+</mo><msub><mi>ε</mi><mi>i</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">Wind_i = \beta_0 + \beta_{Temp} \times Temp_i + \beta_{Month} \times Month_i + \varepsilon_i.</annotation></semantics></math> We can create a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha)\%</annotation></semantics></math> confidence interval by plugging in standard formula notation into <code><a href="reference/exactt.html">exactt()</a></code>. If we don’t specify any additional parameters, then by default:</p>
 <ul>
 <li>The number of blocks used equals 5 (<code>nBlocks = 5</code>).</li>
 <li>The confidence interval is constructed for all variables (<code>variables = NULL</code>).</li>
@@ -139,7 +139,7 @@
 <div class="section level2">
 <h2 id="visualization-of-results">Visualization of Results<a class="anchor" aria-label="anchor" href="#visualization-of-results"></a>
 </h2>
-<p>If <strong>tidyverse</strong> and <strong>latex2exp</strong> are installed, you can visualize the results by plotting the p-value against <span class="math inline"><em>β</em><sup>0</sup></span> using the <code><a href="reference/exacttPlot.html">exacttPlot()</a></code> function:</p>
+<p>If <strong>tidyverse</strong> and <strong>latex2exp</strong> are installed, you can visualize the results by plotting the p-value against <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>β</mi><mn>0</mn></msup><annotation encoding="application/x-tex">\beta^0</annotation></semantics></math> using the <code><a href="reference/exacttPlot.html">exacttPlot()</a></code> function:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/exacttPlot.html">exacttPlot</a></span><span class="op">(</span><span class="va">exactt1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
@@ -225,7 +225,7 @@
 <span><span class="co">#&gt; as.factor(Month)7    0.9035  0.533300  -1.4200   2.4800  -1.4200   2.4800</span></span>
 <span><span class="co">#&gt; as.factor(Month)8    0.7677  0.850000  -3.6100   2.1600  -3.6100   2.1600</span></span>
 <span><span class="co">#&gt; as.factor(Month)9    0.7740  0.408300  -2.3220   3.9110  -2.3220   3.9110</span></span></code></pre></div>
-<p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative <span class="math inline">(1−<em>α</em>)%</span> confidence intervals for each category of <code>Month</code>. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt5$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>Temp</code> variable, use:</p>
+<p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha) \%</annotation></semantics></math> confidence intervals for each category of <code>Month</code>. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt5$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>Temp</code> variable, use:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt5</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">Temp</span><span class="op">@</span><span class="va">summary</span></span>
 <span></span>
@@ -334,16 +334,16 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
