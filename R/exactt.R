@@ -18,7 +18,8 @@
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
 #' @param permutation Optional; a specific permutation vector to rearrange order of data.
-#' @param optimize Logical indicating whether to optimize the ordering of the data (default is FALSE).
+#' @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
+#' @param optimize Logical indicating whether to optimize the ordering of the data.
 #' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
@@ -60,6 +61,7 @@ exactt <- function(model,
                    nPerms = NULL,
                    studentize = TRUE,
                    permutation = NULL,
+                   randomizationDist = FALSE,
                    optimize = FALSE,
                    GX1 = TRUE,
                    ...) {
@@ -316,11 +318,16 @@ exactt <- function(model,
                                    GX1)
     }
 
+    
     final_results[["detailed"]][[colnames(X)[i]]] <- data.frame("betaNull" = betaNullVec, 
                                                                 "pval" = exacttResults$pval)
     
-    #"randomizationDistribution" = list(c(exacttResults$randomizationDist)))
-    
+    if(randomizationDist){
+      randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
+      
+      final_results[["detailed"]][[colnames(X)[i]]] <- cbind(final_results[["detailed"]][[colnames(X)[i]]],
+                                                             data.frame("randomizationDist" = randomizationDistList))
+    }
     
     pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(betaNullVec == 0)]) == 0, 
                             yes = NA,

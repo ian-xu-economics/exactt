@@ -14,6 +14,7 @@ exactt(
   nPerms = NULL,
   studentize = TRUE,
   permutation = NULL,
+  randomizationDist = FALSE,
   optimize = FALSE,
   GX1 = TRUE,
   ...
@@ -41,7 +42,9 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 \item{permutation}{Optional; a specific permutation vector to rearrange order of data.}
 
-\item{optimize}{Logical indicating whether to optimize the ordering of the data (default is FALSE).}
+\item{randomizationDist}{Logical indicating whether to return randomization distribution for each null hypothesis value.}
+
+\item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{GX1}{Logical indicating whether to use GX1 or X1 when constructing eps_hat.}
 
