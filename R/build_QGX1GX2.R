@@ -25,9 +25,9 @@ build_QGX1GX2 <- function(X1, GX2, blockIndexMatrix, GX1 = TRUE){
   
   if(GX1){
     GX1 <- build_GX(X1, blockIndexMatrix)
-    GX1X2 <- cbind(GX1, GX2)
+    GX1X2 <- cbind(1, GX1, GX2)
   } else{
-    GX1X2 <- cbind(X1, GX2)
+    GX1X2 <- cbind(1, X1, GX2)
   }
   
   return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, max(dim(GX1X2)) * .Machine$double.eps) %*% t(GX1X2))
