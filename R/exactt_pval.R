@@ -41,35 +41,36 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     GX2.temp <- build_GX2(X2.temp, blockIndexMatrix)
     QGX2.temp <- build_QGX2(GX2.temp)
-    QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
     
     Q.X1.temp <- QGX2.temp%*%X1.temp
-    eps_hat <- QGX1GX2.temp%*%Y.temp
     
     Q.X1.temp.permuted <- matrix(Q.X1.temp[permIndices], nrow = n)
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     t_num <- t(Q.X1.temp.permuted) %*% E
     
-    # n x nBlocks! matrix
-    eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
-    
-    # nBlocks! x 1 matrix
-    t_denom <- t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
-    
-    # t is nPerms x length(betaNullVec)
-    # Each column of t is the randomization distribution of the studentized test statistics
-    t <- sweep(t_num, 1, sqrt(t_denom), "/")
-    #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
-    
+    if(studentize){
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
+      eps_hat <- QGX1GX2.temp%*%Y.temp
+      # n x nBlocks! matrix
+      eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
+      
+      # nBlocks! x 1 matrix
+      t_denom <- t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
+      
+      # t is nPerms x length(betaNullVec)
+      # Each column of t is the randomization distribution of the studentized test statistics
+      t <- sweep(t_num, 1, sqrt(t_denom), "/")
+      #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
+    } else{
+      t <- t_num
+    }
     p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x)))
     
-  } else{
+  } else{ # univariate case
     X1.temp.permuted <- matrix(X1.temp[permIndices], nrow = n)
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%t(betaNullVec)
-    
-    T_numerator_hat <- t(X1.temp)%*%E #Don't need to multiply by 1/sqrt(n)
     
     t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     
