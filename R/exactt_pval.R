@@ -51,9 +51,14 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     if(studentize){
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
-      eps_hat <- QGX1GX2.temp%*%Y.temp
+      
+      # OLD CODE
+      #eps_hat <- QGX1GX2.temp%*%Y.temp
       # n x nBlocks! matrix
-      eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
+      #eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
+      
+      Y.temp.permuted <- matrix(Y.temp[permIndices], nrow = n)
+      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
       
       # nBlocks! x 1 matrix
       t_denom <- t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
