@@ -49,10 +49,11 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     #E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     #t_num <- t(Q.X1.temp.permuted) %*% E
     
+    E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     E.permuted = apply(E,
                        MARGIN = 2,
                        function(x){
-                         matrix(Q.X1.temp[permIndices], nrow = n)
+                         matrix(x[permIndices], nrow = n)
                        },
                        simplify = FALSE) %>%
       simplify2array()
