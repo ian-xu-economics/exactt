@@ -44,11 +44,25 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     Q.X1.temp <- QGX2.temp%*%X1.temp
     
-    Q.X1.temp.permuted <- matrix(Q.X1.temp[permIndices], nrow = n)
+    # OLD CODE
+    #Q.X1.temp.permuted <- matrix(Q.X1.temp[permIndices], nrow = n)
+    #E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
+    #t_num <- t(Q.X1.temp.permuted) %*% E
     
-    E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
-    t_num <- t(Q.X1.temp.permuted) %*% E
+    E.permuted = apply(E,
+                       MARGIN = 2,
+                       function(x){
+                         matrix(Q.X1.temp[permIndices], nrow = n)
+                       },
+                       simplify = FALSE) %>%
+      simplify2array()
     
+    t_num <- apply(E.permuted,
+                   MARGIN = 3,
+                   function(x){
+                     t(Q.X1.temp) %*% x
+                   })
+
     if(studentize){
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
       
