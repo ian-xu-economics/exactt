@@ -29,7 +29,7 @@
 #' If `X2.temp` is empty, the function simplifies the computations by directly using `X1.temp`.
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
@@ -72,15 +72,15 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
       # n x nBlocks! matrix
       #eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
       
-      Y.temp.permuted <- matrix(Y.temp[permIndices], nrow = n)
-      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
+      Y.temp.minus.X1.temp.beta_hat1.permuted <- matrix((Y.temp - X1.temp*beta_hat1)[permIndices], nrow = n)
+      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.minus.X1.temp.beta_hat1.permuted
       
       # nBlocks! x 1 matrix
-      t_denom <- t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
+      t_denom <- sqrt(t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n))
       
       # t is nPerms x length(betaNullVec)
       # Each column of t is the randomization distribution of the studentized test statistics
-      t <- sweep(t_num, 1, sqrt(t_denom), "/")
+      t <- sweep(t_num, 1, t_denom, "/")
       #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
     } else{
       t <- t_num
