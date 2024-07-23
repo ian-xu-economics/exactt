@@ -325,9 +325,11 @@ exactt <- function(model,
     
     if(randomizationDist){
       randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
+      t_numList <- asplit(exacttResults$t_num, MARGIN = 1)
       
       final_results[["detailed"]][[colnames(X)[i]]] <- cbind(final_results[["detailed"]][[colnames(X)[i]]],
-                                                             data.frame("randomizationDist" = randomizationDistList))
+                                                             data.frame("randomizationDist" = randomizationDistList),
+                                                             data.frame("t_num" = t_numList))
     }
     
     pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(betaNullVec == 0)]) == 0, 

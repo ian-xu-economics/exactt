@@ -98,5 +98,6 @@ exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlock
   }
   
   return(list(pval = p_val_seq_beta_index,
-              randomizationDist = t(t)))
+              randomizationDist = t(t),
+              t_num = t(t_num)))
 }
