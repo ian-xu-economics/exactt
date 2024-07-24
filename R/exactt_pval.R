@@ -88,6 +88,8 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
                           sqrt(t(t(Q.X1.temp^2) %*% x^2/n))
                         })
       
+      t_denom <- as.matrix(bind_cols(t_denom))
+      
       # t is nPerms x length(betaNullVec)
       # Each column of t is the randomization distribution of the studentized test statistics
       t <- t_num/t_denom
