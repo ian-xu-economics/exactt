@@ -29,7 +29,7 @@
 #' If `X2.temp` is empty, the function simplifies the computations by directly using `X1.temp`.
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE){
   
   n <- nrow(X1.temp)
   
@@ -65,14 +65,14 @@ exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlock
                    })
 
     if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix)
       
       # OLD CODE
       #eps_hat <- QGX1GX2.temp%*%Y.temp
       # n x nBlocks! matrix
       #eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
       
-      Y.temp.minus.X1.temp.beta_hat1.permuted <- matrix((Y.temp - X1.temp*beta_hat1)[permIndices], nrow = n)
+      Y.temp.minus.X1.temp.beta_hat1.permuted <- matrix(Y.temp[permIndices], nrow = n)
       eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.minus.X1.temp.beta_hat1.permuted
       
       # nBlocks! x 1 matrix
