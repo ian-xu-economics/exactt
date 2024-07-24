@@ -72,15 +72,25 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
       # n x nBlocks! matrix
       #eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
       
-      Y.temp.minus.X1.temp.beta_hat1.permuted <- matrix(Y.temp[permIndices], nrow = n)
-      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.minus.X1.temp.beta_hat1.permuted
+      Y.temp.minus.X1.temp.beta_hat1.permuted <- lapply(betaNullVec,
+                                                        function(x){
+                                                          matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
+                                                        })
+      
+      eps_hat.permuted <- lapply(Y.temp.minus.X1.temp.beta_hat1.permuted,
+                                 function(x){
+                                   QGX1GX2.temp %*% x
+                                 })
       
       # nBlocks! x 1 matrix
-      t_denom <- sqrt(t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n))
+      t_denom <- lapply(eps_hat.permuted,
+                        function(x){
+                          sqrt(t(t(Q.X1.temp^2) %*% x^2/n))
+                        })
       
       # t is nPerms x length(betaNullVec)
       # Each column of t is the randomization distribution of the studentized test statistics
-      t <- sweep(t_num, 1, t_denom, "/")
+      t <- t_num/t_denom
       #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
     } else{
       t <- t_num
