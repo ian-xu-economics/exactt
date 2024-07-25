@@ -74,6 +74,7 @@ parameters for the test.</p>
 <span>  randomizationDist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  optimize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  GX1 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  beta0 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -131,6 +132,10 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 <dt id="arg-gx-">GX1<a class="anchor" aria-label="anchor" href="#arg-gx-"></a></dt>
 <dd><p>Logical indicating whether to use GX1 or X1 when constructing eps_hat.</p></dd>
+
+
+<dt id="arg-beta-">beta0<a class="anchor" aria-label="anchor" href="#arg-beta-"></a></dt>
+<dd><p>Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
