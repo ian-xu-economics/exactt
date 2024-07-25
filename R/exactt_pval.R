@@ -14,7 +14,7 @@
 #' @param studentize Logical indicating whether to use studentized test statistics.
 #'        Default is TRUE.
 #' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
-#'
+#' @param beta0 Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.
 #' @return A list containing:
 #'   - pval: A vector of p-values computed for each null hypothesis value.
 #'   - randomizationDist: The matrix of randomization distributions used in computing
@@ -28,8 +28,10 @@
 #' matrix). These matrices are used to calculate test statistics and ultimately p-values.
 #' If `X2.temp` is empty, the function simplifies the computations by directly using `X1.temp`.
 #'
+#' @importFrom dplyr bind_cols
+#'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1, beta0){
   
   n <- nrow(X1.temp)
   
@@ -67,21 +69,40 @@ exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlock
     if(studentize){
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
       
-      # OLD CODE
-      #eps_hat <- QGX1GX2.temp%*%Y.temp
-      # n x nBlocks! matrix
-      #eps_hat.permuted <- matrix(eps_hat[permIndices], nrow = n)
-      
-      Y.temp.minus.X1.temp.beta_hat1.permuted <- matrix((Y.temp - X1.temp*beta_hat1)[permIndices], nrow = n)
-      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.minus.X1.temp.beta_hat1.permuted
-      
-      # nBlocks! x 1 matrix
-      t_denom <- sqrt(t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n))
-      
-      # t is nPerms x length(betaNullVec)
-      # Each column of t is the randomization distribution of the studentized test statistics
-      t <- sweep(t_num, 1, t_denom, "/")
-      #t <- apply(t_num, 2, function(x) x/t_denom[,1]) OLD incorrect code.
+      if(beta0){
+        Y.temp.minus.X1.temp.beta_hat1.permuted <- lapply(betaNullVec,
+                                                          function(x){
+                                                            matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
+                                                          })
+        
+        eps_hat.permuted <- lapply(Y.temp.minus.X1.temp.beta_hat1.permuted,
+                                   function(x){
+                                     QGX1GX2.temp %*% x
+                                   })
+        
+        # nBlocks! x 1 matrix
+        t_denom <- lapply(eps_hat.permuted,
+                          function(x){
+                            sqrt(t(t(Q.X1.temp^2) %*% x^2/n))
+                          })
+        
+        t_denom <- suppressMessages(as.matrix(dplyr::bind_cols(t_denom)))
+        
+        # t is nPerms x length(betaNullVec)
+        # Each column of t is the randomization distribution of the studentized test statistics
+        t <- t_num/t_denom
+      } else{
+        Y.temp.permuted <- matrix(Y.temp[permIndices], nrow = n)
+        eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
+        
+        # nBlocks! x 1 matrix
+        t_denom <- sqrt(t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n))
+        
+        # t is nPerms x length(betaNullVec)
+        # Each column of t is the randomization distribution of the studentized test statistics
+        t <- sweep(t_num, 1, t_denom, "/")
+      }
+
     } else{
       t <- t_num
     }

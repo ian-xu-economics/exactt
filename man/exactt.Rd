@@ -17,6 +17,7 @@ exactt(
   randomizationDist = FALSE,
   optimize = FALSE,
   GX1 = TRUE,
+  beta0 = FALSE,
   ...
 )
 }
@@ -47,6 +48,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{GX1}{Logical indicating whether to use GX1 or X1 when constructing eps_hat.}
+
+\item{beta0}{Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,
