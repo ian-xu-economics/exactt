@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.15</span>
       </span>
     </div>
 
@@ -108,33 +108,34 @@ and the BibTeX entry for referencing:</p>
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 1.1.14</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 1.1.15</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
 </h2>
 <p>To compute the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha)\%</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1-\alpha)</annotation></semantics></math>
 confidence interval, use the <code><a href="../reference/exactt.html">exactt()</a></code> function. Here’s an
-example using daily air quality measurements in New York found in
-<code><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">datasets::airquality</a></code>. We’ll investigate the relationship
-between temperature (degrees F) and month (1–12) on wind (mph).</p>
+example looking at the effect of vitamin C on tooth growth in guinea
+pigs using data from <code><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">datasets::ToothGrowth</a></code>. We’ll
+investigate the relationship between <code>supp</code> (orange juice
+(OJ) or ascorbic acid (VC)) and <code>dose</code> (dose in
+milligrams/day) on <code>len</code> (tooth length).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Wind"</span>, <span class="st">"Temp"</span>, <span class="st">"Month"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       Wind             Temp           Month      </span></span>
-<span><span class="co">#&gt;  Min.   : 1.700   Min.   :56.00   Min.   :5.000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 7.400   1st Qu.:72.00   1st Qu.:6.000  </span></span>
-<span><span class="co">#&gt;  Median : 9.700   Median :79.00   Median :7.000  </span></span>
-<span><span class="co">#&gt;  Mean   : 9.958   Mean   :77.88   Mean   :6.993  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:11.500   3rd Qu.:85.00   3rd Qu.:8.000  </span></span>
-<span><span class="co">#&gt;  Max.   :20.700   Max.   :97.00   Max.   :9.000</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt;       len        supp         dose      </span></span>
+<span><span class="co">#&gt;  Min.   : 4.20   OJ:30   Min.   :0.500  </span></span>
+<span><span class="co">#&gt;  1st Qu.:13.07   VC:30   1st Qu.:0.500  </span></span>
+<span><span class="co">#&gt;  Median :19.25           Median :1.000  </span></span>
+<span><span class="co">#&gt;  Mean   :18.81           Mean   :1.167  </span></span>
+<span><span class="co">#&gt;  3rd Qu.:25.27           3rd Qu.:2.000  </span></span>
+<span><span class="co">#&gt;  Max.   :33.90           Max.   :2.000</span></span></code></pre></div>
 <p>Suppose our model is
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>i</mi><mi>n</mi><msub><mi>d</mi><mi>i</mi></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>T</mi><mi>e</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>×</mo><mi>T</mi><mi>e</mi><mi>m</mi><msub><mi>p</mi><mi>i</mi></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>M</mi><mi>o</mi><mi>n</mi><mi>t</mi><mi>h</mi></mrow></msub><mo>×</mo><mi>M</mi><mi>o</mi><mi>n</mi><mi>t</mi><msub><mi>h</mi><mi>i</mi></msub><mo>+</mo><msub><mi>ε</mi><mi>i</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">Wind_i = \beta_0 + \beta_{Temp} \times Temp_i + \beta_{Month} \times Month_i + \varepsilon_i.</annotation></semantics></math>
-We can create a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha)\%</annotation></semantics></math>
-confidence interval by plugging in standard formula notation into
-<code><a href="../reference/exactt.html">exactt()</a></code>. If we don’t specify any additional parameters,
-then by default:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>e</mi><msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>d</mi><mi>o</mi><mi>s</mi><mi>e</mi></mrow></msub><mo>×</mo><mi>d</mi><mi>o</mi><mi>s</mi><msub><mi>e</mi><mi>i</mi></msub><mo>+</mo><msub><mi>β</mi><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi></mrow></msub><mo>×</mo><mi>s</mi><mi>u</mi><mi>p</mi><msub><mi>p</mi><mi>i</mi></msub><mo>+</mo><msub><mi>ε</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp} \times supp_i + \varepsilon_i</annotation></semantics></math>.
+We can create a 90% confidence interval by plugging in standard formula
+notation into <code><a href="../reference/exactt.html">exactt()</a></code>. The level of significance (alpha)
+equals 0.1 here, but if we choose not to specify any additional
+parameters, then by default:</p>
 <ul>
 <li>The number of blocks used equals 5 (<code>nBlocks = 5</code>).</li>
 <li>The confidence interval is constructed for all variables
@@ -151,58 +152,46 @@ then by default:</p>
 (<code>optimize = FALSE</code>).</li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="va">Month</span>,</span>
-<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">)</span></span>
-<span><span class="va">exactt1</span></span>
+<code class="sourceCode R"><span><span class="va">exactt.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="va">dose</span> <span class="op">+</span> <span class="va">supp</span>,</span>
+<span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
+<span>                   alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">exactt.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = Wind ~ Temp + Month, data = datasets::airquality)</span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
+<span><span class="co">#&gt;     alpha = 0.1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp   -0.17320   0.01667  -0.2917  -0.1087  -0.2917  -0.1087</span></span>
-<span><span class="co">#&gt; Month   0.04382   0.99170     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="visualization-of-results">Visualization of Results<a class="anchor" aria-label="anchor" href="#visualization-of-results"></a>
-</h2>
-<p>If <strong>tidyverse</strong> and <strong>latex2exp</strong> are
-installed, you can visualize the results by plotting the p-value against
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>β</mi><mn>0</mn></msup><annotation encoding="application/x-tex">\beta^0</annotation></semantics></math>
-using the <code><a href="../reference/exacttPlot.html">exacttPlot()</a></code> function:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/exacttPlot.html">exacttPlot</a></span><span class="op">(</span><span class="va">exactt1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
-<p><img src="exactt_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span></code></pre>
-<p><img src="exactt_files/figure-html/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;"></p>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)     5% W   95% W       5%    95%</span></span>
+<span><span class="co">#&gt; dose       9.764     0.075    2.414  16.520    2.414  16.52</span></span>
+<span><span class="co">#&gt; suppVC    -3.700     0.250  -10.990   7.605  -10.990   7.61</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
 </h2>
 <p>To focus on specific coefficients, set the <code>variables</code>
 parameter. The number entered corresponds to the index of the regressors
-in the model (note that the intercept is never counted). For example.
-set <code>variables = 1</code> for <code>Temp</code>, and set
-<code>variables = 2</code> for <code>Month</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="va">Month</span>,</span>
-<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span>,</span>
-<span>                  variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+in the model (note that the intercept is never counted). For example,
+set <code>variables = 1</code> for <code>dose</code>, and set
+<code>variables = 2</code> for <code>supp</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="va">dose</span> <span class="op">+</span> <span class="va">supp</span>,</span>
+<span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
+<span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                   variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt2</span></span>
+<span><span class="va">exactt.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = Wind ~ Temp + Month, data = datasets::airquality, </span></span>
-<span><span class="co">#&gt;     variables = 1)</span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
+<span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp   -0.1732   0.01667  -0.2917  -0.1087  -0.2917  -0.1087</span></span></code></pre></div>
-<p>This creates a 95% confidence interval for <code>Temp</code> only. It
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  Pr(&gt;|t|)   5% W  95% W     5%    95%</span></span>
+<span><span class="co">#&gt; dose     9.764     0.075  2.414  16.52  2.414  16.52</span></span></code></pre></div>
+<p>This creates a 90% confidence interval for <code>dose</code> only. It
 is equivalent to the case where <code>variables = NULL</code> (all
 variables are of interest) because these confidence intervals are
 marginally valid.</p>
@@ -216,30 +205,29 @@ instance, you can treat a variable as categorical, include polynomial
 terms, or apply other transformations directly within the model formula.
 This flexibility helps tailor the analysis to specific research
 questions without needing pre-transformed data. To illustrate, consider
-treating <code>Month</code> as a categorical variable to explore its
-discrete impact on wind speed in a dataset of daily air quality
-measurements:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">Month</span><span class="op">)</span>,</span>
-<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span><span class="op">)</span></span>
+treating <code>dose</code> as a categorical variable to explore its
+discrete impact on tooth length:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dose</span><span class="op">)</span> <span class="op">+</span> <span class="va">supp</span>,</span>
+<span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
+<span>                   alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt4</span></span>
+<span><span class="va">exactt.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality)</span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
+<span><span class="co">#&gt;     alpha = 0.1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                   Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp                -0.1953   0.01667  -0.2916  -0.1094  -0.2916  -0.1094</span></span>
-<span><span class="co">#&gt; as.factor(Month)6    1.2900   0.92500     -Inf      Inf     -Inf      Inf</span></span>
-<span><span class="co">#&gt; as.factor(Month)7    0.9035   0.28330     -Inf      Inf     -Inf      Inf</span></span>
-<span><span class="co">#&gt; as.factor(Month)8    0.7677   0.34170     -Inf   9.3100     -Inf   9.3100</span></span>
-<span><span class="co">#&gt; as.factor(Month)9    0.7740   0.61670     -Inf      Inf     -Inf      Inf</span></span></code></pre></div>
-<p>The confidence intervals for each category of Month is not
-informative due to suboptimal data ordering, which can diminish the
-statistical power of the test. This issue can be addressed by optimizing
-the data ordering.</p>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate  Pr(&gt;|t|)   5% W  95% W    5%   95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13   0.01667  5.647   22.4  5.64  22.4</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.50   0.39170   -Inf    Inf  -Inf   Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70   0.41670   -Inf    Inf  -Inf   Inf</span></span></code></pre></div>
+<p>The 90% confidence intervals when <code>dose</code> equals “2” and
+<code>supp</code> equals “VC” is not informative due to suboptimal data
+ordering, which can diminish the statistical power of the test. This
+issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
 <h2 id="optimizing-data-ordering">Optimizing Data Ordering<a class="anchor" aria-label="anchor" href="#optimizing-data-ordering"></a>
@@ -266,47 +254,61 @@ for the specification of various parameters of the <code><a href="https://github
 function to tailor the optimization process. For instance, you can limit
 the number of iterations with <code>maxiter</code> or specify the seed
 with <code>seed</code> for reproducibility:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">Wind</span> <span class="op">~</span> <span class="va">Temp</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">Month</span><span class="op">)</span>,</span>
-<span>                  data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/airquality.html" class="external-link">airquality</a></span>,</span>
-<span>                  optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                  maxiter <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                  seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dose</span><span class="op">)</span> <span class="op">+</span> <span class="va">supp</span>,</span>
+<span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
+<span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                   optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   maxiter <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                   seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt5</span></span>
+<span><span class="va">exactt.4</span></span>
 <span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.992124 | Best = 4.942080</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.109950 | Best = 5.195252</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2.982926 | Best = 5.195252</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.037489 | Best = 5.195252</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.053269 | Best = 5.418928</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.799936 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.017456 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.140062 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.105836 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.191111 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 4.164565 | Best = 6.068181</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 4.263754 | Best = 6.343909</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 4.649025 | Best = 7.158755</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 4.668351 | Best = 7.158755</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 4.520408 | Best = 7.158755</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality, </span></span>
+<span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                    Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%    97.5%</span></span>
-<span><span class="co">#&gt; Temp                -0.1953  0.008333  -0.2673  -0.1127  -0.2673  -0.1127</span></span>
-<span><span class="co">#&gt; as.factor(Month)6    1.2900  0.375000  -1.2300   2.7040  -1.2300   2.7040</span></span>
-<span><span class="co">#&gt; as.factor(Month)7    0.9035  0.533300  -1.4200   2.4800  -1.4200   2.4800</span></span>
-<span><span class="co">#&gt; as.factor(Month)8    0.7677  0.850000  -3.6100   2.1600  -3.6100   2.1600</span></span>
-<span><span class="co">#&gt; as.factor(Month)9    0.7740  0.408300  -2.3220   3.9110  -2.3220   3.9110</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)    5% W   95% W      5%     95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333   8.030  11.420   8.030  11.420</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49  0.016670  12.160  19.920  12.160  19.920</span></span>
+<span><span class="co">#&gt; suppVC               -3.70  0.033330  -6.687  -1.246  -6.687  -1.246</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="../reference/exactt.html">exactt()</a></code> is
-now able to construct informative
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">(1-\alpha) \%</annotation></semantics></math>
-confidence intervals for each category of <code>Month</code>.
-Furthermore, the detailed results of the optimization process, including
-the genetic algorithm’s configurations and outcomes for each variable,
-are stored in the <code>exactt5$gaResults</code>. For instance, to
-review a summary of the genetic algorithm’s performance for the
-<code>Temp</code> variable, use:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt5</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">Temp</span><span class="op">@</span><span class="va">summary</span></span>
+now able to construct informative 90% confidence intervals for each
+category of <code>dose</code> and <code>supp</code> when they equal “2”
+and “VC” respectively. Furthermore, the detailed results of the
+optimization process, including the genetic algorithm’s configurations
+and outcomes for each variable, are stored in the
+<code>exactt.4$gaResults</code>. For instance, to review a summary of
+the genetic algorithm’s performance for the <code>suppVC</code>
+variable, use:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
 <span></span>
 <span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
-<span><span class="co">#&gt; [1,] 3373.156 2466.905 2756.414 2491.108 2149.217 1628.742</span></span>
-<span><span class="co">#&gt; [2,] 3379.420 2557.049 2804.535 2564.529 2331.299 1548.839</span></span>
-<span><span class="co">#&gt; [3,] 3379.420 2550.141 2816.223 2561.671 2278.764 1730.608</span></span>
-<span><span class="co">#&gt; [4,] 3379.420 2555.116 2761.960 2605.983 2245.362 1538.921</span></span>
-<span><span class="co">#&gt; [5,] 3379.420 2574.320 2779.467 2574.736 2277.046 1701.787</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845</span></span>
+<span><span class="co">#&gt; [2,] 6.343909 4.263754 5.163025 4.349605 3.380365 1.695657</span></span>
+<span><span class="co">#&gt; [3,] 7.158755 4.649025 5.563025 4.622685 3.793148 2.751383</span></span>
+<span><span class="co">#&gt; [4,] 7.158755 4.668351 5.106031 4.546988 3.915736 2.125274</span></span>
+<span><span class="co">#&gt; [5,] 7.158755 4.520408 5.077452 4.479159 3.659193 1.730089</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
 </h3>
@@ -329,8 +331,8 @@ experience (<code>exper</code>) and its square (<code>expersq</code>),
 with education being the primary variable of interest, hence we set
 variables = 1. Optionally, as before, we can optimize the data ordering
 to enhance statistical power.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exactt_iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
 <span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va">mroz</span>,</span>
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -339,7 +341,7 @@ to enhance statistical power.</p>
 <span>                    monitor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                    seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt_iv</span></span>
+<span><span class="va">exactt.iv</span></span>
 <span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
