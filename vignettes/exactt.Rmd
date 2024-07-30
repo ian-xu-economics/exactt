@@ -60,6 +60,7 @@ Suppose our model is $len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp
 exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1)
+
 exactt.1
 ```
 

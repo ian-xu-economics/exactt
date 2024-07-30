@@ -50,7 +50,7 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
-#> Package 'exactt' | Version 1.1.3
+#> Package 'exactt' | Version 1.1.16
 ```
 
 ## Example Usage: Regular Case
@@ -94,6 +94,7 @@ default:
 exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1)
+
 exactt.1
 #> 
 #> Call:
@@ -102,9 +103,9 @@ exactt.1
 #> 
 #> 
 #> Summary:
-#>         Estimate  Pr(>|t|)    5% W  95% W      5%   95%
-#> dose       9.764    0.1833    -Inf    Inf    -Inf   Inf
-#> suppVC    -3.700    0.2583  -11.68   57.5  -11.68  57.5
+#>         Estimate  Pr(>|t|)     5% W   95% W       5%    95%
+#> dose       9.764    0.0750    2.414  16.520    2.414  16.52
+#> suppVC    -3.700    0.2583  -10.980   7.608  -10.990   7.61
 ```
 
 ## Focusing on Specific Variables
@@ -128,8 +129,8 @@ exactt.2
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)  5% W  95% W    5%  95%
-#> dose     9.764    0.1833  -Inf    Inf  -Inf  Inf
+#>       Estimate  Pr(>|t|)   5% W  95% W     5%    95%
+#> dose     9.764     0.075  2.414  16.52  2.414  16.52
 ```
 
 This creates a 90% confidence interval for `dose` only. It is equivalent
@@ -159,10 +160,10 @@ exactt.3
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)   5% W  95% W    5%   95%
-#> as.factor(dose)1      9.13   0.06667  5.075   30.9  5.07  30.9
-#> as.factor(dose)2     15.49   0.05000  9.471    Inf  9.47   Inf
-#> suppVC               -3.70   0.23330   -Inf    Inf  -Inf   Inf
+#>                   Estimate  Pr(>|t|)   5% W  95% W    5%    95%
+#> as.factor(dose)1      9.13   0.01667  5.647  19.13  5.64  19.13
+#> as.factor(dose)2     15.49   0.05833  9.471    Inf  9.47    Inf
+#> suppVC               -3.70   0.23330   -Inf    Inf  -Inf    Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals
