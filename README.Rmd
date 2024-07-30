@@ -27,6 +27,7 @@ exactt <img src="man/figures/package-sticker.png" align="right" style="float:rig
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
 <!-- badges: end -->
 
+
 ## Introduction
 
 The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.
@@ -90,7 +91,7 @@ exactt.2
 This creates a 90% confidence interval for `dose` only. It is equivalent to the case where `variables = NULL` (all variables are of interest) because these confidence intervals are marginally valid.
 
 ## Model Flexibility
-The `exactt()` function is designed to allow easy modification of your model to fit various analytical needs. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating `dose` as a categorical variable to explore its discrete impact on tooth length:
+The `exactt()` function is designed to allow for easy modification of your model. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating `dose` as a categorical variable to explore its discrete impact on tooth length:
 ```{r}
 exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
                    data = datasets::ToothGrowth,
