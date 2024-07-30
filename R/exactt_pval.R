@@ -31,7 +31,7 @@
 #' @importFrom dplyr bind_cols
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1, beta0){
+exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1, beta0){
   
   n <- nrow(X1.temp)
   
@@ -45,11 +45,6 @@ exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlock
     QGX2.temp <- build_QGX2(GX2.temp)
     
     Q.X1.temp <- QGX2.temp%*%X1.temp
-    
-    # OLD CODE
-    #Q.X1.temp.permuted <- matrix(Q.X1.temp[permIndices], nrow = n)
-    #E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
-    #t_num <- t(Q.X1.temp.permuted) %*% E
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     E.permuted = apply(E,
@@ -70,13 +65,13 @@ exactt_pval <- function(betaNullVec, Y.temp, beta_hat1, X1.temp, X2.temp, nBlock
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
       
       if(beta0){
-        Y.temp.minus.X1.temp.beta_hat1.permuted <- lapply(betaNullVec,
-                                                          function(x){
-                                                            matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
-                                                          }) %>%
+        Y.temp.minus.X1.temp.beta0.permuted <- lapply(betaNullVec,
+                                                      function(x){
+                                                        matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
+                                                      }) %>%
           simplify2array()
         
-        eps_hat.permuted <- apply(Y.temp.minus.X1.temp.beta_hat1.permuted,
+        eps_hat.permuted <- apply(Y.temp.minus.X1.temp.beta0.permuted,
                                   MARGIN = 3,
                                   function(x){
                                     QGX1GX2.temp %*% x
