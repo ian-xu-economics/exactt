@@ -49,7 +49,7 @@ test_that("build_GX() works correctly", {
                       ncol = 17))
 })
 
-test_that("build_GX2() and build_QGX2() works correctly", {
+test_that("build_GX2(), build_QGX2(), and build_QGX1GX2() work correctly", {
   
   blockIndexMatrix <- matrix(c(1:30), ncol = 5)
   
@@ -61,22 +61,29 @@ test_that("build_GX2() and build_QGX2() works correctly", {
   X <- cbind(X1, X2) 
   
   # Test build_GX2()
-  result <- unname(build_GX2(X, blockIndexMatrix))
+  result.GX2 <- unname(build_GX2(X, blockIndexMatrix))
   
-  expect_equal(unname(result), 
+  expect_equal(unname(result.GX2), 
                matrix(scan(file = test_path("expected_values_build_GX2.txt"), 
                            quiet = TRUE), 
                       ncol = 34))
   
   # Test build_QGX2()
-  result <- build_QGX2(result)
+  result.QGX2 <- build_QGX2(result.GX2)
   
-  expect_equal(unname(result), 
+  expect_equal(unname(result.QGX2), 
                matrix(scan(file = test_path("expected_values_build_QGX2.txt"), 
                            quiet = TRUE), 
                       ncol = 30),
                tolerance = 1e-6)
   
+  # Test build_QGX1GX2()
+  result.QGX1GX2 <- build_QGX1GX2(X1, result.GX2, blockIndexMatrix, GX1 = TRUE)
+  
+  expect_equal(unname(result.QGX1GX2), 
+               matrix(scan(file = test_path("expected_values_build_QGX1GX2.txt"), 
+                           quiet = TRUE), 
+                      ncol = 30),
+               tolerance = 1e-6)
 })
-
 
