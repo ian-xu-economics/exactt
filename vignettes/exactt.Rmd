@@ -77,7 +77,7 @@ exactt.2
 This creates a 90% confidence interval for `dose` only. It is equivalent to the case where `variables = NULL` (all variables are of interest) because these confidence intervals are marginally valid.
 
 ## Model Flexibility
-The `exactt()` function is designed to allow easy modification of your model to fit various analytical needs. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating `dose` as a categorical variable to explore its discrete impact on tooth length:
+The `exactt()` function is designed to allow for easy modification of your model. For instance, you can treat a variable as categorical, include polynomial terms, or apply other transformations directly within the model formula. This flexibility helps tailor the analysis to specific research questions without needing pre-transformed data. To illustrate, consider treating `dose` as a categorical variable to explore its discrete impact on tooth length:
 ```{r}
 exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
                    data = datasets::ToothGrowth,
