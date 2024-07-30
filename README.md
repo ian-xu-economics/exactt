@@ -13,8 +13,6 @@ Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.
 [![Test
 coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml)
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
-[![License: GPL (\>=
-2)](https://img.shields.io/badge/License-GPL%20%28%3E%3D%202%29-blue.svg)](https://choosealicense.com/licenses/gpl-2.0/)
 <!-- badges: end -->
 
 ## Introduction
@@ -55,29 +53,32 @@ library("exactt")
 #> Package 'exactt' | Version 1.1.3
 ```
 
-## Example Usage
+## Example Usage: Regular Case
 
-To compute the $(1-\alpha)\%$ confidence interval, use the `exactt()`
-function. Here’s an example using daily air quality measurements in New
-York found in `datasets::airquality`. We’ll investigate the relationship
-between temperature (degrees F) and month (1–12) on wind (mph).
+To compute the $(1-\alpha)$ confidence interval, use the `exactt()`
+function. Here’s an example looking at the effect of vitamin C on tooth
+growth in guinea pigs using data from `datasets::ToothGrowth`. We’ll
+investigate the relationship between `supp` (orange juice (OJ) or
+ascorbic acid (VC)) and `dose` (dose in milligrams/day) on `len` (tooth
+length).
 
 ``` r
-summary(datasets::airquality[c("Wind", "Temp", "Month")])
-#>       Wind             Temp           Month      
-#>  Min.   : 1.700   Min.   :56.00   Min.   :5.000  
-#>  1st Qu.: 7.400   1st Qu.:72.00   1st Qu.:6.000  
-#>  Median : 9.700   Median :79.00   Median :7.000  
-#>  Mean   : 9.958   Mean   :77.88   Mean   :6.993  
-#>  3rd Qu.:11.500   3rd Qu.:85.00   3rd Qu.:8.000  
-#>  Max.   :20.700   Max.   :97.00   Max.   :9.000
+summary(datasets::ToothGrowth)
+#>       len        supp         dose      
+#>  Min.   : 4.20   OJ:30   Min.   :0.500  
+#>  1st Qu.:13.07   VC:30   1st Qu.:0.500  
+#>  Median :19.25           Median :1.000  
+#>  Mean   :18.81           Mean   :1.167  
+#>  3rd Qu.:25.27           3rd Qu.:2.000  
+#>  Max.   :33.90           Max.   :2.000
 ```
 
 Suppose our model is
-$$Wind_i = \beta_0 + \beta_{Temp} \times Temp_i + \beta_{Month} \times Month_i + \varepsilon_i.$$
-We can create a $(1-\alpha)\%$ confidence interval by plugging in
-standard formula notation into `exactt()`. If we don’t specify any
-additional parameters, then by default:
+$len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp} \times supp_i + \varepsilon_i$.
+We can create a 90% confidence interval by plugging in standard formula
+notation into `exactt()`. The level of significance (alpha) equals 0.1
+here, but if we choose not to specify any additional parameters, then by
+default:
 
 - The number of blocks used equals 5 (`nBlocks = 5`).
 - The confidence interval is constructed for all variables
@@ -90,63 +91,48 @@ additional parameters, then by default:
 - The ordering of the data is not optimized (`optimize = FALSE`).
 
 ``` r
-exactt1 <- exactt(Wind ~ Temp + Month,
-                  data = datasets::airquality)
-exactt1
+exactt.1 <- exactt(model = len ~ dose + supp,
+                   data = datasets::ToothGrowth,
+                   alpha = 0.1)
+exactt.1
 #> 
 #> Call:
-#> exactt(model = Wind ~ Temp + Month, data = datasets::airquality)
+#> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
+#>     alpha = 0.1)
 #> 
 #> 
 #> Summary:
-#>        Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%    97.5%
-#> Temp   -0.17320   0.01667  -0.3137  -0.0821  -0.3137  -0.0821
-#> Month   0.04382   0.99170  -4.9520   3.2810  -4.9520   3.2810
+#>         Estimate  Pr(>|t|)    5% W  95% W      5%   95%
+#> dose       9.764    0.1833    -Inf    Inf    -Inf   Inf
+#> suppVC    -3.700    0.2583  -11.68   57.5  -11.68  57.5
 ```
-
-## Visualization of Results
-
-If **tidyverse** and **latex2exp** are installed, you can visualize the
-results by plotting the p-value against $\beta^0$ using the
-`exacttPlot()` function:
-
-``` r
-exacttPlot(exactt1)
-#> [[1]]
-```
-
-<img src="man/figures/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" />
-
-    #> 
-    #> [[2]]
-
-<img src="man/figures/unnamed-chunk-5-2.png" width="100%" style="display: block; margin: auto;" />
 
 ## Focusing on Specific Variables
 
 To focus on specific coefficients, set the `variables` parameter. The
 number entered corresponds to the index of the regressors in the model
-(note that the intercept is never counted). For example. set
-`variables = 1` for `Temp`, and set `variables = 2` for `Month`.
+(note that the intercept is never counted). For example, set
+`variables = 1` for `dose`, and set `variables = 2` for `supp`.
 
 ``` r
-exactt2 <- exactt(Wind ~ Temp + Month,
-                  data = datasets::airquality,
-                  variables = 1)
+exactt.2 <- exactt(model = len ~ dose + supp,
+                   data = datasets::ToothGrowth,
+                   alpha = 0.1,
+                   variables = 1)
 
-exactt2
+exactt.2
 #> 
 #> Call:
-#> exactt(model = Wind ~ Temp + Month, data = datasets::airquality, 
-#>     variables = 1)
+#> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
+#>     alpha = 0.1, variables = 1)
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%    97.5%
-#> Temp   -0.1732   0.01667  -0.3137  -0.0821  -0.3137  -0.0821
+#>       Estimate  Pr(>|t|)  5% W  95% W    5%  95%
+#> dose     9.764    0.1833  -Inf    Inf  -Inf  Inf
 ```
 
-This creates a 95% confidence interval for `Temp` only. It is equivalent
+This creates a 90% confidence interval for `dose` only. It is equivalent
 to the case where `variables = NULL` (all variables are of interest)
 because these confidence intervals are marginally valid.
 
@@ -157,33 +143,32 @@ model to fit various analytical needs. For instance, you can treat a
 variable as categorical, include polynomial terms, or apply other
 transformations directly within the model formula. This flexibility
 helps tailor the analysis to specific research questions without needing
-pre-transformed data. To illustrate, consider treating `Month` as a
-categorical variable to explore its discrete impact on wind speed in a
-dataset of daily air quality measurements:
+pre-transformed data. To illustrate, consider treating `dose` as a
+categorical variable to explore its discrete impact on tooth length:
 
 ``` r
-exactt4 <- exactt(Wind ~ Temp + as.factor(Month),
-                  data = datasets::airquality)
+exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
+                   data = datasets::ToothGrowth,
+                   alpha = 0.1)
 
-exactt4
+exactt.3
 #> 
 #> Call:
-#> exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality)
+#> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
+#>     alpha = 0.1)
 #> 
 #> 
 #> Summary:
-#>                    Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%    97.5%
-#> Temp                -0.1953   0.01667  -0.3112  -0.0851  -0.3112  -0.0851
-#> as.factor(Month)6    1.2900   0.02500     -Inf  -4.3270     -Inf  -4.3270
-#> as.factor(Month)7    0.9035   0.75830     -Inf      Inf     -Inf      Inf
-#> as.factor(Month)8    0.7677   0.41670     -Inf      Inf     -Inf      Inf
-#> as.factor(Month)9    0.7740   0.60830     -Inf      Inf     -Inf      Inf
+#>                   Estimate  Pr(>|t|)   5% W  95% W    5%   95%
+#> as.factor(dose)1      9.13   0.06667  5.075   30.9  5.07  30.9
+#> as.factor(dose)2     15.49   0.05000  9.471    Inf  9.47   Inf
+#> suppVC               -3.70   0.23330   -Inf    Inf  -Inf   Inf
 ```
 
-The confidence intervals for each category of Month is not informative
-due to suboptimal data ordering, which can diminish the statistical
-power of the test. This issue can be addressed by optimizing the data
-ordering.
+The 90% confidence intervals when `dose` equals “2” and `supp` equals
+“VC” is not informative due to suboptimal data ordering, which can
+diminish the statistical power of the test. This issue can be addressed
+by optimizing the data ordering.
 
 ## Optimizing Data Ordering
 
@@ -208,87 +193,40 @@ process. For instance, you can limit the number of iterations with
 `maxiter` or specify the seed with `seed` for reproducibility:
 
 ``` r
-exactt5 <- exactt(Wind ~ Temp + as.factor(Month),
-                  data = datasets::airquality,
-                  optimize = TRUE,
-                  parallel = TRUE,
-                  maxiter = 5,
-                  seed = 2024)
+exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
+                   data = datasets::ToothGrowth,
+                   alpha = 0.1,
+                   optimize = TRUE,
+                   parallel = TRUE,
+                   maxiter = 5,
+                   seed = 2024)
 
-exactt5
+exactt.4
 
+#> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
+#> GA | iter = 2 | Mean = 3.109950 | Best = 5.195252
+#> GA | iter = 3 | Mean = 2.982926 | Best = 5.195252
+#> GA | iter = 4 | Mean = 3.037489 | Best = 5.195252
+#> GA | iter = 5 | Mean = 3.053269 | Best = 5.418928
+#> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
+#> GA | iter = 2 | Mean = 3.017456 | Best = 5.007930
+#> GA | iter = 3 | Mean = 3.140062 | Best = 5.007930
+#> GA | iter = 4 | Mean = 3.105836 | Best = 5.007930
+#> GA | iter = 5 | Mean = 3.191111 | Best = 5.007930
+#> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
+#> GA | iter = 2 | Mean = 4.263754 | Best = 6.343909
+#> GA | iter = 3 | Mean = 4.649025 | Best = 7.158755
+#> GA | iter = 4 | Mean = 4.668351 | Best = 7.158755
+#> GA | iter = 5 | Mean = 4.520408 | Best = 7.158755
 #> 
 #> Call:
-#> exactt(model = Wind ~ Temp + as.factor(Month), data = datasets::airquality, 
+#> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
 #>     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)
 #> 
 #> 
 #> Summary:
-#>                    Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%    97.5%
-#> Temp                -0.1953  0.008333  -0.2673  -0.1127  -0.2673  -0.1127
-#> as.factor(Month)6    1.2900  0.375000  -1.2300   2.7040  -1.2300   2.7040
-#> as.factor(Month)7    0.9035  0.533300  -1.4200   2.4800  -1.4200   2.4800
-#> as.factor(Month)8    0.7677  0.850000  -3.6100   2.1600  -3.6100   2.1600
-#> as.factor(Month)9    0.7740  0.408300  -2.3220   3.9110  -2.3220   3.9110
-```
-
-Note that by optimizing the data ordering, `exactt()` is now able to
-construct informative $(1-\alpha) \%$ confidence intervals for each
-category of `Month`. Furthermore, the detailed results of the
-optimization process, including the genetic algorithm’s configurations
-and outcomes for each variable, are stored in the `exactt5$gaResults`.
-For instance, to review a summary of the genetic algorithm’s performance
-for the `Temp` variable, use:
-
-``` r
-exactt5$gaResults$Temp@summary
-
-#>           max     mean       q3   median       q1      min
-#> [1,] 3373.156 2466.905 2756.414 2491.108 2149.217 1628.742
-#> [2,] 3379.420 2557.049 2804.535 2564.529 2331.299 1548.839
-#> [3,] 3379.420 2550.141 2816.223 2561.671 2278.764 1730.608
-#> [4,] 3379.420 2555.116 2761.960 2605.983 2245.362 1538.921
-#> [5,] 3379.420 2574.320 2779.467 2574.736 2277.046 1701.787
-```
-
-### Note on Optimization Effects
-
-While optimization generally improves statistical power, it is essential
-to remember that it increases the average power and may not universally
-reduce the confidence interval’s width in every instance.
-
-## Example Usage: IV Case
-
-The `exactt()` function is capable of handling models with instrumental
-variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge
-reanalyzes Mroz (1987). This example explores the impact of education
-(`educ`) on `log(wage)`, using parental education levels—mother’s
-education (`motheduc`) and father’s education (`fatheduc`)—as
-instruments. The model controls for experience (`exper`) and its square
-(`expersq`), with education being the primary variable of interest,
-hence we set variables = 1. Optionally, as before, we can optimize the
-data ordering to enhance statistical power.
-
-``` r
-exactt_iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
-                    data = wooldridge::mroz,
-                    variables = 1,
-                    optimize = TRUE,
-                    parallel = TRUE,
-                    maxiter = 10,
-                    monitor = FALSE,
-                    seed = 2024)
-
-exactt_iv
-
-#> Call:
-#> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
-#>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
-#>     optimize = TRUE, parallel = TRUE, maxiter = 10, monitor = FALSE, 
-#>     seed = 2024)
-#> 
-#> 
-#> Summary:
-#>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%  97.5%
-#> educ    0.0614    0.1417  -0.041    0.148  -0.041  0.148
+#>                   Estimate  Pr(>|t|)    5% W   95% W      5%     95%
+#> as.factor(dose)1      9.13  0.008333   8.030  11.420   8.030  11.420
+#> as.factor(dose)2     15.49  0.016670  12.160  19.920  12.160  19.920
+#> suppVC               -3.70  0.033330  -6.687  -1.246  -6.687  -1.246
 ```
