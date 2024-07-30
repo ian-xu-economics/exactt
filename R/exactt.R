@@ -311,8 +311,7 @@ exactt <- function(model,
       
     } else{
       exacttResults <- exactt_pval(betaNullVec, 
-                                   Y.temp, 
-                                   beta_hat1 = beta_hat,
+                                   Y.temp,
                                    X1.temp,
                                    X2.temp, 
                                    nBlocks, 

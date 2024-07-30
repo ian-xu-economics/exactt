@@ -1,7 +1,7 @@
 Package: exactt
 Type: Package
 Title: Implement the Exact t-Test
-Version: 1.1.15
+Version: 1.1.16
 Authors@R: c(
     person(given   = "Guillaume",
            family  = "Pouliot",
