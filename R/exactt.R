@@ -20,8 +20,8 @@
 #' @param permutation Optional; a specific permutation vector to rearrange order of data.
 #' @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
-#' @param beta0 Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.
 #' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
+#' @param beta0 Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
