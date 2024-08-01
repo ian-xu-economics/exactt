@@ -50,7 +50,7 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
-#> Package 'exactt' | Version 1.1.16
+#> Package 'exactt' | Version 1.2.1
 ```
 
 ## Example Usage: Regular Case

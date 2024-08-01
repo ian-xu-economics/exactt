@@ -160,20 +160,55 @@ test_that("getBetaNull() works correctly", {
   precisionToUse = floor(log(se, base = 10)) - 1
   
   # First Test
-  result <- getBetaNull(Y.temp = Y, 
-                        X1.temp = X1, 
-                        X2.temp = X2, 
-                        Z.temp = NULL, 
-                        alpha = 0.1, 
-                        nBlocks, 
-                        permIndices, 
-                        beta_hat = reg$coefficients[2], 
-                        se = se,
-                        studentize = TRUE,
-                        precisionToUse = precisionToUse, 
-                        GX1 = TRUE)
+  result.1 <- getBetaNull(Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          Z.temp = NULL, 
+                          alpha = 0.1, 
+                          nBlocks, 
+                          permIndices, 
+                          beta_hat = reg$coefficients[2], 
+                          se = se,
+                          studentize = TRUE,
+                          precisionToUse = precisionToUse, 
+                          GX1 = TRUE)
 
-  expect_equal(result, 
-               scan(file = test_path("expected_values_getBetaNull.txt"), 
+  expect_equal(result.1, 
+               scan(file = test_path("expected_values_getBetaNull_GX1.txt"), 
+                    quiet = TRUE))
+  
+  # Second Test
+  result.2 <- getBetaNull(Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          Z.temp = NULL, 
+                          alpha = 0.1, 
+                          nBlocks, 
+                          permIndices, 
+                          beta_hat = reg$coefficients[2], 
+                          se = se,
+                          studentize = TRUE,
+                          precisionToUse = precisionToUse, 
+                          GX1 = FALSE)
+  
+  expect_equal(result.2, 
+               scan(file = test_path("expected_values_getBetaNull_X1.txt"), 
+                    quiet = TRUE))
+  
+  # Third Test
+  result.3 <- getBetaNull(Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          Z.temp = NULL, 
+                          alpha = 0.1, 
+                          nBlocks, 
+                          permIndices, 
+                          beta_hat = reg$coefficients[2], 
+                          se = se,
+                          studentize = FALSE,
+                          precisionToUse = precisionToUse)
+  
+  expect_equal(result.3, 
+               scan(file = test_path("expected_values_getBetaNull_unstudentized.txt"), 
                     quiet = TRUE))
 })
