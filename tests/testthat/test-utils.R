@@ -87,3 +87,93 @@ test_that("build_GX2(), build_QGX2(), and build_QGX1GX2() work correctly", {
                tolerance = 1e-6)
 })
 
+test_that("exactt_pval() works correctly", {
+  
+  set.seed(31740)
+  n = 50
+  X1 <- matrix(rbinom(n, size = 8, prob = 0.5))
+  X2 <- matrix(rexp(n))
+  eps <- matrix(rnorm(n, sd = 2))
+  Y <- matrix(3*X1 + 2*X2 + eps)
+  
+  nBlocks = 5
+  blockIndexMatrix = matrix(1:n, ncol = nBlocks)
+  blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
+  permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+  
+  betaNullVec = seq(2, 3, 0.1)
+  
+  # First test (GX1)
+  result.1 <- exactt_pval(betaNullVec, 
+                          Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          nBlocks, 
+                          permIndices, 
+                          studentize = TRUE, 
+                          GX1 = TRUE)
+  # saveRDS(result.1, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_GX1.rds")
+  expect_equal(result.1, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_GX1.rds"))
+  
+  # Second test (X1)
+  result.2 <- exactt_pval(betaNullVec, 
+                          Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          nBlocks,
+                          permIndices, 
+                          studentize = TRUE, 
+                          GX1 = FALSE)
+  # saveRDS(result.2, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_X1.rds")
+  expect_equal(result.2, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_X1.rds"))
+  
+  # Third test (unstudentized)
+  result.3 <- exactt_pval(betaNullVec, 
+                          Y.temp = Y, 
+                          X1.temp = X1, 
+                          X2.temp = X2, 
+                          nBlocks,
+                          permIndices, 
+                          studentize = FALSE)
+  # saveRDS(result.3, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds")
+  expect_equal(result.3, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds"))
+})
+
+test_that("getBetaNull() works correctly", {
+  
+  set.seed(31740)
+  n = 50
+  X1 <- matrix(rbinom(n, size = 8, prob = 0.5))
+  X2 <- matrix(rexp(n))
+  eps <- matrix(rnorm(n, sd = 2))
+  Y <- matrix(3*X1 + 2*X2 + eps)
+  data <- data.frame(Y, X1, X2)
+  
+  reg <- ivreg(Y ~ X1 + X2, data = data)
+  
+  nBlocks = 5
+  blockIndexMatrix = matrix(1:n, ncol = nBlocks)
+  blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
+  permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+  
+  se = reg$cov.unscaled[2,2]
+  precisionToUse = floor(log(se, base = 10)) - 1
+  
+  # First Test
+  result <- getBetaNull(Y.temp = Y, 
+                        X1.temp = X1, 
+                        X2.temp = X2, 
+                        Z.temp = NULL, 
+                        alpha = 0.1, 
+                        nBlocks, 
+                        permIndices, 
+                        beta_hat = reg$coefficients[2], 
+                        se = se,
+                        studentize = TRUE,
+                        precisionToUse = precisionToUse, 
+                        GX1 = TRUE)
+
+  expect_equal(result, 
+               scan(file = test_path("expected_values_getBetaNull.txt"), 
+                    quiet = TRUE))
+})

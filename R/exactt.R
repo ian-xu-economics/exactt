@@ -17,11 +17,14 @@
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
+#' @param precisionToUse The precision level for rounding off the beta values in the
+#'        resulting sequence.
 #' @param permutation Optional; a specific permutation vector to rearrange order of data.
 #' @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
-#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
-#' @param beta0 Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.
+#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
+#'        Using X1 has slightly more power at slightly more computational expense.
+#' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -61,11 +64,12 @@ exactt <- function(model,
                    nBlocks = 5,
                    nPerms = NULL,
                    studentize = TRUE,
+                   precisionToUse = NULL,
                    permutation = NULL,
                    randomizationDist = FALSE,
                    optimize = FALSE,
                    GX1 = TRUE,
-                   beta0 = FALSE,
+                   seed = 31740,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -146,7 +150,7 @@ exactt <- function(model,
   
   summaryTableIvreg <- summary(ivregObject)$coefficients
   
-  gaArgs = list(...)
+  gaArgs = list(seed = seed, ...)
   
   if(is.null(variables)){
     variables <- 1:length(X.var)
@@ -292,10 +296,10 @@ exactt <- function(model,
       betaNullVec <- betaNull[[i-1]]
     } else{
       # Find LB and UB roots
-      if(exacttIV){
-        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+      if(exacttIV){                
+        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
       } else{
-        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse)
+        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
       }
     }
     
@@ -317,8 +321,7 @@ exactt <- function(model,
                                    nBlocks, 
                                    permIndices,
                                    studentize,
-                                   GX1,
-                                   beta0)
+                                   GX1)
     }
 
     
@@ -344,7 +347,6 @@ exactt <- function(model,
                                        ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = FALSE))
     
     rowCounter <- rowCounter + 1
-
   }
   
   final_results[["summary"]] <- summaryTable.out

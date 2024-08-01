@@ -13,8 +13,8 @@
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param studentize Logical indicating whether to use studentized test statistics.
 #'        Default is TRUE.
-#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat.
-#' @param beta0 Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.
+#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
+#'        Using X1 has slightly more power at slightly more computational expense.
 #' @return A list containing:
 #'   - pval: A vector of p-values computed for each null hypothesis value.
 #'   - randomizationDist: The matrix of randomization distributions used in computing
@@ -31,7 +31,7 @@
 #' @importFrom dplyr bind_cols
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1, beta0){
+exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
@@ -64,7 +64,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     if(studentize){
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
       
-      if(beta0){
+      if(!GX1){
         Y.temp.minus.X1.temp.beta0.permuted <- lapply(betaNullVec,
                                                       function(x){
                                                         matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)

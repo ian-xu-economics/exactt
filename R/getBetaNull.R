@@ -18,117 +18,96 @@
 #' @param se The standard error associated with beta_hat.
 #' @param precisionToUse The precision level for rounding off the beta values in the
 #'        resulting sequence.
+#' @param GX1 GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
+#'        Using X1 has slightly more power at slightly more computational expense.
 #'
 #' @return Returns a sorted unique vector of beta values for null hypothesis testing.
 #'         These values represent the sequence around the estimated beta center, adjusted
 #'         according to the specified alpha and precision.
 #'
-#' @importFrom rootSolve uniroot.all
 #' @importFrom dplyr %>%
-#' @importFrom stats uniroot
 #'
 #' @noRd
-getBetaNull = function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse){
+getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1){
   
-  pvalCenters <- sort(rep(seq(0.85, 0, -0.05), 2),
-                      decreasing = TRUE) 
+  beta0 <- seq(from = beta_hat - 50*se,
+               to = beta_hat + 50*se,
+               by = se/2)
   
-  for(i in seq_along(pvalCenters)){
+  if(is.null(Z.temp)){
+    beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
+  } else{
+    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
+  }
+  
+  for(i in 1:50){
+    if(beta0.pvals[1] < alpha && 
+       beta0.pvals[length(beta0.pvals)] < alpha &&
+       any(beta0.pvals >= alpha)){
+      break
+    }
+    
+    # Expand left
+    beta0.left <- seq(from = beta0[1] - 10*se,
+                             to = beta0[1] - se/4, # so there are no repeats
+                             se/2)
+    
+    # Expand right
+    beta0.right <- seq(from = beta0[length(beta0)] + se/4, # so there are no repeats
+                       to = beta0[length(beta0)] + 10*se,
+                       se/2)
     
     if(is.null(Z.temp)){
-      estimatedCenter <- rootSolve::uniroot.all(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - pvalCenters[i], 
-                                                lower = beta_hat - 3*se, 
-                                                upper = beta_hat + 3*se, 
-                                                maxiter = 35,
-                                                tol = .Machine$double.eps^0.25,
-                                                trace = 0,
-                                                n = 500) %>%
-        try(silent = TRUE)
+      beta0.pvals.left <- exactt_pval(beta0.left, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
+      beta0.pvals.right <- exactt_pval(beta0.right, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
     } else{
-      estimatedCenter <- rootSolve::uniroot.all(f = function(x) exactt_pval_IV(x, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval - pvalCenters[i], 
-                                                lower = beta_hat - 3*se, 
-                                                upper = beta_hat + 3*se, 
-                                                maxiter = 35,
-                                                tol = .Machine$double.eps^0.25,
-                                                trace = 0,
-                                                n = 500) %>%
-        try(silent = TRUE)
+      beta0.pvals.left <- exactt_pval_IV(beta0.left, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
+      beta0.pvals.right <- exactt_pval_IV(beta0.right, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
     }
     
-    if(class(estimatedCenter)[1] != "try-error" 
-       && length(estimatedCenter) >= 1
-       && !all(is.nan(estimatedCenter))){
-      estimatedCenter = mean(estimatedCenter)
-      break
-    } else if(i == length(pvalCenters)){
-      estimatedCenter = beta_hat
-      #stop("Unable to find estimated center.")
-    }
+    beta0 <- c(beta0.left, beta0, beta0.right)
+    beta0.pvals <- c(beta0.pvals.left, beta0.pvals, beta0.pvals.right)
   }
   
-  if(is.null(Z.temp)){
-    LB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - alpha, 
-                       lower = estimatedCenter - 4*se, 
-                       upper = estimatedCenter, 
-                       extendInt = "upX",
-                       maxiter = 35,
-                       tol = .Machine$double.eps^0.25,
-                       trace = 0) %>%
-      try(silent = TRUE)
+  # Check if left and right most beta0 are below alpha
+  if(beta0.pvals[1] > alpha && 
+     beta0.pvals[length(beta0.pvals)] > alpha){
+    
+     beta0.final <- seq(round(beta_hat - 5*se, digits = -precisionToUse),
+                        round(beta_hat + 5*se, digits = -precisionToUse),
+                        10^(precisionToUse-1)) %>%
+       c(0) %>%
+       unique() %>%
+       sort()
   } else{
-    LB <- stats::uniroot(f = function(x) exactt_pval_IV(x, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval - alpha, 
-                   lower = estimatedCenter - 4*se, 
-                   upper = estimatedCenter, 
-                   extendInt = "upX",
-                   maxiter = 35,
-                   tol = .Machine$double.eps^0.25,
-                   trace = 0) %>%
-      try(silent = TRUE)
+  
+    peakIndex <- which.max(beta0.pvals)
+    beta0.left <- beta0[1:peakIndex]
+    beta0.right <- beta0[peakIndex:length(beta0.pvals)]
+    beta0.pvals.left <- beta0.pvals[1:peakIndex]
+    beta0.pvals.right <- beta0.pvals[peakIndex:length(beta0.pvals)]
+   
+    # Find left point alpha root
+    # Check if there is any zero in the vector
+    zero_indices.left <- which(beta0.pvals.left == alpha)
+    beta0.left.bound <- ifelse(length(zero_indices.left) > 0,
+                               yes = beta0.left[min(zero_indices.left)],
+                               no = beta0.left[beta0.pvals.left < alpha][which.max(beta0.pvals.left[beta0.pvals.left < alpha])]) - 1.5*se
+    
+    # Find right point alpha root
+    # Check if there is any zero in the vector
+    zero_indices.right <- which(beta0.pvals.right == alpha)
+    beta0.right.bound <- ifelse(length(zero_indices.right) > 0,
+                                yes = beta0.right[max(zero_indices.right)],
+                                no = beta0.right[beta0.pvals.right < alpha][which.min(beta0.pvals.right[beta0.pvals.right < alpha])]) + 1.5*se
+    
+    beta0.final <- seq(round(beta0.left.bound, digits = -precisionToUse),
+                       round(beta0.right.bound, digits = -precisionToUse),
+                       10^(precisionToUse-1)) %>%
+      c(0) %>%
+      unique() %>%
+      sort()
   }
   
-  LBroot <- ifelse(class(LB)[1] == "try-error", 
-                   yes = estimatedCenter - 10*se, 
-                   no = LB$root)
-  
-  if(is.null(Z.temp)){
-    UB <- stats::uniroot(f = function(x) exactt_pval(x, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX1 = TRUE)$pval - alpha, 
-                       lower = estimatedCenter, 
-                       upper = estimatedCenter + 3*se, 
-                       extendInt = "downX",
-                       maxiter = 35,
-                       tol = .Machine$double.eps^0.25,
-                       trace = 0) %>%
-      try(silent = TRUE)
-  } else{
-    UB <- stats::uniroot(f = function(x) exactt_pval_IV(x, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval - alpha, 
-                   lower = estimatedCenter, 
-                   upper = estimatedCenter + 3*se, 
-                   extendInt = "downX",
-                   maxiter = 35,
-                   tol = .Machine$double.eps^0.25,
-                   trace = 0) %>%
-      try(silent = TRUE)
-  }
-  
-  UBroot <- ifelse(class(UB)[1] == "try-error", 
-                   yes = estimatedCenter + 10*se, 
-                   no = UB$root)
-  
-  betaNull <- seq(round(LBroot - se, digits = -precisionToUse),
-                     round(UBroot + se, digits = -precisionToUse),
-                     10^(precisionToUse-1)) %>%
-    try(silent = TRUE) 
-  
-  if(class(betaNull)[1] == "try-error"){
-    betaNull <- seq(round(estimatedCenter - 12*se, digits = -precisionToUse),
-                       round(estimatedCenter + 12*se, digits = -precisionToUse),
-                       10^(precisionToUse-1)) 
-  }
-  
-  betaNull <- betaNull %>%
-    c(0) %>%
-    unique() %>%
-    sort()
-  
-  return(betaNull)
+  return(beta0.final)
 }
