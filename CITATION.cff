@@ -18,11 +18,14 @@ authors:
   email: ianxu@uchicago.edu
 preferred-citation:
   type: manual
-  title: 'exactt: An R package to ...'
+  title: 'exactt: Implement the Exact t-Test'
   authors:
-  - name: Xu Ian
+    - family-names: "Pouliot"
+      given-names: "Guillaume"
+    - family-names: "Xu"
+      given-names: "Ian"
   year: '2024'
-  notes: R package version 0.0.0.9000
+  notes: R package version 1.2.1
   url: https://github.com/ian-xu-economics/exactt
 repository-code: https://github.com/ian-xu-economics/exactt
 url: https://github.com/ian-xu-economics/exactt
@@ -297,17 +300,6 @@ references:
   institution:
     name: R Foundation for Statistical Computing
     address: Vienna, Austria
-  year: '2024'
-- type: software
-  title: rootSolve
-  abstract: 'rootSolve: Nonlinear Root Finding, Equilibrium and Steady-State Analysis
-    of Ordinary Differential Equations'
-  notes: Imports
-  repository: https://CRAN.R-project.org/package=rootSolve
-  authors:
-  - family-names: Soetaert
-    given-names: Karline
-    email: karline.soetaert@nioz.nl
   year: '2024'
 - type: software
   title: rlang
