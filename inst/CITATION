@@ -2,9 +2,12 @@ citHeader("To cite exactt in publications use:")
 
 bibentry(
   bibtype = "Manual",
-  title   = "exactt: {An} {R} package to ...",
-  author  = c(person("Xu Ian")),
+  title   = "exactt: Implement the Exact t-Test",
+  author  = c(
+    person(given = "Guillaume", family = "Pouliot"),
+    person(given = "Ian", family = "Xu", email = "ianxu@uchicago.edu")
+  ),
   year    = "2024",
-  note    = "R package version 0.0.0.9000",
+  note    = "R package version 1.2.1",
   url     = "https://github.com/ian-xu-economics/exactt"
 )
