@@ -61,7 +61,7 @@ exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1)
 
-exactt.1
+print(exactt.1, digits = 5)
 ```
 
 ## Focusing on Specific Variables
@@ -109,16 +109,19 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 
 exactt.4
 
+#> ℹ Optimizing ordering for `as.factor(dose)1`.
 #> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
 #> GA | iter = 2 | Mean = 3.109950 | Best = 5.195252
 #> GA | iter = 3 | Mean = 2.982926 | Best = 5.195252
 #> GA | iter = 4 | Mean = 3.037489 | Best = 5.195252
 #> GA | iter = 5 | Mean = 3.053269 | Best = 5.418928
+#> ℹ Optimizing ordering for `as.factor(dose)2`.
 #> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
 #> GA | iter = 2 | Mean = 3.017456 | Best = 5.007930
 #> GA | iter = 3 | Mean = 3.140062 | Best = 5.007930
 #> GA | iter = 4 | Mean = 3.105836 | Best = 5.007930
 #> GA | iter = 5 | Mean = 3.191111 | Best = 5.007930
+#> ℹ Optimizing ordering for `suppVC`.
 #> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
 #> GA | iter = 2 | Mean = 4.263754 | Best = 6.343909
 #> GA | iter = 3 | Mean = 4.649025 | Best = 7.158755
@@ -127,7 +130,8 @@ exactt.4
 #> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
-#>     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)
+#>     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, 
+#>     maxiter = 5)
 #> 
 #> 
 #> Summary:
@@ -169,6 +173,8 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
 
 exactt.iv
 
+#>ℹ Optimizing ordering for `educ`.
+#>
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
 #>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
@@ -180,6 +186,3 @@ exactt.iv
 #>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%  97.5%
 #> educ    0.0614    0.1417  -0.041    0.148  -0.041  0.148
 ```
-
-
-

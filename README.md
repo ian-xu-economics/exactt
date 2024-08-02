@@ -15,13 +15,6 @@ coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-cove
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
 <!-- badges: end -->
 
-## Introduction
-
-The `exactt` package tests whether a slope coefficient is equal to some
-null value using the novel method described in Pouliot (2023).
-Importantly, inverting such a test produces a marginally valid
-confidence interval.
-
 ## Installation
 
 The `exactt` package is hosted on GitHub at
@@ -50,7 +43,7 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
-#> Package 'exactt' | Version 1.2.1
+#> Package 'exactt' | Version 1.2.2
 ```
 
 ## Example Usage: Regular Case
@@ -95,7 +88,7 @@ exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1)
 
-exactt.1
+print(exactt.1, digits = 5)
 #> 
 #> Call:
 #> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
@@ -103,9 +96,9 @@ exactt.1
 #> 
 #> 
 #> Summary:
-#>         Estimate  Pr(>|t|)     5% W   95% W       5%    95%
-#> dose       9.764    0.0750    2.414  16.520    2.414  16.52
-#> suppVC    -3.700    0.2583  -10.980   7.608  -10.990   7.61
+#>         Estimate  Pr(>|t|)     5% W    95% W       5%     95%
+#> dose      9.7636   0.07500    2.414  16.5170    2.414  16.517
+#> suppVC   -3.7000   0.25833  -10.985   7.6075  -10.990   7.610
 ```
 
 ## Focusing on Specific Variables
@@ -162,7 +155,7 @@ exactt.3
 #> Summary:
 #>                   Estimate  Pr(>|t|)   5% W  95% W    5%    95%
 #> as.factor(dose)1      9.13   0.01667  5.647  19.13  5.64  19.13
-#> as.factor(dose)2     15.49   0.05833  9.471    Inf  9.47    Inf
+#> as.factor(dose)2     15.49   0.05833  9.407    Inf  9.40    Inf
 #> suppVC               -3.70   0.23330   -Inf    Inf  -Inf    Inf
 ```
 
@@ -204,16 +197,19 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 
 exactt.4
 
+#> ℹ Optimizing ordering for `as.factor(dose)1`.
 #> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
 #> GA | iter = 2 | Mean = 3.109950 | Best = 5.195252
 #> GA | iter = 3 | Mean = 2.982926 | Best = 5.195252
 #> GA | iter = 4 | Mean = 3.037489 | Best = 5.195252
 #> GA | iter = 5 | Mean = 3.053269 | Best = 5.418928
+#> ℹ Optimizing ordering for `as.factor(dose)2`.
 #> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
 #> GA | iter = 2 | Mean = 3.017456 | Best = 5.007930
 #> GA | iter = 3 | Mean = 3.140062 | Best = 5.007930
 #> GA | iter = 4 | Mean = 3.105836 | Best = 5.007930
 #> GA | iter = 5 | Mean = 3.191111 | Best = 5.007930
+#> ℹ Optimizing ordering for `suppVC`.
 #> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
 #> GA | iter = 2 | Mean = 4.263754 | Best = 6.343909
 #> GA | iter = 3 | Mean = 4.649025 | Best = 7.158755
@@ -222,7 +218,8 @@ exactt.4
 #> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
-#>     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)
+#>     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, 
+#>     maxiter = 5)
 #> 
 #> 
 #> Summary:
