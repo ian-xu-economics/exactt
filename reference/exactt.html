@@ -21,7 +21,7 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.2</span>
       </span>
     </div>
 
@@ -70,11 +70,12 @@ parameters for the test.</p>
 <span>  nBlocks <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  nPerms <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  studentize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  precisionToUse <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  permutation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  randomizationDist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  optimize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  GX1 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  beta0 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">31740</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -118,6 +119,11 @@ If NULL or greater than the number of possible permutations, all permutations ar
 <dd><p>Logical indicating whether to use studentized residuals for the test.</p></dd>
 
 
+<dt id="arg-precisiontouse">precisionToUse<a class="anchor" aria-label="anchor" href="#arg-precisiontouse"></a></dt>
+<dd><p>The precision level for rounding off the beta values in the
+resulting sequence.</p></dd>
+
+
 <dt id="arg-permutation">permutation<a class="anchor" aria-label="anchor" href="#arg-permutation"></a></dt>
 <dd><p>Optional; a specific permutation vector to rearrange order of data.</p></dd>
 
@@ -131,11 +137,12 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 
 <dt id="arg-gx-">GX1<a class="anchor" aria-label="anchor" href="#arg-gx-"></a></dt>
-<dd><p>Logical indicating whether to use GX1 or X1 when constructing eps_hat.</p></dd>
+<dd><p>Logical indicating whether to use GX1 or X1 when constructing eps_hat.
+Using X1 has slightly more power at slightly more computational expense.</p></dd>
 
 
-<dt id="arg-beta-">beta0<a class="anchor" aria-label="anchor" href="#arg-beta-"></a></dt>
-<dd><p>Logical indicating whether to subtract X1*Beta_1^0 from Y when constructing eps_hat.</p></dd>
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Seed used when optimizing using <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code>. Default is 31740.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
