@@ -156,7 +156,7 @@ parameters, then by default:</p>
 <span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt.1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
@@ -164,9 +164,9 @@ parameters, then by default:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)     5% W   95% W       5%    95%</span></span>
-<span><span class="co">#&gt; dose       9.764     0.075    2.414  16.520    2.414  16.52</span></span>
-<span><span class="co">#&gt; suppVC    -3.700     0.250  -10.990   7.605  -10.990   7.61</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636     0.075    2.414  16.517    2.414  16.517</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000     0.250  -10.988   7.605  -10.990   7.610</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -265,16 +265,19 @@ with <code>seed</code> for reproducibility:</p>
 <span></span>
 <span><span class="va">exactt.4</span></span>
 <span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)1`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 2.992124 | Best = 4.942080</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 3.109950 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 2.982926 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 3.037489 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 3.053269 | Best = 5.418928</span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)2`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 2.799936 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 3.017456 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 3.140062 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 3.105836 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 3.191111 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `suppVC`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 4.164565 | Best = 6.068181</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 4.263754 | Best = 6.343909</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 4.649025 | Best = 7.158755</span></span>
@@ -283,7 +286,8 @@ with <code>seed</code> for reproducibility:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, </span></span>
+<span><span class="co">#&gt;     maxiter = 5)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
@@ -343,6 +347,8 @@ to enhance statistical power.</p>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
 <span></span>
+<span><span class="co">#&gt;ℹ Optimizing ordering for `educ`.</span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>

@@ -71,11 +71,6 @@
 <!-- badges: start -->
 
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
-<p>The <code>exactt</code> package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.</p>
-</div>
-<div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be installed using the <code>remotes::install_github()</code> function:</p>
@@ -97,7 +92,7 @@
 <p>After installing <code>exactt</code>, we can attach the package to our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 1.2.1</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 1.2.2</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -127,7 +122,7 @@
 <span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt.1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
@@ -135,9 +130,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W   95% W       5%    95%</span></span>
-<span><span class="co">#&gt; dose       9.764    0.0750    2.414  16.520    2.414  16.52</span></span>
-<span><span class="co">#&gt; suppVC    -3.700    0.2583  -10.980   7.608  -10.990   7.61</span></span></code></pre></div>
+<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W    95% W       5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.5170    2.414  16.517</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000   0.25833  -10.985   7.6075  -10.990   7.610</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -180,7 +175,7 @@
 <span><span class="co">#&gt; Summary:</span></span>
 <span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)   5% W  95% W    5%    95%</span></span>
 <span><span class="co">#&gt; as.factor(dose)1      9.13   0.01667  5.647  19.13  5.64  19.13</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49   0.05833  9.471    Inf  9.47    Inf</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49   0.05833  9.407    Inf  9.40    Inf</span></span>
 <span><span class="co">#&gt; suppVC               -3.70   0.23330   -Inf    Inf  -Inf    Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
@@ -205,16 +200,19 @@
 <span></span>
 <span><span class="va">exactt.4</span></span>
 <span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)1`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 2.992124 | Best = 4.942080</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 3.109950 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 2.982926 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 3.037489 | Best = 5.195252</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 3.053269 | Best = 5.418928</span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)2`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 2.799936 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 3.017456 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 3.140062 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 3.105836 | Best = 5.007930</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 3.191111 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `suppVC`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 4.164565 | Best = 6.068181</span></span>
 <span><span class="co">#&gt; GA | iter = 2 | Mean = 4.263754 | Best = 6.343909</span></span>
 <span><span class="co">#&gt; GA | iter = 3 | Mean = 4.649025 | Best = 7.158755</span></span>
@@ -223,7 +221,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     optimize = TRUE, parallel = TRUE, maxiter = 5, seed = 2024)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, </span></span>
+<span><span class="co">#&gt;     maxiter = 5)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
