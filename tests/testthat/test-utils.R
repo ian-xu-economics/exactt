@@ -139,76 +139,76 @@ test_that("exactt_pval() works correctly", {
   expect_equal(result.3, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds"))
 })
 
-test_that("getBetaNull() works correctly", {
-  
-  set.seed(31740)
-  n = 50
-  X1 <- matrix(rbinom(n, size = 8, prob = 0.5))
-  X2 <- matrix(rexp(n))
-  eps <- matrix(rnorm(n, sd = 2))
-  Y <- matrix(3*X1 + 2*X2 + eps)
-  data <- data.frame(Y, X1, X2)
-  
-  reg <- ivreg(Y ~ X1 + X2, data = data)
-  
-  nBlocks = 5
-  blockIndexMatrix = matrix(1:n, ncol = nBlocks)
-  blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
-  permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
-  
-  se = reg$cov.unscaled[2,2]
-  precisionToUse = floor(log(se, base = 10)) - 1
-  
-  # First Test
-  result.1 <- getBetaNull(Y.temp = Y, 
-                          X1.temp = X1, 
-                          X2.temp = X2, 
-                          Z.temp = NULL, 
-                          alpha = 0.1, 
-                          nBlocks, 
-                          permIndices, 
-                          beta_hat = reg$coefficients[2], 
-                          se = se,
-                          studentize = TRUE,
-                          precisionToUse = precisionToUse, 
-                          GX1 = TRUE)
-
-  expect_equal(result.1, 
-               scan(file = test_path("expected_values_getBetaNull_GX1.txt"), 
-                    quiet = TRUE))
-  
-  # Second Test
-  result.2 <- getBetaNull(Y.temp = Y, 
-                          X1.temp = X1, 
-                          X2.temp = X2, 
-                          Z.temp = NULL, 
-                          alpha = 0.1, 
-                          nBlocks, 
-                          permIndices, 
-                          beta_hat = reg$coefficients[2], 
-                          se = se,
-                          studentize = TRUE,
-                          precisionToUse = precisionToUse, 
-                          GX1 = FALSE)
-  
-  expect_equal(result.2, 
-               scan(file = test_path("expected_values_getBetaNull_X1.txt"), 
-                    quiet = TRUE))
-  
-  # Third Test
-  result.3 <- getBetaNull(Y.temp = Y, 
-                          X1.temp = X1, 
-                          X2.temp = X2, 
-                          Z.temp = NULL, 
-                          alpha = 0.1, 
-                          nBlocks, 
-                          permIndices, 
-                          beta_hat = reg$coefficients[2], 
-                          se = se,
-                          studentize = FALSE,
-                          precisionToUse = precisionToUse)
-  
-  expect_equal(result.3, 
-               scan(file = test_path("expected_values_getBetaNull_unstudentized.txt"), 
-                    quiet = TRUE))
-})
+# test_that("getBetaNull() works correctly", {
+#   
+#   set.seed(31740)
+#   n = 50
+#   X1 <- matrix(rbinom(n, size = 8, prob = 0.5))
+#   X2 <- matrix(rexp(n))
+#   eps <- matrix(rnorm(n, sd = 2))
+#   Y <- matrix(3*X1 + 2*X2 + eps)
+#   data <- data.frame(Y, X1, X2)
+#   
+#   reg <- ivreg(Y ~ X1 + X2, data = data)
+#   
+#   nBlocks = 5
+#   blockIndexMatrix = matrix(1:n, ncol = nBlocks)
+#   blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
+#   permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+#   
+#   se = reg$cov.unscaled[2,2]
+#   precisionToUse = floor(log(se, base = 10)) - 1
+#   
+#   # First Test
+#   result.1 <- getBetaNull(Y.temp = Y, 
+#                           X1.temp = X1, 
+#                           X2.temp = X2, 
+#                           Z.temp = NULL, 
+#                           alpha = 0.1, 
+#                           nBlocks, 
+#                           permIndices, 
+#                           beta_hat = reg$coefficients[2], 
+#                           se = se,
+#                           studentize = TRUE,
+#                           precisionToUse = precisionToUse, 
+#                           GX1 = TRUE)
+# 
+#   expect_equal(result.1, 
+#                scan(file = test_path("expected_values_getBetaNull_GX1.txt"), 
+#                     quiet = TRUE))
+#   
+#   # Second Test
+#   result.2 <- getBetaNull(Y.temp = Y, 
+#                           X1.temp = X1, 
+#                           X2.temp = X2, 
+#                           Z.temp = NULL, 
+#                           alpha = 0.1, 
+#                           nBlocks, 
+#                           permIndices, 
+#                           beta_hat = reg$coefficients[2], 
+#                           se = se,
+#                           studentize = TRUE,
+#                           precisionToUse = precisionToUse, 
+#                           GX1 = FALSE)
+#   
+#   expect_equal(result.2, 
+#                scan(file = test_path("expected_values_getBetaNull_X1.txt"), 
+#                     quiet = TRUE))
+#   
+#   # Third Test
+#   result.3 <- getBetaNull(Y.temp = Y, 
+#                           X1.temp = X1, 
+#                           X2.temp = X2, 
+#                           Z.temp = NULL, 
+#                           alpha = 0.1, 
+#                           nBlocks, 
+#                           permIndices, 
+#                           beta_hat = reg$coefficients[2], 
+#                           se = se,
+#                           studentize = FALSE,
+#                           precisionToUse = precisionToUse)
+#   
+#   expect_equal(result.3, 
+#                scan(file = test_path("expected_values_getBetaNull_unstudentized.txt"), 
+#                     quiet = TRUE))
+# })

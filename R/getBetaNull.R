@@ -30,8 +30,8 @@
 #' @noRd
 getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1){
   
-  beta0 <- seq(from = beta_hat - 50*se,
-               to = beta_hat + 50*se,
+  beta0 <- seq(from = beta_hat - 20*se,
+               to = beta_hat + 20*se,
                by = se/2)
   
   if(is.null(Z.temp)){
@@ -40,7 +40,7 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
     beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
   }
   
-  for(i in 1:50){
+  for(i in 1:20){
     if(beta0.pvals[1] < alpha && 
        beta0.pvals[length(beta0.pvals)] < alpha &&
        any(beta0.pvals >= alpha)){
@@ -73,9 +73,9 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
   if(beta0.pvals[1] > alpha && 
      beta0.pvals[length(beta0.pvals)] > alpha){
     
-     beta0.final <- seq(round(beta_hat - 5*se, digits = -precisionToUse),
-                        round(beta_hat + 5*se, digits = -precisionToUse),
-                        10^(precisionToUse-1)) %>%
+     beta0.final <- seq(round(beta_hat - 10*se, digits = -precisionToUse),
+                        round(beta_hat + 10*se, digits = -precisionToUse),
+                        10^(precisionToUse)) %>%
        c(0) %>%
        unique() %>%
        sort()
