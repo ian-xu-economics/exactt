@@ -53,7 +53,7 @@
 #'
 #' @importFrom stats median formula model.matrix
 #' @importFrom Formula Formula
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort cli_alert_info
 #' 
 #' @export
 exactt <- function(model,
@@ -250,7 +250,7 @@ exactt <- function(model,
         Z.temp <- NULL
       } 
       
-      if(!is.null(gaArgs$parallel) && gaArgs$parallel != FALSE){
+      if(!is.null(gaArgs$parallel) && gaArgs$parallel == TRUE){
         
         ogParArg <- gaArgs$parallel
         
@@ -271,8 +271,12 @@ exactt <- function(model,
         parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
         
         gaArgs$parallel <- cl
-      } 
+        GA::gaControl(useRcpp = FALSE) # https://github.com/luca-scr/GA/issues/52
+      } else{
+        ogParArg <- FALSE
+      }
       
+      cli::cli_alert_info("Optimizing ordering for `{colnames(X)[i]}`.")
       gaResults <- do.call(GA::ga, gaArgs)
       
       # Close cluster if parallel is true
