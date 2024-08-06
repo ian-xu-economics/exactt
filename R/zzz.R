@@ -50,6 +50,7 @@ startupMessage <- function(){
   packageStartupMessage(startupMessage())
 }
 
+
 #' @title Package Load Hook
 #' @description This function is called when the package is loaded. It registers the S3 method for printing objects of class \code{et}.
 #' @param libname The library name where the package is installed.
@@ -57,4 +58,21 @@ startupMessage <- function(){
 #' @keywords internal
 .onLoad <- function(libname, pkgname) {
   registerS3method("print", "et", print.et)
+  
+  if (!requireNamespace("GA", quietly = TRUE)) {
+    stop("The 'GA' package is required but is not installed.")
+  }
+  
+  # https://github.com/luca-scr/GA/issues/52
+  # Load the GA package namespace
+  GA_pkg <- asNamespace("GA")
+  
+  # Unlock the binding for .ga.default
+  unlockBinding(".ga.default", GA_pkg)
+  
+  # Modify the useRcpp setting directly
+  GA_pkg$.ga.default$useRcpp <- FALSE
+  
+  # Re-lock the binding (optional, to maintain the package integrity)
+  lockBinding(".ga.default", GA_pkg)
 }

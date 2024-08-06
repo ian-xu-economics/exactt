@@ -55,6 +55,7 @@
 #' @importFrom Formula Formula
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom doRNG registerDoRNG
+#' @importFrom GA gaControl
 #' 
 #' @export
 exactt <- function(model,
@@ -205,7 +206,6 @@ exactt <- function(model,
       gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations) }
       gaArgs$lower <- rep(1, n)
       gaArgs$upper <- rep(n, n)
-      GA::gaControl(useRcpp = FALSE) # https://github.com/luca-scr/GA/issues/52
     }
   }
   
