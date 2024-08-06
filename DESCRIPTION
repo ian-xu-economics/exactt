@@ -1,7 +1,7 @@
 Package: exactt
 Type: Package
 Title: Implement the Exact t-Test
-Version: 1.2.2
+Version: 1.2.3
 Authors@R: c(
     person(given   = "Guillaume",
            family  = "Pouliot",
@@ -17,7 +17,7 @@ BugReports: https://github.com/ian-xu-economics/exactt/issues
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
     ggplot2,
     knitr,
@@ -29,6 +29,7 @@ Imports:
     cli,
     combinat,
     doParallel,
+    doRNG,
     dplyr,
     Formula,
     GA,
