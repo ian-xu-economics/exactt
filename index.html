@@ -236,6 +236,60 @@
 <span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333   5.850  10.80   5.850  10.80</span></span>
 <span><span class="co">#&gt; as.factor(dose)2     15.49  0.008333  11.460  18.15  11.460  18.15</span></span>
 <span><span class="co">#&gt; suppVC               -3.70  0.008333  -6.059  -1.51  -6.059  -1.51</span></span></code></pre></div>
+<p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative 90% confidence intervals for each category of <code>dose</code> and <code>supp</code> when they equal “2” and “VC” respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt.4$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>suppVC</code> variable, use:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
+<span></span>
+<span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
+<span><span class="co">#&gt; [1,] 7.382321 4.360677 5.017571 4.086329 3.267227 2.619588</span></span>
+<span><span class="co">#&gt; [2,] 7.382321 4.520933 5.357073 4.412913 3.453167 1.470805</span></span>
+<span><span class="co">#&gt; [3,] 7.619924 4.417387 5.219616 4.132301 3.524957 1.212991</span></span>
+<span><span class="co">#&gt; [4,] 7.694893 4.612187 5.652842 4.235755 3.446159 1.658354</span></span>
+<span><span class="co">#&gt; [5,] 8.341492 4.720165 5.778590 4.533247 3.691691 1.968057</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
+</h3>
+<p>While optimization generally improves statistical power, it is essential to remember that it increases the average power and may not universally reduce the confidence interval’s width in every instance.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="example-usage-iv-case">Example Usage: IV Case<a class="anchor" aria-label="anchor" href="#example-usage-iv-case"></a>
+</h2>
+<p>The <code><a href="reference/exactt.html">exactt()</a></code> function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (<code>educ</code>) on <code>log(wage)</code>, using parental education levels—mother’s education (<code>motheduc</code>) and father’s education (<code>fatheduc</code>)—as instruments. The model controls for experience (<code>exper</code>) and its square (<code>expersq</code>), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exactt.iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
+<span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va">mroz</span>,</span>
+<span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                    monitor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">exactt.iv</span></span>
+<span></span>
+<span><span class="co">#&gt; ℹ Optimizing ordering for `educ`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2741598 | Best = 3187006</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2742438 | Best = 3187006</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2829015 | Best = 3187006</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2774273 | Best = 3187006</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2814367 | Best = 3214546</span></span>
+<span><span class="co">#&gt; GA | iter = 6 | Mean = 2765049 | Best = 3214546</span></span>
+<span><span class="co">#&gt; GA | iter = 7 | Mean = 2787454 | Best = 3214546</span></span>
+<span><span class="co">#&gt; GA | iter = 8 | Mean = 2825441 | Best = 3244843</span></span>
+<span><span class="co">#&gt; GA | iter = 9 | Mean = 2821111 | Best = 3244843</span></span>
+<span><span class="co">#&gt; GA | iter = 10 | Mean = 2808929 | Best = 3244843</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
+<span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
+<span><span class="co">#&gt;     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 10, </span></span>
+<span><span class="co">#&gt;     monitor = TRUE)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary:</span></span>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)  2.5% W  97.5% W    2.5%   97.5%</span></span>
+<span><span class="co">#&gt; educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559</span></span></code></pre></div>
 </div>
 </div>
   </div>
