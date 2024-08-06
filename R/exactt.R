@@ -54,6 +54,7 @@
 #' @importFrom stats median formula model.matrix
 #' @importFrom Formula Formula
 #' @importFrom cli cli_abort cli_alert_info
+#' @importFrom doRNG registerDoRNG
 #' 
 #' @export
 exactt <- function(model,

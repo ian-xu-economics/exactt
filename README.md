@@ -15,6 +15,13 @@ coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-cove
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
 <!-- badges: end -->
 
+## Introduction
+
+The `exactt` package tests whether a slope coefficient is equal to some
+null value using the novel method described in Pouliot (2023).
+Importantly, inverting such a test produces a marginally valid
+confidence interval.
+
 ## Installation
 
 The `exactt` package is hosted on GitHub at
@@ -198,23 +205,24 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 exactt.4
 
 #> ℹ Optimizing ordering for `as.factor(dose)1`.
-#> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
-#> GA | iter = 2 | Mean = 3.109950 | Best = 5.195252
-#> GA | iter = 3 | Mean = 2.982926 | Best = 5.195252
-#> GA | iter = 4 | Mean = 3.037489 | Best = 5.195252
-#> GA | iter = 5 | Mean = 3.053269 | Best = 5.418928
+#> GA | iter = 1 | Mean = 2.888022 | Best = 5.038739
+#> GA | iter = 2 | Mean = 3.004796 | Best = 5.038739
+#> GA | iter = 3 | Mean = 3.170103 | Best = 5.038739
+#> GA | iter = 4 | Mean = 3.227257 | Best = 5.038739
+#> GA | iter = 5 | Mean = 3.128852 | Best = 5.038739
 #> ℹ Optimizing ordering for `as.factor(dose)2`.
-#> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
-#> GA | iter = 2 | Mean = 3.017456 | Best = 5.007930
-#> GA | iter = 3 | Mean = 3.140062 | Best = 5.007930
-#> GA | iter = 4 | Mean = 3.105836 | Best = 5.007930
-#> GA | iter = 5 | Mean = 3.191111 | Best = 5.007930
+#> GA | iter = 1 | Mean = 2.770961 | Best = 4.212245
+#> GA | iter = 2 | Mean = 2.891328 | Best = 5.021332
+#> GA | iter = 3 | Mean = 3.114271 | Best = 5.264609
+#> GA | iter = 4 | Mean = 3.116448 | Best = 5.699668
+#> GA | iter = 5 | Mean = 3.104743 | Best = 5.699668
 #> ℹ Optimizing ordering for `suppVC`.
-#> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
-#> GA | iter = 2 | Mean = 4.263754 | Best = 6.343909
-#> GA | iter = 3 | Mean = 4.649025 | Best = 7.158755
-#> GA | iter = 4 | Mean = 4.668351 | Best = 7.158755
-#> GA | iter = 5 | Mean = 4.520408 | Best = 7.158755
+#> GA | iter = 1 | Mean = 4.360677 | Best = 7.382321
+#> GA | iter = 2 | Mean = 4.520933 | Best = 7.382321
+#> GA | iter = 3 | Mean = 4.417387 | Best = 7.619924
+#> GA | iter = 4 | Mean = 4.612187 | Best = 7.694893
+#> GA | iter = 5 | Mean = 4.720165 | Best = 8.341492
+#> 
 #> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
@@ -223,8 +231,8 @@ exactt.4
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)    5% W   95% W      5%     95%
-#> as.factor(dose)1      9.13  0.008333   8.030  11.420   8.030  11.420
-#> as.factor(dose)2     15.49  0.016670  12.160  19.920  12.160  19.920
-#> suppVC               -3.70  0.033330  -6.687  -1.246  -6.687  -1.246
+#>                   Estimate  Pr(>|t|)    5% W  95% W      5%    95%
+#> as.factor(dose)1      9.13  0.008333   5.850  10.80   5.850  10.80
+#> as.factor(dose)2     15.49  0.008333  11.460  18.15  11.460  18.15
+#> suppVC               -3.70  0.008333  -6.059  -1.51  -6.059  -1.51
 ```
