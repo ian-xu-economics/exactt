@@ -27,6 +27,7 @@ exactt <img src="man/figures/package-sticker.png" align="right" style="float:rig
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
 <!-- badges: end -->
 
+
 ## Introduction
 
 The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.
@@ -153,4 +154,60 @@ exactt.4
 #> as.factor(dose)1      9.13  0.008333   5.850  10.80   5.850  10.80
 #> as.factor(dose)2     15.49  0.008333  11.460  18.15  11.460  18.15
 #> suppVC               -3.70  0.008333  -6.059  -1.51  -6.059  -1.51
+```
+
+Note that by optimizing the data ordering, `exactt()` is now able to construct informative 90% confidence intervals for each category of `dose` and `supp` when they equal "2" and "VC" respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm's configurations and outcomes for each variable, are stored in the `exactt.4$gaResults`. For instance, to review a summary of the genetic algorithm's performance for the `suppVC` variable, use:
+```{r, eval = FALSE}
+exactt.4$gaResults$suppVC@summary
+
+#>           max     mean       q3   median       q1      min
+#> [1,] 7.382321 4.360677 5.017571 4.086329 3.267227 2.619588
+#> [2,] 7.382321 4.520933 5.357073 4.412913 3.453167 1.470805
+#> [3,] 7.619924 4.417387 5.219616 4.132301 3.524957 1.212991
+#> [4,] 7.694893 4.612187 5.652842 4.235755 3.446159 1.658354
+#> [5,] 8.341492 4.720165 5.778590 4.533247 3.691691 1.968057
+```
+
+### Note on Optimization Effects
+
+While optimization generally improves statistical power, it is essential to remember that it increases the average power and may not universally reduce the confidence interval's width in every instance. 
+
+## Example Usage: IV Case
+
+The `exactt()` function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (`educ`) on `log(wage)`, using parental education levels—mother's education (`motheduc`) and father's education (`fatheduc`)—as instruments. The model controls for experience (`exper`) and its square (`expersq`), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.
+
+```{r, eval = FALSE}
+exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+                    data = wooldridge::mroz,
+                    variables = 1,
+                    optimize = TRUE,
+                    parallel = TRUE,
+                    maxiter = 10,
+                    monitor = TRUE,
+                    seed = 2024)
+
+exactt.iv
+
+#> ℹ Optimizing ordering for `educ`.
+#> GA | iter = 1 | Mean = 2741598 | Best = 3187006
+#> GA | iter = 2 | Mean = 2742438 | Best = 3187006
+#> GA | iter = 3 | Mean = 2829015 | Best = 3187006
+#> GA | iter = 4 | Mean = 2774273 | Best = 3187006
+#> GA | iter = 5 | Mean = 2814367 | Best = 3214546
+#> GA | iter = 6 | Mean = 2765049 | Best = 3214546
+#> GA | iter = 7 | Mean = 2787454 | Best = 3214546
+#> GA | iter = 8 | Mean = 2825441 | Best = 3244843
+#> GA | iter = 9 | Mean = 2821111 | Best = 3244843
+#> GA | iter = 10 | Mean = 2808929 | Best = 3244843
+#> 
+#> Call:
+#> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
+#>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
+#>     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 10, 
+#>     monitor = TRUE)
+#> 
+#> 
+#> Summary:
+#>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%   97.5%
+#> educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559
 ```
