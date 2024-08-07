@@ -113,7 +113,7 @@ test_that("exactt_pval() works correctly", {
                           studentize = TRUE, 
                           GX1 = TRUE)
   # saveRDS(result.1, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_GX1.rds")
-  expect_equal(result.1, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_GX1.rds"))
+  expect_equal(result.1, readRDS(test_path("expected_values_exactt_pval_GX1.rds")))
   
   # Second test (X1)
   result.2 <- exactt_pval(betaNullVec, 
@@ -125,7 +125,7 @@ test_that("exactt_pval() works correctly", {
                           studentize = TRUE, 
                           GX1 = FALSE)
   # saveRDS(result.2, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_X1.rds")
-  expect_equal(result.2, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_X1.rds"))
+  expect_equal(result.2, readRDS(test_path("expected_values_exactt_pval_X1.rds")))
   
   # Third test (unstudentized)
   result.3 <- exactt_pval(betaNullVec, 
@@ -136,7 +136,7 @@ test_that("exactt_pval() works correctly", {
                           permIndices, 
                           studentize = FALSE)
   # saveRDS(result.3, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds")
-  expect_equal(result.3, readRDS("/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds"))
+  expect_equal(result.3, readRDS(test_path("expected_values_exactt_pval_unstudentized.rds")))
 })
 
 # test_that("getBetaNull() works correctly", {
