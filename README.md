@@ -50,7 +50,7 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
-#> Package 'exactt' | Version 1.2.2
+#> Package 'exactt' | Version 1.2.5
 ```
 
 ## Example Usage: Regular Case
@@ -103,9 +103,9 @@ print(exactt.1, digits = 5)
 #> 
 #> 
 #> Summary:
-#>         Estimate  Pr(>|t|)     5% W    95% W       5%     95%
-#> dose      9.7636   0.07500    2.414  16.5170    2.414  16.517
-#> suppVC   -3.7000   0.25833  -10.985   7.6075  -10.990   7.610
+#>         Estimate  Pr(>|t|)     5% W   95% W       5%     95%
+#> dose      9.7636   0.07500    2.414  16.517    2.414  16.517
+#> suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300
 ```
 
 ## Focusing on Specific Variables
@@ -160,10 +160,10 @@ exactt.3
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)   5% W  95% W    5%    95%
-#> as.factor(dose)1      9.13   0.01667  5.647  19.13  5.64  19.13
-#> as.factor(dose)2     15.49   0.05833  9.407    Inf  9.40    Inf
-#> suppVC               -3.70   0.23330   -Inf    Inf  -Inf    Inf
+#>                   Estimate  Pr(>|t|)  5% W  95% W    5%    95%
+#> as.factor(dose)1      9.13      0.05  -259  271.2  -259  271.2
+#> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf    Inf
+#> suppVC               -3.70      1.00  -Inf    Inf  -Inf    Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals
