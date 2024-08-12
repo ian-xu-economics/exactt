@@ -103,7 +103,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     } else{
       t <- t_num
     }
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-9))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
     
   } else{ # univariate case
     X1.temp.permuted <- matrix(X1.temp[permIndices], nrow = n)
@@ -112,7 +112,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     
-    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-9))
+    p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-8))
   }
   
   return(list(pval = p_val_seq_beta_index,
