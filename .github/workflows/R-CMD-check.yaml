@@ -37,10 +37,21 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick libmagick++-dev
+
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
           Rscript -e "if (file.exists('renv.lock')) renv::restore()"
+          
+      - name: Install system dependencies for macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install imagemagick
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
