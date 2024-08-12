@@ -57,6 +57,12 @@ jobs:
           brew install harfbuzz
           brew install fribidi
 
+      - name: Install system dependencies for Windows
+        if: runner.os == 'Windows'
+        run: |
+          choco install imagemagick
+          choco install curl
+
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
@@ -71,6 +77,12 @@ jobs:
         with:
           upload-snapshots: true
 
-      - name: Check directory contents
+      - name: Check directory contents on Windows
+        if: runner.os == 'Windows'
+        run: |
+          Get-ChildItem -Recurse
+
+      - name: Check directory contents on macOS/Linux
+        if: runner.os != 'Windows'
         run: |
           ls -alh
