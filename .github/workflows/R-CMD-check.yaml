@@ -37,7 +37,7 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - name: Install system dependencies
+      - name: Install system dependencies for Linux
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
@@ -45,18 +45,22 @@ jobs:
             imagemagick \
             libmagick++-dev \
             libcurl4-openssl-dev \
-            pkg-config
-
-      - name: Install R packages
-        run: |
-          Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
-          Rscript -e "if (file.exists('renv.lock')) renv::restore()"
+            pkg-config \
+            libharfbuzz-dev \
+            libfribidi-dev
 
       - name: Install system dependencies for macOS
         if: runner.os == 'macOS'
         run: |
           brew install imagemagick
           brew install curl
+          brew install harfbuzz
+          brew install fribidi
+
+      - name: Install R packages
+        run: |
+          Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
+          Rscript -e "if (file.exists('renv.lock')) renv::restore()"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
