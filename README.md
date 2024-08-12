@@ -49,8 +49,7 @@ After installing `exactt`, we can attach the package to our session
 using the base `library()` function:
 
 ``` r
-library("exactt")
-#> Package 'exactt' | Version 1.2.5
+library(exactt)
 ```
 
 ## Example Usage: Regular Case

@@ -50,8 +50,11 @@ citation("exactt")
 ## Using `exactt`
 
 After installing `exactt`, we can attach the package to our session using the base `library()` function:
-```{r, eval=TRUE}
-library("exactt")
+```{r, eval=FALSE}
+library(exactt)
+```
+```{r, echo = F, message = F, warning = F}
+devtools::load_all()
 ```
 
 ## Example Usage: Regular Case
