@@ -182,16 +182,17 @@ set <code>variables = 1</code> for <code>dose</code>, and set
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                   variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt.2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  Pr(&gt;|t|)   5% W  95% W     5%    95%</span></span>
-<span><span class="co">#&gt; dose     9.764     0.075  2.414  16.52  2.414  16.52</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.517    2.414  16.517</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It
 is equivalent to the case where <code>variables = NULL</code> (all
 variables are of interest) because these confidence intervals are
@@ -263,7 +264,7 @@ with <code>seed</code> for reproducibility:</p>
 <span>                   maxiter <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                   seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">exactt.4</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.4</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)1`.</span></span>
 <span><span class="co">#&gt; GA | iter = 1 | Mean = 2.888022 | Best = 5.038739</span></span>
@@ -292,10 +293,10 @@ with <code>seed</code> for reproducibility:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)    5% W  95% W      5%    95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333   5.850  10.80   5.850  10.80</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49  0.008333  11.460  18.15  11.460  18.15</span></span>
-<span><span class="co">#&gt; suppVC               -3.70  0.008333  -6.059  -1.51  -6.059  -1.51</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)    5% W  95% W      5%    95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.850  10.80   5.850  10.80</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  11.460  18.15  11.460  18.15</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.0083333  -6.059  -1.51  -6.059  -1.51</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="../reference/exactt.html">exactt()</a></code> is
 now able to construct informative 90% confidence intervals for each
 category of <code>dose</code> and <code>supp</code> when they equal “2”
