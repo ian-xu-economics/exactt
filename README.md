@@ -121,16 +121,17 @@ exactt.2 <- exactt(model = len ~ dose + supp,
                    alpha = 0.1,
                    variables = 1)
 
-exactt.2
+print(exactt.1, digits = 5)
 #> 
 #> Call:
 #> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
-#>     alpha = 0.1, variables = 1)
+#>     alpha = 0.1)
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)   5% W  95% W     5%    95%
-#> dose     9.764     0.075  2.414  16.52  2.414  16.52
+#>         Estimate  Pr(>|t|)     5% W   95% W       5%     95%
+#> dose      9.7636   0.07500    2.414  16.517    2.414  16.517
+#> suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300
 ```
 
 This creates a 90% confidence interval for `dose` only. It is equivalent
@@ -202,7 +203,7 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
                    maxiter = 5,
                    seed = 2024)
 
-exactt.4
+print(exactt.4, digits = 5)
 
 #> ℹ Optimizing ordering for `as.factor(dose)1`.
 #> GA | iter = 1 | Mean = 2.888022 | Best = 5.038739
@@ -231,10 +232,10 @@ exactt.4
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)    5% W  95% W      5%    95%
-#> as.factor(dose)1      9.13  0.008333   5.850  10.80   5.850  10.80
-#> as.factor(dose)2     15.49  0.008333  11.460  18.15  11.460  18.15
-#> suppVC               -3.70  0.008333  -6.059  -1.51  -6.059  -1.51
+#>                   Estimate   Pr(>|t|)    5% W  95% W      5%    95%
+#> as.factor(dose)1     9.130  0.0083333   5.850  10.80   5.850  10.80
+#> as.factor(dose)2    15.495  0.0083333  11.460  18.15  11.460  18.15
+#> suppVC              -3.700  0.0083333  -6.059  -1.51  -6.059  -1.51
 ```
 
 Note that by optimizing the data ordering, `exactt()` is now able to

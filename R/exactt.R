@@ -277,7 +277,7 @@ exactt <- function(model,
         ogParArg <- FALSE
       }
       
-      cli::cli_alert_info("Optimizing ordering for `{colnames(X)[i]}`.")
+      cli::cli_alert_success("Optimizing ordering for `{colnames(X)[i]}`.")
       gaResults <- do.call(GA::ga, gaArgs)
       
       # Close cluster if parallel is true
