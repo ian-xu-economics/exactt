@@ -97,7 +97,7 @@
 <p>After installing <code>exactt</code>, we can attach the package to our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 1.2.2</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 1.2.5</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -135,9 +135,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W    95% W       5%     95%</span></span>
-<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.5170    2.414  16.517</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000   0.25833  -10.985   7.6075  -10.990   7.610</span></span></code></pre></div>
+<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.517    2.414  16.517</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -178,10 +178,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)   5% W  95% W    5%    95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13   0.01667  5.647  19.13  5.64  19.13</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49   0.05833  9.407    Inf  9.40    Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70   0.23330   -Inf    Inf  -Inf    Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%    95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  -259  271.2  -259  271.2</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf    Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf    Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
