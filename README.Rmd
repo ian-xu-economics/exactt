@@ -57,6 +57,7 @@ library(exactt)
 devtools::load_all()
 ```
 
+
 ## Example Usage: Regular Case
 
 To compute the $(1-\alpha)$ confidence interval, use the `exactt()` function. Here's an example looking at the effect of vitamin C on tooth growth in guinea pigs using data from `datasets::ToothGrowth`. We'll investigate the relationship between `supp` (orange juice (OJ) or ascorbic acid (VC)) and `dose` (dose in milligrams/day) on `len` (tooth length). 
