@@ -39,8 +39,8 @@ jobs:
 
       - name: Install R packages
         run: |
-          R -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
-          R -e "if (file.exists('renv.lock')) renv::restore()"
+          Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
+          Rscript -e "if (file.exists('renv.lock')) renv::restore()"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
