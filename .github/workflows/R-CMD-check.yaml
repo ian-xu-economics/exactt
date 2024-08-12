@@ -41,17 +41,22 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y imagemagick libmagick++-dev
+          sudo apt-get install -y \
+            imagemagick \
+            libmagick++-dev \
+            libcurl4-openssl-dev \
+            pkg-config
 
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
           Rscript -e "if (file.exists('renv.lock')) renv::restore()"
-          
+
       - name: Install system dependencies for macOS
         if: runner.os == 'macOS'
         run: |
           brew install imagemagick
+          brew install curl
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
