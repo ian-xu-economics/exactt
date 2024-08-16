@@ -37,6 +37,17 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/R/renv
+            C:/Users/runneradmin/AppData/Local/R/cache/R/renv
+            ~/Library/Caches/R/renv
+          key: ${{ runner.os }}-r-${{ matrix.config.r }}-${{ hashFiles('renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-r-${{ matrix.config.r }}-
+
       - name: Install system dependencies for Linux
         if: runner.os == 'Linux'
         run: |
@@ -48,7 +59,6 @@ jobs:
             pkg-config \
             libharfbuzz-dev \
             libfribidi-dev
-
       - name: Install system dependencies for macOS
         if: runner.os == 'macOS'
         run: |
@@ -56,18 +66,15 @@ jobs:
           brew install curl
           brew install harfbuzz
           brew install fribidi
-
       - name: Install system dependencies for Windows
         if: runner.os == 'Windows'
         run: |
           choco install imagemagick
           choco install curl
-
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('devtools', 'rmarkdown', 'renv'))"
           Rscript -e "if (file.exists('renv.lock')) renv::restore()"
-
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
@@ -81,7 +88,6 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           Get-ChildItem -Recurse
-
       - name: Check directory contents on macOS/Linux
         if: runner.os != 'Windows'
         run: |
