@@ -11,7 +11,7 @@
 #' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
 #' @param variables Optional; a character vector of predictor names to test.
 #'        If NULL, all predictors in the model are tested.
-#' @param betaNull Optional; a numeric vector of null hypothesis values for the coefficients.
+#' @param beta0 Optional; a numeric vector of null hypothesis values for the coefficients.
 #'        Must be the same length as `variables` if not NULL.
 #' @param nBlocks The number of blocks to use for permutations.
 #' @param nPerms Optional; the number of permutations to perform.
@@ -62,7 +62,7 @@ exactt <- function(model,
                    data,
                    alpha = 0.05,
                    variables = NULL,
-                   betaNull = NULL,
+                   beta0 = NULL,
                    nBlocks = 5,
                    nPerms = NULL,
                    studentize = TRUE,
@@ -77,14 +77,6 @@ exactt <- function(model,
   call <- match.call(expand.dots = TRUE)
   
   ####### Do checks #######
-  
-  # Check if `betaNull` provided. If so, check if length equal to number of variables
-  if(!is.null(betaNull) && is.null(variables)){
-    warning("'betaNull' will be ignored since 'variables' is NULL.")
-  } else if(!is.null(betaNull) 
-            && length(betaNull) != length(variables)){
-    cli::cli_abort("Length of 'betaNull' must match length of 'variables'.")
-  }
   
   # Check if `model` provided and is formula with LHS
   if(is.null(model)){
@@ -102,6 +94,14 @@ exactt <- function(model,
                               data = data,
                               model = TRUE,
                               x = TRUE)
+  
+  # Check if `beta0` provided. If so, check if length equal to number of variables
+  if(!is.null(beta0) && is.null(variables)){
+    warning("'beta0' will be ignored since 'variables' is NULL.")
+  } else if(!is.null(beta0) 
+            && length(beta0) != length(variables)){
+    cli::cli_abort("Length of 'beta0' must match length of 'variables'.")
+  }
   
   data <- ivregObject$model
   
@@ -152,7 +152,7 @@ exactt <- function(model,
   
   summaryTableIvreg <- summary(ivregObject)$coefficients
   
-  gaArgs = list(seed = seed, ...)
+  gaArgs <- list(seed = seed, ...)
   
   if(is.null(variables)){
     variables <- 1:length(X.var)
@@ -297,29 +297,30 @@ exactt <- function(model,
       final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
     }
     
-    if(!is.null(betaNull) && !is.null(betaNull[[i-1]])){
-      betaNullVec <- betaNull[[i-1]]
+    if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
+      beta0.vec <- beta0[[as.character(attr(X, "assign")[i])]]
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
+        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
       } else{
-        betaNullVec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
+        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
       }
     }
     
     if(exacttIV){
-      exacttResults <- exactt_pval_IV(betaNullVec, 
+      exacttResults <- exactt_pval_IV(beta0.vec, 
                                       Y.temp, 
                                       X1.temp,
                                       X2.temp, 
                                       Z.temp,
                                       nBlocks, 
                                       permIndices,
-                                      studentize)
+                                      studentize,
+                                      GX1)
       
     } else{
-      exacttResults <- exactt_pval(betaNullVec, 
+      exacttResults <- exactt_pval(beta0.vec, 
                                    Y.temp,
                                    X1.temp,
                                    X2.temp, 
@@ -330,7 +331,7 @@ exactt <- function(model,
     }
 
     
-    final_results[["detailed"]][[colnames(X)[i]]] <- data.frame("betaNull" = betaNullVec, 
+    final_results[["detailed"]][[colnames(X)[i]]] <- data.frame("beta0" = beta0.vec, 
                                                                 "pval" = exacttResults$pval)
     
     if(randomizationDist){
@@ -342,14 +343,14 @@ exactt <- function(model,
                                                              data.frame("t_num" = t_numList))
     }
     
-    pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(betaNullVec == 0)]) == 0, 
+    pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(beta0.vec == 0)]) == 0, 
                             yes = NA,
-                            no = exacttResults$pval[which(betaNullVec == 0)])
+                            no = exacttResults$pval[which(beta0.vec == 0)])
     
     summaryTable.out[rowCounter,] <- c(beta_hat,
                                        pvalBetaNull0,
-                                       ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = TRUE),
-                                       ciByInversion(betaNullVec, exacttResults$pval, alpha, weighted = FALSE))
+                                       ciByInversion(beta0.vec, exacttResults$pval, alpha, weighted = TRUE),
+                                       ciByInversion(beta0.vec, exacttResults$pval, alpha, weighted = FALSE))
     
     rowCounter <- rowCounter + 1
   }

@@ -5,7 +5,7 @@
 #' secondary predictors (X2.temp). The function handles different statistical models
 #' based on the dimensionality and characteristics of the input matrices.
 #'
-#' @param betaNullVec A numeric vector of null hypothesis values to be tested.
+#' @param beta0.vec A numeric vector of null hypothesis values to be tested.
 #' @param Y.temp The response vector for which the test is being performed.
 #' @param X1.temp A numeric column vector of the primary variable.
 #' @param X2.temp A matrix of secondary variables.
@@ -31,11 +31,11 @@
 #' @importFrom dplyr bind_cols
 #'
 #' @noRd
-exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
-  betaNullVec <- matrix(betaNullVec, nrow = 1)
+  beta0.vec <- matrix(beta0.vec, nrow = 1)
   
   blockIndexMatrix <- matrix(1:nrow(Y.temp), ncol = nBlocks)
   
@@ -46,14 +46,15 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
     
     Q.X1.temp <- QGX2.temp%*%X1.temp
     
-    E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
-    E.permuted = apply(E,
-                       MARGIN = 2,
-                       function(x){
-                         matrix(x[permIndices], nrow = n)
-                       },
-                       simplify = FALSE) %>%
-      simplify2array()
+    E <- replicate(length(beta0.vec), Y.temp, simplify = TRUE) - X1.temp%*%beta0.vec
+    
+    E.permuted <- apply(E,
+                        MARGIN = 2,
+                        function(x){
+                          matrix(x[permIndices], nrow = n)
+                        },
+                        simplify = FALSE) %>%
+       simplify2array()
     
     t_num <- apply(E.permuted,
                    MARGIN = 3,
@@ -65,7 +66,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
       
       if(!GX1){
-        Y.temp.minus.X1.temp.beta0.permuted <- lapply(betaNullVec,
+        Y.temp.minus.X1.temp.beta0.permuted <- lapply(beta0.vec,
                                                       function(x){
                                                         matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
                                                       }) %>%
@@ -85,7 +86,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
                            sqrt(t(t(Q.X1.temp^2) %*% x^2/n))
                          })
         
-        # t is nPerms x length(betaNullVec)
+        # t is nPerms x length(beta0.vec)
         # Each column of t is the randomization distribution of the studentized test statistics
         t <- t_num/t_denom
       } else{
@@ -95,7 +96,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
         # nBlocks! x 1 matrix
         t_denom <- sqrt(t(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n))
         
-        # t is nPerms x length(betaNullVec)
+        # t is nPerms x length(beta0.vec)
         # Each column of t is the randomization distribution of the studentized test statistics
         t <- sweep(t_num, 1, t_denom, "/")
       }
@@ -108,7 +109,7 @@ exactt_pval <- function(betaNullVec, Y.temp, X1.temp, X2.temp, nBlocks, permIndi
   } else{ # univariate case
     X1.temp.permuted <- matrix(X1.temp[permIndices], nrow = n)
     
-    E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%t(betaNullVec)
+    E <- replicate(length(beta0.vec), Y.temp, simplify = TRUE) - X1.temp%*%t(beta0.vec)
     
     t_num <- t(X1.temp.permuted)%*%E #Don't need to multiply by 1/sqrt(n)
     

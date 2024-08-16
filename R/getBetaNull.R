@@ -30,52 +30,52 @@
 #' @noRd
 getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1){
   
-  beta0 <- seq(from = beta_hat - 20*se,
-               to = beta_hat + 20*se,
+  beta0 <- seq(from = beta_hat - 50*se,
+               to = beta_hat + 50*se,
                by = se/2)
   
   if(is.null(Z.temp)){
     beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
   } else{
-    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
+    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize, GX1)$pval
   }
   
-  for(i in 1:20){
-    if(beta0.pvals[1] < alpha && 
-       beta0.pvals[length(beta0.pvals)] < alpha &&
-       any(beta0.pvals >= alpha)){
-      break
-    }
-    
-    # Expand left
-    beta0.left <- seq(from = beta0[1] - 10*se,
-                             to = beta0[1] - se/4, # so there are no repeats
-                             se/2)
-    
-    # Expand right
-    beta0.right <- seq(from = beta0[length(beta0)] + se/4, # so there are no repeats
-                       to = beta0[length(beta0)] + 10*se,
-                       se/2)
-    
-    if(is.null(Z.temp)){
-      beta0.pvals.left <- exactt_pval(beta0.left, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
-      beta0.pvals.right <- exactt_pval(beta0.right, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
-    } else{
-      beta0.pvals.left <- exactt_pval_IV(beta0.left, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
-      beta0.pvals.right <- exactt_pval_IV(beta0.right, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
-    }
-    
-    beta0 <- c(beta0.left, beta0, beta0.right)
-    beta0.pvals <- c(beta0.pvals.left, beta0.pvals, beta0.pvals.right)
-  }
+  # for(i in 1:20){
+  #   if(beta0.pvals[1] < alpha &&
+  #      beta0.pvals[length(beta0.pvals)] < alpha &&
+  #      any(beta0.pvals >= alpha)){
+  #     break
+  #   }
+  # 
+  #   # Expand left
+  #   beta0.left <- seq(from = beta0[1] - 10*se,
+  #                            to = beta0[1] - se/4, # so there are no repeats
+  #                            se/2)
+  # 
+  #   # Expand right
+  #   beta0.right <- seq(from = beta0[length(beta0)] + se/4, # so there are no repeats
+  #                      to = beta0[length(beta0)] + 10*se,
+  #                      se/2)
+  # 
+  #   if(is.null(Z.temp)){
+  #     beta0.pvals.left <- exactt_pval(beta0.left, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
+  #     beta0.pvals.right <- exactt_pval(beta0.right, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
+  #   } else{
+  #     beta0.pvals.left <- exactt_pval_IV(beta0.left, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
+  #     beta0.pvals.right <- exactt_pval_IV(beta0.right, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices)$pval
+  #   }
+  # 
+  #   beta0 <- c(beta0.left, beta0, beta0.right)
+  #   beta0.pvals <- c(beta0.pvals.left, beta0.pvals, beta0.pvals.right)
+  # }
   
   # Check if left and right most beta0 are below alpha
-  if(beta0.pvals[1] > alpha && 
-     beta0.pvals[length(beta0.pvals)] > alpha){
+  if(!(beta0.pvals[1] <= alpha && 
+       beta0.pvals[length(beta0.pvals)] <= alpha)){
     
-     beta0.final <- seq(round(beta_hat - 10*se, digits = -precisionToUse),
-                        round(beta_hat + 10*se, digits = -precisionToUse),
-                        10^(precisionToUse)) %>%
+     beta0.final <- seq(round(beta_hat - 20*se, digits = -precisionToUse),
+                        round(beta_hat + 20*se, digits = -precisionToUse),
+                        10^(precisionToUse + 1)) %>%
        c(0) %>%
        unique() %>%
        sort()
@@ -92,19 +92,25 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
     zero_indices.left <- which(beta0.pvals.left == alpha)
     beta0.left.bound <- ifelse(length(zero_indices.left) > 0,
                                yes = beta0.left[min(zero_indices.left)],
-                               no = beta0.left[beta0.pvals.left < alpha][which.max(beta0.pvals.left[beta0.pvals.left < alpha])]) - 1.5*se
+                               no = beta0.left[beta0.pvals.left < alpha][which.max(beta0.pvals.left[beta0.pvals.left < alpha])]) + se/2
     
     # Find right point alpha root
     # Check if there is any zero in the vector
     zero_indices.right <- which(beta0.pvals.right == alpha)
     beta0.right.bound <- ifelse(length(zero_indices.right) > 0,
                                 yes = beta0.right[max(zero_indices.right)],
-                                no = beta0.right[beta0.pvals.right < alpha][which.min(beta0.pvals.right[beta0.pvals.right < alpha])]) + 1.5*se
+                                no = beta0.right[beta0.pvals.right < alpha][which.max(beta0.pvals.right[beta0.pvals.right < alpha])]) - se/2
     
-    beta0.final <- seq(round(beta0.left.bound, digits = -precisionToUse),
-                       round(beta0.right.bound, digits = -precisionToUse),
-                       10^(precisionToUse-1)) %>%
-      c(0) %>%
+    beta0.final <- c(seq(round(beta0.left.bound - se, digits = -precisionToUse),
+                         round(beta0.left.bound, digits = -precisionToUse),
+                         10^(precisionToUse-1)),
+                     seq(round(beta0.left.bound, digits = -precisionToUse),
+                         round(beta0.right.bound, digits = -precisionToUse),
+                         se/4),
+                     seq(round(beta0.right.bound, digits = -precisionToUse),
+                         round(beta0.right.bound + se, digits = -precisionToUse),
+                         10^(precisionToUse-1)),
+                     0) %>%
       unique() %>%
       sort()
   }

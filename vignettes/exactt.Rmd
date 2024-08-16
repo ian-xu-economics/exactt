@@ -170,7 +170,9 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
                     parallel = TRUE,
                     maxiter = 10,
                     monitor = TRUE,
-                    seed = 2024)
+                    seed = 2024,
+                    GX1 = FALSE,
+                    studentize = FALSE)
 
 exactt.iv
 
@@ -197,3 +199,21 @@ exactt.iv
 #>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%   97.5%
 #> educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559
 ```
+
+
+
+```{r}
+exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+                    data = wooldridge::mroz,
+                    variables = 1,
+                    optimize = TRUE,
+                    parallel = TRUE,
+                    maxiter = 10,
+                    monitor = TRUE,
+                    seed = 2024,
+                    GX1 = TRUE,
+                    studentize = TRUE)
+
+exactt.iv
+```
+

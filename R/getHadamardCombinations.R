@@ -12,7 +12,9 @@
 #' @noRd
 getHadamardCombinations <- function(tensor){
   
-  numSlices <- dim(tensor)[3]
+  num_dims <- length(dim(tensor))
+  
+  numSlices <- dim(tensor)[num_dims]
   n <- dim(tensor)[1]
   
   # Generate combinations of matrix indices
@@ -25,8 +27,7 @@ getHadamardCombinations <- function(tensor){
   hadamardProducts <- apply(allCombos,
                             MARGIN = 1,
                             function(indices){
-                              matrix(tensor[,,indices[1]] * tensor[,,indices[2]],
-                                     nrow = n)
+                              lastInd(tensor, num_dims, indices[1]) * lastInd(tensor, num_dims,  indices[2])
                             },
                             simplify = FALSE) %>%
     simplify2array()
@@ -34,4 +35,16 @@ getHadamardCombinations <- function(tensor){
   # Order is 11, 12, 22, 13, 23, 33, 14, 24, 34, 44,...
   return(hadamardProducts)
   
+}
+
+
+lastInd <- function(tensor, num_dims, index){
+  
+  # Create index lists for the two subsetting operations
+  index_list <- rep(list(TRUE), num_dims)
+  
+  # Replace the last dimension with the desired indices
+  index_list[[num_dims]] <- index
+  
+  return(do.call(`[`, c(list(tensor), index_list)))
 }

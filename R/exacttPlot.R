@@ -56,7 +56,7 @@ exacttPlot = function(et, variables = NULL){
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
       ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
       ggplot2::geom_vline(ggplot2::aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
-      ggplot2::scale_y_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
+      ggplot2::scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.1), labels = seq(0, 1, 0.1)) + 
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", variable_name, "}$")), y = "P-value") + 
       ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta^0_{", variable_name, "}$"))) + 
