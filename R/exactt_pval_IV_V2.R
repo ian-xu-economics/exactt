@@ -1,4 +1,4 @@
-exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval_IV_V2 <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   

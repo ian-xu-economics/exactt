@@ -15,7 +15,7 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr filter
 #' @keywords internal
-exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize = TRUE){
+exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
