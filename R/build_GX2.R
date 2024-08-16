@@ -10,11 +10,12 @@
 #' @return A matrix where each column is a block permutation of a column in `X2`.
 #' @noRd
 build_GX2 <- function(X2, blockIndexMatrix){
-  GX2 <- NULL
   
-  for(s in 1:ncol(X2)){
-    GX2 <- cbind(GX2, build_GX(X2[,s, drop = FALSE], blockIndexMatrix))
-  }
+  GX2.list <- apply(X2.temp,
+                    MARGIN = 2,
+                    function(x){
+                      build_GX(x, blockIndexMatrix)
+                    })
   
-  return(GX2)
+  return(do.call('cbind', GX2.list))
 }
