@@ -24,8 +24,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
   betaNullVec <- matrix(betaNullVec, nrow = 1)
   
   blockIndexMatrix <- matrix(1:nrow(Y.temp), ncol = nBlocks)
-  
-  print("WE ARE HERE line 28")
+
   if(ncol(X2.temp) > 0){
     
     GX2.temp <- build_GX2(X2.temp, blockIndexMatrix)
@@ -54,15 +53,11 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
                       simplify = FALSE) %>%
       simplify2array()
     
-    print(paste("dim Q.Z.temp.permuted", dim(Q.Z.temp.permuted)))
-    print(paste("dim TauArray", dim(TauArray)))
-    print("WE ARE HERE")
     # Then we need to build combinations of Tau (e.g. T1sq, T1T2, T2sq)
     TauCombosArray <- getHadamardCombinations(TauArray)
     
     if(studentize){
       # Then build GQZ combos (e.g. GQZ1sq, GQZ1*GQZ2, GQZ2sq)
-      print(paste("dim Q.Z.temp.permuted", dim(Q.Z.temp.permuted)))
       GQZComboArray <- getHadamardCombinations(Q.Z.temp.permuted)
       
       # Then build GSigma. For each slice in GQZComboArray, multiply each

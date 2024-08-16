@@ -202,7 +202,7 @@ exactt.iv
 
 
 
-```{r}
+```{r, eval = FALSE}
 exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
                     data = wooldridge::mroz,
                     variables = 1,

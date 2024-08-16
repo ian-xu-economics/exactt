@@ -160,10 +160,10 @@ exactt.3
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)  5% W  95% W    5%    95%
-#> as.factor(dose)1      9.13      0.05  -259  271.2  -259  271.2
-#> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf    Inf
-#> suppVC               -3.70      1.00  -Inf    Inf  -Inf    Inf
+#>                   Estimate  Pr(>|t|)  5% W  95% W    5%   95%
+#> as.factor(dose)1      9.13      0.05  5.44   70.3  5.44  70.3
+#> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf
+#> suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals

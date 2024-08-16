@@ -11,3 +11,5 @@
 ^README\.html$
 ^_pkgdown\.yaml$
 ^CITATION\.cff$
+^doc$
+^Meta$
