@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
       </span>
     </div>
 
@@ -178,10 +178,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%    95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  -259  271.2  -259  271.2</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf    Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf    Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%   95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44   70.3  5.44  70.3</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
@@ -258,7 +258,7 @@
 <p>The <code><a href="reference/exactt.html">exactt()</a></code> function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (<code>educ</code>) on <code>log(wage)</code>, using parental education levels—mother’s education (<code>motheduc</code>) and father’s education (<code>fatheduc</code>)—as instruments. The model controls for experience (<code>exper</code>) and its square (<code>expersq</code>), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
-<span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va">mroz</span>,</span>
+<span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va"><a href="https://justinmshea.github.io/wooldridge/reference/mroz.html" class="external-link">mroz</a></span>,</span>
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
