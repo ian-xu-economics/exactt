@@ -25,6 +25,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
   
   blockIndexMatrix <- matrix(1:nrow(Y.temp), ncol = nBlocks)
   
+  print("WE ARE HERE line 28")
   if(ncol(X2.temp) > 0){
     
     GX2.temp <- build_GX2(X2.temp, blockIndexMatrix)
@@ -41,7 +42,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
                                          nrow = n,
                                          byrow = FALSE) 
                                 }) %>%
-      simplify2array()
+      simplify2array() 
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec
     
@@ -53,11 +54,15 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
                       simplify = FALSE) %>%
       simplify2array()
     
+    print(paste("dim Q.Z.temp.permuted", dim(Q.Z.temp.permuted)))
+    print(paste("dim TauArray", dim(TauArray)))
+    print("WE ARE HERE")
     # Then we need to build combinations of Tau (e.g. T1sq, T1T2, T2sq)
     TauCombosArray <- getHadamardCombinations(TauArray)
     
     if(studentize){
       # Then build GQZ combos (e.g. GQZ1sq, GQZ1*GQZ2, GQZ2sq)
+      print(paste("dim Q.Z.temp.permuted", dim(Q.Z.temp.permuted)))
       GQZComboArray <- getHadamardCombinations(Q.Z.temp.permuted)
       
       # Then build GSigma. For each slice in GQZComboArray, multiply each
@@ -119,18 +124,18 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
     p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-9))
     
   } else{
-
+    
     QGX1.temp <- build_QGX1GX2(X1.temp, GX2 = NULL, blockIndexMatrix)
     
     eps_hat <- QGX1.temp%*%Y.temp
     
     # Z.temp.permuted is an array with dimension n x M_G x ncol(Z.temp) 
     Z.temp.permuted <- lapply(1:nInstruments, 
-                                function(i){
-                                  matrix(Z.temp[permIndices, i, drop = FALSE], 
-                                         nrow = n,
-                                         byrow = TRUE) 
-                                }) %>%
+                              function(i){
+                                matrix(Z.temp[permIndices, i, drop = FALSE], 
+                                       nrow = n,
+                                       byrow = TRUE) 
+                              }) %>%
       simplify2array()
     
     E <- replicate(length(betaNullVec), Y.temp, simplify = TRUE) - X1.temp%*%betaNullVec

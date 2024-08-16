@@ -302,7 +302,7 @@ exactt <- function(model,
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
+        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
       } else{
         beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
       }
@@ -316,8 +316,7 @@ exactt <- function(model,
                                       Z.temp,
                                       nBlocks, 
                                       permIndices,
-                                      studentize,
-                                      GX1)
+                                      studentize)
       
     } else{
       exacttResults <- exactt_pval(beta0.vec, 

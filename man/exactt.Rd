@@ -9,7 +9,7 @@ exactt(
   data,
   alpha = 0.05,
   variables = NULL,
-  betaNull = NULL,
+  beta0 = NULL,
   nBlocks = 5,
   nPerms = NULL,
   studentize = TRUE,
@@ -32,7 +32,7 @@ exactt(
 \item{variables}{Optional; a character vector of predictor names to test.
 If NULL, all predictors in the model are tested.}
 
-\item{betaNull}{Optional; a numeric vector of null hypothesis values for the coefficients.
+\item{beta0}{Optional; a numeric vector of null hypothesis values for the coefficients.
 Must be the same length as \code{variables} if not NULL.}
 
 \item{nBlocks}{The number of blocks to use for permutations.}

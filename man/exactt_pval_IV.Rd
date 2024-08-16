@@ -12,7 +12,8 @@ exactt_pval_IV(
   Z.temp,
   nBlocks,
   permIndices,
-  studentize = TRUE
+  studentize = TRUE,
+  GX1
 )
 }
 \arguments{
