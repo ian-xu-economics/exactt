@@ -12,6 +12,7 @@ exactt_pval_IV(
   Z.temp,
   nBlocks,
   permIndices,
+  GX.indices,
   studentize = TRUE,
   GX1
 )

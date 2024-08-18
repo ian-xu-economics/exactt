@@ -31,17 +31,15 @@
 #' @importFrom dplyr bind_cols
 #'
 #' @noRd
-exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX.indices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
   beta0.vec <- matrix(beta0.vec, nrow = 1)
   
-  blockIndexMatrix <- matrix(1:nrow(Y.temp), ncol = nBlocks)
-  
   if(ncol(X2.temp) > 0){
     
-    GX2.temp <- build_GX2(X2.temp, blockIndexMatrix)
+    GX2.temp <- build_GX2(X2.temp, GX.indices)
     QGX2.temp <- build_QGX2(GX2.temp)
     
     Q.X1.temp <- QGX2.temp%*%X1.temp
@@ -63,7 +61,7 @@ exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndice
                    })
 
     if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix, GX1)
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1)
       
       if(!GX1){
         Y.temp.minus.X1.temp.beta0.permuted <- lapply(beta0.vec,

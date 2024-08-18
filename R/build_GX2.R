@@ -9,12 +9,14 @@
 #'
 #' @return A matrix where each column is a block permutation of a column in `X2`.
 #' @noRd
-build_GX2 <- function(X2.temp, blockIndexMatrix){
+build_GX2 <- function(X2.temp, GX.indices){
+  
+  n <- nrow(X2.temp)
   
   GX2.list <- apply(X2.temp,
                     MARGIN = 2,
                     function(x){
-                      build_GX(x, blockIndexMatrix)
+                      matrix(x[GX.indices], nrow = n)
                     },
                     simplify = FALSE)
   

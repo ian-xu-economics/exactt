@@ -28,16 +28,16 @@
 #' @importFrom dplyr %>%
 #'
 #' @noRd
-getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1){
+getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse, GX1){
   
   beta0 <- seq(from = beta_hat - 50*se,
                to = beta_hat + 50*se,
                by = se/2)
   
   if(is.null(Z.temp)){
-    beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, studentize, GX1)$pval
+    beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX.indices, studentize, GX1)$pval
   } else{
-    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize, GX1)$pval
+    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, GX.indices, studentize, GX1)$pval
   }
   
   # for(i in 1:20){

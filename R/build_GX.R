@@ -18,50 +18,45 @@
 #' @importFrom Matrix rankMatrix
 #' @importFrom combinat permn
 #' @noRd
-build_GX = function(X, blockIndexMatrix){
+build_GX <- function(blockIndexMatrix){
   
   nBlocks <- ncol(blockIndexMatrix)
   
-  max_rank <- nBlocks*(nBlocks - 2) + 2
+  # Create s1
+  # IX 2024-08-18: need to find quicker way to construct s1. Don't need all columns
+  permutation <- expand.grid(rep(list(2:nBlocks), nBlocks-1))
   
-  GX <- X
-  rank <- 1
+  s1 <- rbind(1,
+              t(permutation[apply(permutation, MARGIN = 1, function(x) length(unique(x)) == (nBlocks - 1)),]))
   
-  if(nBlocks <= 9){
-    possibleBlockPermutations = do.call(rbind, combinat::permn(1:nBlocks))[-1,, drop = FALSE] # We start out with GX = X
+  # Create s2
+  s2.bot <- matrix(NA, nrow = nBlocks - 1, ncol = nBlocks - 1)
+  diag(s2.bot) <- 1
   
-    triedAllBlockPerms <- FALSE
-    
-    while(rank < max_rank && triedAllBlockPerms == FALSE){
-      
-      temp <- block_permute(X, blockIndexMatrix, possibleBlockPermutations)
-      
-      shuffledData <- temp[[1]]
-      possibleBlockPermutations <- temp[[2]]
-      
-      GX.possible <- cbind(GX, shuffledData)
-      rank.GX.possible <- Matrix::rankMatrix(GX.possible)
-      
-      if(rank.GX.possible > rank){
-        GX <- GX.possible
-        rank <- rank.GX.possible
-      }
-      
-      if(rank < max_rank && nrow(possibleBlockPermutations) == 0){
-        #warning(paste0("Unable to construct maximum rank GX. All possible block permutations attempted. \n Current GX rank: ", rank,
-        #               "\n Max GX rank: ", max_rank))
-        
-        triedAllBlockPerms <- TRUE
-      }
-    }
-  } else{
-    # Need to find a way to switch out of while loop.
-    while(rank < max_rank){ 
-      for(j in 1:(nBlocks^2)){
-        GX <- cbind(GX, block_permute(X, blockIndexMatrix, possibleBlockPermutations = NULL)[[1]])
-      }
-      rank <- Matrix::rankMatrix(GX)
-    }
+  if(nBlocks >= 3){
+    s2.bot[which(is.na(s2.bot))] <- 3:nBlocks
   }
-  return(GX)
+  
+  s2 <- rbind(2, s2.bot)
+  
+  # Create s3 and so on...
+  if(nBlocks >= 3){
+    s3.plus <- sapply(3:nBlocks,
+                      function(x){
+                        matrix(c(x, (1:nBlocks)[-x]))
+                      })
+  } else{
+    s3.plus <- NULL
+  }
+  
+  GX <- unname(cbind(s1, s2, s3.plus))
+  
+  GX.indices <- apply(GX,
+                      MARGIN = 2,
+                      function(x) blockIndexMatrix[,x])
+  
+  return(GX.indices)
 }
+
+
+

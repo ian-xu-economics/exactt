@@ -15,9 +15,9 @@
 #' @importFrom MASS ginv
 #' @importFrom methods as
 #' @noRd
-fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, blockIndexMatrix, blockPermutations){
+fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, blockIndexMatrix, blockPermutations, GX.indices){
   
-  GX2 <- build_GX2(X2.temp[permutation,, drop = FALSE], blockIndexMatrix)
+  GX2 <- build_GX2(X2.temp[permutation,, drop = FALSE], GX.indices)
   
   Q <- build_QGX2(GX2)
   

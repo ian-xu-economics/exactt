@@ -36,55 +36,45 @@ test_that("build_GX() works correctly", {
   
   blockIndexMatrix <- matrix(c(1:30), ncol = 5)
   
-  # Create X vector
-  set.seed(10)
-  X <- matrix(sample(1:10, 30, replace = TRUE))
-  
   # First Test
-  result <- build_GX(X, blockIndexMatrix)
+  result <- build_GX(blockIndexMatrix)
   
-  expect_equal(unname(result), 
-               matrix(scan(file = test_path("expected_values_build_GX.txt"), 
-                           quiet = TRUE), 
-                      ncol = 17))
+  expect_equal(result, 
+               readRDS(test_path("expected_values_build_GX.rds")))
 })
 
 test_that("build_GX2(), build_QGX2(), and build_QGX1GX2() work correctly", {
   
-  blockIndexMatrix <- matrix(c(1:30), ncol = 5)
+  n <- 50
+  
+  blockIndexMatrix <- matrix(c(1:n), ncol = 5)
+  
+  GX.indices <- build_GX(blockIndexMatrix)
   
   # Create X vector
   set.seed(10)
-  X1 <- matrix(sample(x = 1:10, size = 30, replace = TRUE))
-  X2 <- matrix(sample(x = 11:20, size = 30, replace = TRUE))
+  X1 <- matrix(rexp(n))
+  X2 <- matrix(rnorm(n))
   
   X <- cbind(X1, X2) 
   
   # Test build_GX2()
-  result.GX2 <- unname(build_GX2(X, blockIndexMatrix))
+  result.GX2 <- build_GX2(X, GX.indices)
   
-  expect_equal(unname(result.GX2), 
-               matrix(scan(file = test_path("expected_values_build_GX2.txt"), 
-                           quiet = TRUE), 
-                      ncol = 34))
+  expect_equal(result.GX2, 
+               readRDS(test_path("expected_values_build_GX2.rds")))
   
   # Test build_QGX2()
   result.QGX2 <- build_QGX2(result.GX2)
   
-  expect_equal(unname(result.QGX2), 
-               matrix(scan(file = test_path("expected_values_build_QGX2.txt"), 
-                           quiet = TRUE), 
-                      ncol = 30),
-               tolerance = 1e-6)
+  expect_equal(result.QGX2, 
+               readRDS(test_path("expected_values_build_QGX2.rds")))
   
   # Test build_QGX1GX2()
-  result.QGX1GX2 <- build_QGX1GX2(X1, result.GX2, blockIndexMatrix, GX1 = TRUE)
+  result.QGX1GX2 <- build_QGX1GX2(X1, result.GX2, GX.indices, GX1 = TRUE)
   
-  expect_equal(unname(result.QGX1GX2), 
-               matrix(scan(file = test_path("expected_values_build_QGX1GX2.txt"), 
-                           quiet = TRUE), 
-                      ncol = 30),
-               tolerance = 1e-6)
+  expect_equal(result.QGX1GX2, 
+               readRDS(test_path("expected_values_build_QGX1GX2.rds")))
 })
 
 test_that("exactt_pval() works correctly", {
@@ -100,6 +90,7 @@ test_that("exactt_pval() works correctly", {
   blockIndexMatrix = matrix(1:n, ncol = nBlocks)
   blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
   permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+  GX.indices <- build_GX(blockIndexMatrix)
   
   betaNullVec = seq(2, 3, 0.1)
   
@@ -110,6 +101,7 @@ test_that("exactt_pval() works correctly", {
                           X2.temp = X2, 
                           nBlocks, 
                           permIndices, 
+                          GX.indices,
                           studentize = TRUE, 
                           GX1 = TRUE)
   # saveRDS(result.1, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_GX1.rds")
@@ -122,6 +114,7 @@ test_that("exactt_pval() works correctly", {
                           X2.temp = X2, 
                           nBlocks,
                           permIndices, 
+                          GX.indices,
                           studentize = TRUE, 
                           GX1 = FALSE)
   # saveRDS(result.2, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_X1.rds")
@@ -133,7 +126,8 @@ test_that("exactt_pval() works correctly", {
                           X1.temp = X1, 
                           X2.temp = X2, 
                           nBlocks,
-                          permIndices, 
+                          permIndices,
+                          GX.indices,
                           studentize = FALSE)
   # saveRDS(result.3, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_unstudentized.rds")
   expect_equal(result.3, readRDS(test_path("expected_values_exactt_pval_unstudentized.rds")))

@@ -15,21 +15,19 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr filter
 #' @keywords internal
-exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize = TRUE, GX1){
+exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, GX.indices, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
   nInstruments <- ncol(Z.temp)
   
   betaNullVec <- matrix(betaNullVec, nrow = 1)
-  
-  blockIndexMatrix <- matrix(1:nrow(Y.temp), ncol = nBlocks)
 
   if(ncol(X2.temp) > 0){
     
-    GX2.temp <- build_GX2(X2.temp, blockIndexMatrix)
+    GX2.temp <- build_GX2(X2.temp, GX.indices)
     QGX2.temp <- build_QGX2(GX2.temp)
-    QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, blockIndexMatrix)
+    QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices)
     
     Q.Z.temp <- QGX2.temp%*%Z.temp
     eps_hat <- QGX1GX2.temp%*%Y.temp
@@ -120,7 +118,7 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
     
   } else{
     
-    QGX1.temp <- build_QGX1GX2(X1.temp, GX2 = NULL, blockIndexMatrix)
+    QGX1.temp <- build_QGX1GX2(X1.temp, GX2 = NULL, GX.indices)
     
     eps_hat <- QGX1.temp%*%Y.temp
     

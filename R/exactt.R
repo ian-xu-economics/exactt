@@ -167,6 +167,8 @@ exactt <- function(model,
     permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
   }
   
+  GX.indices <- build_GX(blockIndexMatrix)
+  
   final_results <- vector("list")
   
   if(!optimize){ # Case 1: don't optimize
@@ -203,7 +205,7 @@ exactt <- function(model,
       }
       
       gaArgs$type <- "permutation"
-      gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations) }
+      gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations, GX.indices) }
       gaArgs$lower <- rep(1, n)
       gaArgs$upper <- rep(n, n)
     }
@@ -262,10 +264,22 @@ exactt <- function(model,
           numCores <- gaArgs$parallel
         }
         
-        cl <- parallel::makeCluster(numCores)
+        # Create the appropriate cluster
+        if (Sys.info()["sysname"] != "Windows") {
+          # Unix-based system and forking is enabled
+          cl <- parallel::makeForkCluster(numCores)
+        } else {
+          # Use socket cluster on Windows or if forking is not desired
+          cl <- parallel::makeCluster(numCores)
+        }
+        
+        # Register the parallel backend
         doParallel::registerDoParallel(cl)
         
-        parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "Z.temp", "blockIndexMatrix", "blockPermutations", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
+        if (inherits(cl, "SOCKcluster")) {
+          # Export variables and functions only if using a socket cluster
+          parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "Z.temp", "blockIndexMatrix", "blockPermutations", "GX.indices", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
+        }
         
         parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
         parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
@@ -302,9 +316,9 @@ exactt <- function(model,
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
+        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse)
       } else{
-        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse, GX1)
+        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse, GX1)
       }
     }
     
@@ -316,6 +330,7 @@ exactt <- function(model,
                                       Z.temp,
                                       nBlocks, 
                                       permIndices,
+                                      GX.indices,
                                       studentize)
       
     } else{
@@ -325,6 +340,7 @@ exactt <- function(model,
                                    X2.temp, 
                                    nBlocks, 
                                    permIndices,
+                                   GX.indices,
                                    studentize,
                                    GX1)
     }
