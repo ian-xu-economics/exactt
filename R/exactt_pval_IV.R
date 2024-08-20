@@ -5,7 +5,7 @@
 #' @param X1.temp A matrix of the independent variable(s) values.
 #' @param X2.temp A matrix of additional independent variable(s) values.
 #' @param Z.temp A matrix of instrumental variable(s) values.
-#' @param nBlocks An integer specifying the number of blocks.
+#' @param nBlocks The number of blocks to use for block permutations.
 #' @param permIndices A matrix of permutation indices.
 #' @param studentize A logical value indicating whether to studentize the test statistics.
 #' @return A list containing the p-values and the randomization distribution.

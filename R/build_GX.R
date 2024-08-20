@@ -22,34 +22,7 @@ build_GX <- function(blockIndexMatrix){
   
   nBlocks <- ncol(blockIndexMatrix)
   
-  # Create s1
-  # IX 2024-08-18: need to find quicker way to construct s1. Don't need all columns
-  permutation <- expand.grid(rep(list(2:nBlocks), nBlocks-1))
-  
-  s1 <- rbind(1,
-              t(permutation[apply(permutation, MARGIN = 1, function(x) length(unique(x)) == (nBlocks - 1)),]))
-  
-  # Create s2
-  s2.bot <- matrix(NA, nrow = nBlocks - 1, ncol = nBlocks - 1)
-  diag(s2.bot) <- 1
-  
-  if(nBlocks >= 3){
-    s2.bot[which(is.na(s2.bot))] <- 3:nBlocks
-  }
-  
-  s2 <- rbind(2, s2.bot)
-  
-  # Create s3 and so on...
-  if(nBlocks >= 3){
-    s3.plus <- sapply(3:nBlocks,
-                      function(x){
-                        matrix(c(x, (1:nBlocks)[-x]))
-                      })
-  } else{
-    s3.plus <- NULL
-  }
-  
-  GX <- unname(cbind(s1, s2, s3.plus))
+  GX <- generate_block_permutations(nBlocks)
   
   GX.indices <- apply(GX,
                       MARGIN = 2,
@@ -59,4 +32,36 @@ build_GX <- function(blockIndexMatrix){
 }
 
 
-
+#' Create block permutations from "An Exact t-Test".
+#'
+#' @param nBlocks The number of blocks to use for block permutations.
+#'
+#' @return A matrix containing (nBlocks - 1) * (nBlocks - 3) columns from S1,
+#' nBlocks - 1 from S2 and nBlocks - 2 from S3+.
+generate_block_permutations <- function(nBlocks){
+  
+  if(nBlocks == 2){
+    s1.2 <- matrix(1:2)
+    s2.2 <- matrix(2:1)
+    
+    return(cbind(s1.2, s2.2))
+  }
+  
+  # Create s1
+  s1 <- rbind(1, generate_block_permutations(nBlocks - 1) + 1)
+  
+  # Create s2
+  s2.bot <- matrix(NA, nrow = nBlocks - 1, ncol = nBlocks - 1)
+  diag(s2.bot) <- 1
+  s2.bot[which(is.na(s2.bot))] <- 3:nBlocks
+  s2 <- rbind(2, s2.bot)
+  
+  # Create s3.plus  
+  s3.plus <- sapply(3:nBlocks,
+                    function(x){
+                      matrix(c(x, (1:nBlocks)[-x]))
+                    })
+  
+  return(cbind(s1, s2, s3.plus))
+  
+}

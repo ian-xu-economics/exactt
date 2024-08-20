@@ -15,6 +15,6 @@
 #' @noRd
 build_QGX2 <- function(GX2){
   
-  return(diag(nrow(GX2)) - GX2 %*% MASS::ginv(t(GX2) %*% GX2, tol = max(dim(GX2)) * .Machine$double.eps) %*% t(GX2))
+  return(diag(nrow(GX2)) - GX2 %*% MASS::ginv(crossprod(GX2), tol = max(dim(GX2)) * .Machine$double.eps) %*% t(GX2))
   
 }

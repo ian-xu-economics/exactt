@@ -12,7 +12,7 @@
 #' @param X2.temp A matrix of secondary variables.
 #' @param alpha The significance level used to define the confidence interval for
 #'        the test statistic.
-#' @param nBlocks The number of blocks in the permutation test.
+#' @param nBlocks The number of blocks to use for block permutations.
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param beta_hat The estimated coefficient on the primary variable for the hypothesis test.
 #' @param se The standard error associated with beta_hat.

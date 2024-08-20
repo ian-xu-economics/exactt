@@ -39,6 +39,7 @@ test_that("build_GX() works correctly", {
   # First Test
   result <- build_GX(blockIndexMatrix)
   
+  #saveRDS(result, "~/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_build_GX.rds")
   expect_equal(result, 
                readRDS(test_path("expected_values_build_GX.rds")))
 })
@@ -61,6 +62,7 @@ test_that("build_GX2(), build_QGX2(), and build_QGX1GX2() work correctly", {
   # Test build_GX2()
   result.GX2 <- build_GX2(X, GX.indices)
   
+  #saveRDS(result.GX2, "~/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_build_GX2.rds")
   expect_equal(result.GX2, 
                readRDS(test_path("expected_values_build_GX2.rds")))
   

@@ -24,12 +24,11 @@
 build_QGX1GX2 <- function(X1, GX2, GX.indices, GX1 = TRUE){
   
   if(GX1){
-    GX1 <- matrix(X1[GX.indices], nrow = nrow(GX.indices))
-    GX1X2 <- cbind(1, GX1, GX2)
+    GX1X2 <- cbind(1, matrix(X1[GX.indices], nrow = nrow(GX.indices)), GX2)
   } else{
     GX1X2 <- cbind(1, X1, GX2)
   }
   
-  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(t(GX1X2) %*% GX1X2, max(dim(GX1X2)) * .Machine$double.eps) %*% t(GX1X2))
+  return(diag(nrow(GX2)) - GX1X2 %*% MASS::ginv(crossprod(GX1X2), max(dim(GX1X2)) * .Machine$double.eps) %*% t(GX1X2))
   
 }

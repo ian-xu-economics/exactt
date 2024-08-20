@@ -9,7 +9,7 @@
 #' @param Y.temp The response vector for which the test is being performed.
 #' @param X1.temp A numeric column vector of the primary variable.
 #' @param X2.temp A matrix of secondary variables.
-#' @param nBlocks The number of blocks in the permutation test.
+#' @param nBlocks The number of blocks to use for block permutations.
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param studentize Logical indicating whether to use studentized test statistics.
 #'        Default is TRUE.
@@ -41,8 +41,8 @@ exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndice
     
     GX2.temp <- build_GX2(X2.temp, GX.indices)
     QGX2.temp <- build_QGX2(GX2.temp)
-    
     Q.X1.temp <- QGX2.temp%*%X1.temp
+    #Q.X1.temp <- iterative_partial_out(X1.temp, GX2.temp)
     
     E <- replicate(length(beta0.vec), Y.temp, simplify = TRUE) - X1.temp%*%beta0.vec
     

@@ -28,7 +28,7 @@ exactt_pval_IV(
 
 \item{Z.temp}{A matrix of instrumental variable(s) values.}
 
-\item{nBlocks}{An integer specifying the number of blocks.}
+\item{nBlocks}{The number of blocks to use for block permutations.}
 
 \item{permIndices}{A matrix of permutation indices.}
 

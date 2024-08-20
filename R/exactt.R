@@ -13,7 +13,7 @@
 #'        If NULL, all predictors in the model are tested.
 #' @param beta0 Optional; a numeric vector of null hypothesis values for the coefficients.
 #'        Must be the same length as `variables` if not NULL.
-#' @param nBlocks The number of blocks to use for permutations.
+#' @param nBlocks The number of blocks to use for block permutations.
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.

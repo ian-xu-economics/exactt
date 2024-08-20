@@ -91,7 +91,7 @@ exactt.2 <- exactt(model = len ~ dose + supp,
                    alpha = 0.1,
                    variables = 1)
 
-print(exactt.1, digits = 5)
+print(exactt.2, digits = 5)
 ```
 This creates a 90% confidence interval for `dose` only. It is equivalent to the case where `variables = NULL` (all variables are of interest) because these confidence intervals are marginally valid.
 

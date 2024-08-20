@@ -35,7 +35,7 @@ If NULL, all predictors in the model are tested.}
 \item{beta0}{Optional; a numeric vector of null hypothesis values for the coefficients.
 Must be the same length as \code{variables} if not NULL.}
 
-\item{nBlocks}{The number of blocks to use for permutations.}
+\item{nBlocks}{The number of blocks to use for block permutations.}
 
 \item{nPerms}{Optional; the number of permutations to perform.
 If NULL or greater than the number of possible permutations, all permutations are used.}
