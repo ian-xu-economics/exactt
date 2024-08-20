@@ -30,8 +30,8 @@
 #' @noRd
 getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse, GX1){
   
-  beta0 <- seq(from = beta_hat - 50*se,
-               to = beta_hat + 50*se,
+  beta0 <- seq(from = beta_hat - 25*se,
+               to = beta_hat + 25*se,
                by = se/2)
   
   if(is.null(Z.temp)){

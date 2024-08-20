@@ -46,14 +46,14 @@ exacttPlot = function(et, variables = NULL){
     data$point_estimate = point_estimate
     data$alpha = alpha
     
-    if(data$betaNull[1] == 0 
-       && data$betaNull[2] - data$betaNull[1] != data$betaNull[3] - data$betaNull[2]){
+    if(data$beta0[1] == 0 
+       && data$beta0[2] - data$beta0[1] != data$beta0[3] - data$beta0[2]){
       data <- data[-1, ]
     }
 
     # Create plot with correct settings
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
-      ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("betaNull"), y = !!rlang::sym("pval"))) + 
+      ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("beta0"), y = !!rlang::sym("pval"))) + 
       ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
       ggplot2::geom_vline(ggplot2::aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
       ggplot2::scale_y_continuous(limits = c(0,1), breaks = seq(0, 1, 0.1), labels = seq(0, 1, 0.1)) + 
