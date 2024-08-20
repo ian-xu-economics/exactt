@@ -53,6 +53,13 @@ exacttPlot = function(et, variables = NULL){
 
     # Create plot with correct settings
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
+      ggplot2::theme(legend.position = "bottom",
+                     panel.grid.major = element_line(color = "cyan"),
+                     panel.grid.minor = element_blank(),
+                     panel.background = element_rect(fill = "transparent", color = NA),
+                     axis.line = element_line(color = "black"),
+                     plot.title = element_text(hjust = 0.5),
+                     text = element_text(size = 12)) +
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("beta0"), y = !!rlang::sym("pval"))) + 
       ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
       ggplot2::geom_vline(ggplot2::aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
@@ -60,8 +67,10 @@ exacttPlot = function(et, variables = NULL){
       ggplot2::scale_x_continuous(breaks = ggplot2::waiver(), n.breaks = 10) + 
       ggplot2::labs(x = latex2exp::TeX(paste0("$\\beta^0_{", variable_name, "}$")), y = "P-value") + 
       ggplot2::ggtitle(label = latex2exp::TeX(paste0("P-value vs. $\\beta^0_{", variable_name, "}$"))) + 
-      ggplot2::theme(legend.position = "bottom") +
-      ggplot2::scale_color_manual(name = "color", values = c("blue", "red"), labels = c(latex2exp::TeX("$\\alpha$"), latex2exp::TeX("$\\hat{\\beta}$")))
+      ggplot2::scale_color_manual(name = "", 
+                                  values = c("blue", "red"), 
+                                  labels = c(latex2exp::TeX("$\\alpha$"), 
+                                             latex2exp::TeX("$\\hat{\\beta}$")))
     
     plotsCounter <- plotsCounter + 1
   }
