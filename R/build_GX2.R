@@ -16,7 +16,7 @@ build_GX2 <- function(X2.temp, GX.indices){
   GX2.list <- apply(X2.temp,
                     MARGIN = 2,
                     function(x){
-                      matrix(x[GX.indices], nrow = n)
+                      remove_dependent_columns(matrix(x[GX.indices], nrow = n))
                     },
                     simplify = FALSE)
   

@@ -65,3 +65,14 @@ generate_block_permutations <- function(nBlocks){
   return(cbind(s1, s2, s3.plus))
   
 }
+
+#' Remove linearly dependent columns
+#'
+#' @param X A matrix to remove linearly dependent columns (if they exist).
+#'
+#' @return X matrix with linearly independent columns
+remove_dependent_columns <- function(X) {
+  qr_decomp <- qr(X, tol = max(dim(X)) * .Machine$double.eps)
+  X_independent <- X[, qr_decomp$pivot[1:qr_decomp$rank], drop = FALSE]
+  return(X_independent)
+}

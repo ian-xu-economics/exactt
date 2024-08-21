@@ -54,12 +54,12 @@ exacttPlot = function(et, variables = NULL){
     # Create plot with correct settings
     plots[[plotsCounter]] <- ggplot2::ggplot(data = data) + 
       ggplot2::theme(legend.position = "bottom",
-                     panel.grid.major = element_line(color = "cyan"),
-                     panel.grid.minor = element_blank(),
-                     panel.background = element_rect(fill = "transparent", color = NA),
-                     axis.line = element_line(color = "black"),
-                     plot.title = element_text(hjust = 0.5),
-                     text = element_text(size = 12)) +
+                     panel.grid.major = ggplot2::element_line(color = "cyan"),
+                     panel.grid.minor = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_rect(fill = "transparent", color = NA),
+                     axis.line = ggplot2::element_line(color = "black"),
+                     plot.title = ggplot2::element_text(hjust = 0.5),
+                     text = ggplot2::element_text(size = 12)) +
       ggplot2::geom_line(ggplot2::aes(x = !!rlang::sym("beta0"), y = !!rlang::sym("pval"))) + 
       ggplot2::geom_hline(ggplot2::aes(yintercept = alpha, color = "alpha"), linetype = "dashed") + 
       ggplot2::geom_vline(ggplot2::aes(xintercept = point_estimate, color = "estimate"), linetype = "dotted") + 
