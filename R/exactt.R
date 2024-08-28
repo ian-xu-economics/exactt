@@ -265,27 +265,35 @@ exactt <- function(model,
         }
         
         # Create the appropriate cluster
-        if (Sys.info()["sysname"] != "Windows") {
-          # Unix-based system and forking is enabled
-          cl <- parallel::makeForkCluster(numCores)
-        } else {
+        if (.Platform$OS.type == "windows") {
           # Use socket cluster on Windows or if forking is not desired
-          cl <- parallel::makeCluster(numCores)
+          cl <- parallel::makeCluster(numCores, type = "PSOCK")
+          
+          # Export variables and functions only if using a socket cluster
+          parallel::clusterExport(cl, varlist = c("X1.temp", 
+                                                  "X2.temp", 
+                                                  "Z.temp", 
+                                                  "blockIndexMatrix", 
+                                                  "blockPermutations", 
+                                                  "GX.indices", 
+                                                  "fitness_function", 
+                                                  "build_GX2", 
+                                                  "build_GX", 
+                                                  "block_permute", 
+                                                  "build_QGX2"), 
+                                  envir = environment())
+          parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
+          parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
+          parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
+          parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
+        } else {
+          # Unix-based system and forking is enabled
+          cl <- parallel::makeCluster(numCores, type = "FORK")
         }
         
         # Register the parallel backend
-        doParallel::registerDoParallel(cl)
-        
-        if (inherits(cl, "SOCKcluster")) {
-          # Export variables and functions only if using a socket cluster
-          parallel::clusterExport(cl, varlist = c("X1.temp", "X2.temp", "Z.temp", "blockIndexMatrix", "blockPermutations", "GX.indices", "fitness_function", "build_GX2", "build_GX", "block_permute", "build_QGX2"), envir = environment())
-        }
-        
-        parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
-        parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
-        parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
-        parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
-        
+        doParallel::registerDoParallel(cl, cores = numCores)
+       
         gaArgs$parallel <- cl
       } else{
         ogParArg <- FALSE
@@ -311,19 +319,36 @@ exactt <- function(model,
       final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
     }
     
+    GX2.temp <- build_GX2(X2.temp, GX.indices)
+    #GX2.reduced.temp <- remove_dependent_columns(GX2.temp)
+    QGX2.temp <- build_QGX2(GX2.temp)
+    if(exacttIV){
+      Q.Z.temp <- QGX2.temp %*% Z.temp
+    } else{
+      Q.X1.temp <- QGX2.temp %*% X1.temp
+      #Q.X1.temp <- iterative_partial_out(X1.temp, GX2.temp)
+    }
+    
+    if(studentize){
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1)
+    } else{
+      QGX1GX2.temp <- NULL
+    }
+    
     if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
-      beta0.vec <- beta0[[as.character(attr(X, "assign")[i])]]
+      beta0.df <- data.frame(beta0 = beta0[[as.character(attr(X, "assign")[i])]],
+                             beta0.pval = NA)
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse)
+        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
       } else{
-        beta0.vec <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse, GX1)
+        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp, QGX1GX2.temp, GX1)
       }
     }
     
     if(exacttIV){
-      exacttResults <- exactt_pval_IV(beta0.vec, 
+      exacttResults <- exactt_pval_IV(beta0.df, 
                                       Y.temp, 
                                       X1.temp,
                                       X2.temp, 
@@ -334,20 +359,19 @@ exactt <- function(model,
                                       studentize)
       
     } else{
-      exacttResults <- exactt_pval(beta0.vec, 
+      exacttResults <- exactt_pval(beta0.df, 
                                    Y.temp,
                                    X1.temp,
                                    X2.temp, 
                                    nBlocks, 
                                    permIndices,
-                                   GX.indices,
-                                   studentize,
+                                   Q.X1.temp,
+                                   QGX1GX2.temp,
                                    GX1)
     }
 
     
-    final_results[["detailed"]][[colnames(X)[i]]] <- data.frame("beta0" = beta0.vec, 
-                                                                "pval" = exacttResults$pval)
+    final_results[["detailed"]][[colnames(X)[i]]] <- exacttResults$beta0.df
     
     if(randomizationDist){
       randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
@@ -358,14 +382,14 @@ exactt <- function(model,
                                                              data.frame("t_num" = t_numList))
     }
     
-    pvalBetaNull0 <- ifelse(length(exacttResults$pval[which(beta0.vec == 0)]) == 0, 
+    pvalBetaNull0 <- ifelse(length(subset(exacttResults$beta0.df, beta0 == 0)) == 0, 
                             yes = NA,
-                            no = exacttResults$pval[which(beta0.vec == 0)])
+                            no = subset(exacttResults$beta0.df, beta0 == 0)$beta0.pval)
     
     summaryTable.out[rowCounter,] <- c(beta_hat,
                                        pvalBetaNull0,
-                                       ciByInversion(beta0.vec, exacttResults$pval, alpha, weighted = TRUE),
-                                       ciByInversion(beta0.vec, exacttResults$pval, alpha, weighted = FALSE))
+                                       ciByInversion(exacttResults$beta0.df, alpha, weighted = TRUE),
+                                       ciByInversion(exacttResults$beta0.df, alpha, weighted = FALSE))
     
     rowCounter <- rowCounter + 1
   }

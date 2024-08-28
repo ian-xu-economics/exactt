@@ -31,19 +31,15 @@
 #' @importFrom dplyr bind_cols
 #'
 #' @noRd
-exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX.indices, studentize = TRUE, GX1){
+exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, Q.X1.temp, QGX1GX2.temp, GX1){
   
   n <- nrow(X1.temp)
   
-  beta0.vec <- matrix(beta0.vec, nrow = 1)
+  beta0.pval_na_indices <- which(is.na(beta0.df$beta0.pval))
+  
+  beta0.vec <- beta0.df$beta0[beta0.pval_na_indices]
   
   if(ncol(X2.temp) > 0){
-    
-    GX2.temp <- build_GX2(X2.temp, GX.indices)
-    #GX2.reduced.temp <- remove_dependent_columns(GX2.temp)
-    QGX2.temp <- build_QGX2(GX2.temp)
-    Q.X1.temp <- QGX2.temp%*%X1.temp
-    #Q.X1.temp <- iterative_partial_out(X1.temp, GX2.temp)
     
     E <- replicate(length(beta0.vec), Y.temp, simplify = TRUE) - X1.temp%*%beta0.vec
     
@@ -61,8 +57,7 @@ exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndice
                      t(Q.X1.temp) %*% x
                    })
 
-    if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1)
+    if(!is.null(QGX1GX2.temp)){
       
       if(!GX1){
         Y.temp.minus.X1.temp.beta0.permuted <- lapply(beta0.vec,
@@ -115,7 +110,9 @@ exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndice
     p_val_seq_beta_index <- apply(t, MARGIN = 2, function(x) mean(abs(x[1]) <= abs(x) + 1e-9))
   }
   
-  return(list(pval = p_val_seq_beta_index,
+  beta0.df$beta0.pval[beta0.pval_na_indices] <- p_val_seq_beta_index
+  
+  return(list(beta0.df = beta0.df,
               randomizationDist = t(t),
               t_num = t(t_num)))
 }

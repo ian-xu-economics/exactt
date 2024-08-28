@@ -4,8 +4,8 @@
 #' It provides an option to compute a weighted interval based on taking a convex combination
 #' of the two \beta^0 values that generate p-values above and below alpha.
 #'
-#' @param pvals A numeric vector of p-values.
-#' @param betaNullVec A numeric vector of null values for the parameter of interest, corresponding to the p-values.
+#' @param beta0.df$beta0.pval A numeric vector of p-values.
+#' @param beta0.df$beta0 A numeric vector of null values for the parameter of interest, corresponding to the p-values.
 #' @param alpha The significance level used for the hypothesis tests.
 #' @param weighted A logical value indicating whether to compute a weighted interval. If TRUE, the interval is weighted based on the proximity of p-values to alpha.
 #'
@@ -13,17 +13,17 @@
 #'
 #' @noRd
 
-ciByInversion <- function(betaNullVec, pvals, alpha, weighted){
+ciByInversion <- function(beta0.df, alpha, weighted){
   
-  lowerTopIndex <- suppressWarnings(min(which(pvals >= alpha)))
-  upperTopIndex <- suppressWarnings(max(which(pvals >= alpha)))
+  lowerTopIndex <- suppressWarnings(min(which(beta0.df$beta0.pval >= alpha)))
+  upperTopIndex <- suppressWarnings(max(which(beta0.df$beta0.pval >= alpha)))
   
-  betaLowerTop <- ifelse(lowerTopIndex != -Inf, yes = betaNullVec[lowerTopIndex], no = -Inf)
-  betaUpperTop <- ifelse(upperTopIndex != Inf, yes = betaNullVec[upperTopIndex], no = Inf)
+  betaLowerTop <- ifelse(lowerTopIndex != -Inf, yes = beta0.df$beta0[lowerTopIndex], no = -Inf)
+  betaUpperTop <- ifelse(upperTopIndex != Inf, yes = beta0.df$beta0[upperTopIndex], no = Inf)
   
   # If the top element for the lower bound is equal to alpha
-  lowerBound <- ifelse(pvals[lowerTopIndex] == alpha, betaLowerTop, NA)
-  upperBound <- ifelse(pvals[upperTopIndex] == alpha, betaUpperTop, NA)
+  lowerBound <- ifelse(beta0.df$beta0.pval[lowerTopIndex] == alpha, betaLowerTop, NA)
+  upperBound <- ifelse(beta0.df$beta0.pval[upperTopIndex] == alpha, betaUpperTop, NA)
   
   if(is.na(lowerBound)){
     
@@ -33,12 +33,12 @@ ciByInversion <- function(betaNullVec, pvals, alpha, weighted){
     
     betaLowerBot <- ifelse(is.infinite(lowerBotIndex) || lowerBotIndex == 0,
                            yes = -Inf,
-                           no = betaNullVec[lowerBotIndex])
+                           no = beta0.df$beta0[lowerBotIndex])
     
     if(weighted && is.finite(betaLowerBot)){
       
-      pvalLowerTop = pvals[lowerTopIndex]
-      pvalLowerBot = pvals[lowerBotIndex]
+      pvalLowerTop = beta0.df$beta0.pval[lowerTopIndex]
+      pvalLowerBot = beta0.df$beta0.pval[lowerBotIndex]
       
       slope <- (pvalLowerTop - pvalLowerBot)/(betaLowerTop - betaLowerBot)
       
@@ -55,14 +55,14 @@ ciByInversion <- function(betaNullVec, pvals, alpha, weighted){
                             yes = upperTopIndex, 
                             no = upperTopIndex + 1)
     
-    betaUpperBot <- ifelse(is.infinite(upperBotIndex) || upperBotIndex == (length(betaNullVec) + 1),
+    betaUpperBot <- ifelse(is.infinite(upperBotIndex) || upperBotIndex == (length(beta0.df$beta0) + 1),
                            yes = Inf,
-                           no = betaNullVec[upperBotIndex])
+                           no = beta0.df$beta0[upperBotIndex])
     
     if(weighted && is.finite(betaUpperBot)){
       
-      pvalUpperTop = pvals[upperTopIndex]
-      pvalUpperBot = pvals[upperBotIndex]
+      pvalUpperTop = beta0.df$beta0.pval[upperTopIndex]
+      pvalUpperBot = beta0.df$beta0.pval[upperBotIndex]
       
       slope <- (pvalUpperTop - pvalUpperBot)/(betaUpperTop - betaUpperBot)
       

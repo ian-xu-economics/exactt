@@ -15,7 +15,7 @@
 #' @importFrom tibble tibble
 #' @importFrom dplyr filter
 #' @keywords internal
-exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, GX.indices, studentize = TRUE, GX1){
+exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, Q.Z.temp, studentize = TRUE, GX1){
   
   n <- nrow(X1.temp)
   
@@ -25,11 +25,6 @@ exactt_pval_IV <- function(betaNullVec, Y.temp, X1.temp, X2.temp, Z.temp, nBlock
 
   if(ncol(X2.temp) > 0){
     
-    GX2.temp <- build_GX2(X2.temp, GX.indices)
-    QGX2.temp <- build_QGX2(GX2.temp)
-    QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices)
-    
-    Q.Z.temp <- QGX2.temp%*%Z.temp
     eps_hat <- QGX1GX2.temp%*%Y.temp
     
     # Q.Z.temp.permuted is an array with dimension n x M_G x ncol(Z.temp) 

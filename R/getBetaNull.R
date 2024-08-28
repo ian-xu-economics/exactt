@@ -28,16 +28,31 @@
 #' @importFrom dplyr %>%
 #'
 #' @noRd
-getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, GX.indices, beta_hat, se, studentize, precisionToUse, GX1){
+getBetaNull <- function(Y.temp, 
+                        X1.temp, 
+                        X2.temp,
+                        Z.temp, 
+                        alpha, 
+                        nBlocks, 
+                        permIndices, 
+                        beta_hat, 
+                        se, 
+                        precisionToUse, 
+                        Q.X1.temp, 
+                        QGX1GX2.temp, 
+                        GX1){
   
   beta0 <- seq(from = beta_hat - 25*se,
                to = beta_hat + 25*se,
                by = se/4)
   
+  beta0.df.temp <- data.frame(beta0,
+                              beta0.pval = NA)
+  
   if(is.null(Z.temp)){
-    beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX.indices, studentize, GX1)$pval
+    beta0.pvals <- exactt_pval(beta0.df.temp, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, Q.X1.temp, QGX1GX2.temp, GX1)$beta0.df$beta0.pval
   } else{
-    beta0.pvals <- exactt_pval_IV(beta0, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, GX.indices, studentize, GX1)$pval
+    beta0.pvals <- exactt_pval_IV(beta0.df.temp, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize, GX1)$beta0.df$beta0.pval
   }
   
   # for(i in 1:20){
@@ -73,7 +88,7 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
   if(!(beta0.pvals[1] <= alpha && 
        beta0.pvals[length(beta0.pvals)] <= alpha)){
     
-     beta0.final <- seq(round(beta_hat - 20*se, digits = -precisionToUse),
+     beta0.new <- seq(round(beta_hat - 20*se, digits = -precisionToUse),
                         round(beta_hat + 20*se, digits = -precisionToUse),
                         10^(precisionToUse + 1)) %>%
        c(0) %>%
@@ -101,19 +116,26 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
                                 yes = beta0.right[max(zero_indices.right)],
                                 no = beta0.right[beta0.pvals.right < alpha][which.max(beta0.pvals.right[beta0.pvals.right < alpha])]) - se/4
     
-    beta0.final <- c(seq(round(beta0.left.bound - se/2, digits = -precisionToUse),
+    beta0.new <- c(seq(round(beta0.left.bound - se/2, digits = -precisionToUse),
                          round(beta0.left.bound, digits = -precisionToUse),
                          10^(precisionToUse-1)),
-                     seq(round(beta0.left.bound, digits = -precisionToUse),
-                         round(beta0.right.bound, digits = -precisionToUse),
-                         se/4),
                      seq(round(beta0.right.bound, digits = -precisionToUse),
                          round(beta0.right.bound + se/2, digits = -precisionToUse),
                          10^(precisionToUse-1)),
-                     0) %>%
-      unique() %>%
-      sort()
+                     0)
   }
   
-  return(beta0.final)
+  beta0.final <- c(beta0, beta0.new) %>%
+    unique() %>%
+    sort()
+  
+  beta0.pval.final <- rep(NA, length(beta0.final))
+  
+  original_indices <- match(beta0, beta0.final)
+  beta0.pval.final[original_indices] <- beta0.pvals
+  
+  result <- data.frame(beta0 = beta0.final,
+                       beta0.pval = beta0.pval.final)  
+  
+  return(result)
 }
