@@ -148,17 +148,16 @@
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                   variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.2</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     alpha = 0.1)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
-<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.517    2.414  16.517</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   5% W   95% W     5%     95%</span></span>
+<span><span class="co">#&gt; dose    9.7636     0.075  2.414  16.517  2.414  16.517</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It is equivalent to the case where <code>variables = NULL</code> (all variables are of interest) because these confidence intervals are marginally valid.</p>
 </div>
 <div class="section level2">
@@ -178,10 +177,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%   95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44   70.3  5.44  70.3</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%  95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44     40  5.44   40</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf  Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf  Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
