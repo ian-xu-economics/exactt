@@ -40,8 +40,8 @@ exactt_pval <- function(beta0.vec, Y.temp, X1.temp, X2.temp, nBlocks, permIndice
   if(ncol(X2.temp) > 0){
     
     GX2.temp <- build_GX2(X2.temp, GX.indices)
-    GX2.reduced.temp <- remove_dependent_columns(GX2.temp)
-    QGX2.temp <- build_QGX2(GX2.reduced.temp)
+    #GX2.reduced.temp <- remove_dependent_columns(GX2.temp)
+    QGX2.temp <- build_QGX2(GX2.temp)
     Q.X1.temp <- QGX2.temp%*%X1.temp
     #Q.X1.temp <- iterative_partial_out(X1.temp, GX2.temp)
     

@@ -32,7 +32,7 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
   
   beta0 <- seq(from = beta_hat - 25*se,
                to = beta_hat + 25*se,
-               by = se/2)
+               by = se/4)
   
   if(is.null(Z.temp)){
     beta0.pvals <- exactt_pval(beta0, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, GX.indices, studentize, GX1)$pval
@@ -92,23 +92,23 @@ getBetaNull <- function(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks,
     zero_indices.left <- which(beta0.pvals.left == alpha)
     beta0.left.bound <- ifelse(length(zero_indices.left) > 0,
                                yes = beta0.left[min(zero_indices.left)],
-                               no = beta0.left[beta0.pvals.left < alpha][which.max(beta0.pvals.left[beta0.pvals.left < alpha])]) + se/2
+                               no = beta0.left[beta0.pvals.left < alpha][which.max(beta0.pvals.left[beta0.pvals.left < alpha])]) + se/4
     
     # Find right point alpha root
     # Check if there is any zero in the vector
     zero_indices.right <- which(beta0.pvals.right == alpha)
     beta0.right.bound <- ifelse(length(zero_indices.right) > 0,
                                 yes = beta0.right[max(zero_indices.right)],
-                                no = beta0.right[beta0.pvals.right < alpha][which.max(beta0.pvals.right[beta0.pvals.right < alpha])]) - se/2
+                                no = beta0.right[beta0.pvals.right < alpha][which.max(beta0.pvals.right[beta0.pvals.right < alpha])]) - se/4
     
-    beta0.final <- c(seq(round(beta0.left.bound - se, digits = -precisionToUse),
+    beta0.final <- c(seq(round(beta0.left.bound - se/2, digits = -precisionToUse),
                          round(beta0.left.bound, digits = -precisionToUse),
                          10^(precisionToUse-1)),
                      seq(round(beta0.left.bound, digits = -precisionToUse),
                          round(beta0.right.bound, digits = -precisionToUse),
                          se/4),
                      seq(round(beta0.right.bound, digits = -precisionToUse),
-                         round(beta0.right.bound + se, digits = -precisionToUse),
+                         round(beta0.right.bound + se/2, digits = -precisionToUse),
                          10^(precisionToUse-1)),
                      0) %>%
       unique() %>%
