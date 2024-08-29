@@ -177,10 +177,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%  95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44     40  5.44   40</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf  Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf  Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%   95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44   39.7  5.44  39.7</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
@@ -261,34 +261,24 @@
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>                    monitor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    maxiter <span class="op">=</span> <span class="fl">25</span>,</span>
+<span>                    monitor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                    seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
 <span></span>
 <span><span class="co">#&gt; ℹ Optimizing ordering for `educ`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2741598 | Best = 3187006</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2742438 | Best = 3187006</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2829015 | Best = 3187006</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2774273 | Best = 3187006</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2814367 | Best = 3214546</span></span>
-<span><span class="co">#&gt; GA | iter = 6 | Mean = 2765049 | Best = 3214546</span></span>
-<span><span class="co">#&gt; GA | iter = 7 | Mean = 2787454 | Best = 3214546</span></span>
-<span><span class="co">#&gt; GA | iter = 8 | Mean = 2825441 | Best = 3244843</span></span>
-<span><span class="co">#&gt; GA | iter = 9 | Mean = 2821111 | Best = 3244843</span></span>
-<span><span class="co">#&gt; GA | iter = 10 | Mean = 2808929 | Best = 3244843</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
-<span><span class="co">#&gt;     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 10, </span></span>
-<span><span class="co">#&gt;     monitor = TRUE)</span></span>
+<span><span class="co">#&gt;     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 25, </span></span>
+<span><span class="co">#&gt;     monitor = FALSE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)  2.5% W  97.5% W    2.5%   97.5%</span></span>
-<span><span class="co">#&gt; educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%   97.5%</span></span>
+<span><span class="co">#&gt; educ    0.0614    0.1333  -0.0419   0.4024  -0.0419  0.4024</span></span></code></pre></div>
 </div>
 </div>
   </div>

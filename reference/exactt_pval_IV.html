@@ -54,7 +54,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">exactt_pval_IV</span><span class="op">(</span></span>
-<span>  <span class="va">betaNullVec</span>,</span>
+<span>  <span class="va">beta0.df</span>,</span>
 <span>  <span class="va">Y.temp</span>,</span>
 <span>  <span class="va">X1.temp</span>,</span>
 <span>  <span class="va">X2.temp</span>,</span>
@@ -62,7 +62,7 @@
 <span>  <span class="va">nBlocks</span>,</span>
 <span>  <span class="va">permIndices</span>,</span>
 <span>  <span class="va">Q.Z.temp</span>,</span>
-<span>  studentize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">QGX1GX2.temp</span>,</span>
 <span>  <span class="va">GX1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,11 +71,7 @@
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-betanullvec">betaNullVec<a class="anchor" aria-label="anchor" href="#arg-betanullvec"></a></dt>
-<dd><p>A numeric vector of null hypothesis values for the regression coefficients.</p></dd>
-
-
-<dt id="arg-y-temp">Y.temp<a class="anchor" aria-label="anchor" href="#arg-y-temp"></a></dt>
+<dl><dt id="arg-y-temp">Y.temp<a class="anchor" aria-label="anchor" href="#arg-y-temp"></a></dt>
 <dd><p>A matrix of the dependent variable values.</p></dd>
 
 
@@ -99,8 +95,8 @@
 <dd><p>A matrix of permutation indices.</p></dd>
 
 
-<dt id="arg-studentize">studentize<a class="anchor" aria-label="anchor" href="#arg-studentize"></a></dt>
-<dd><p>A logical value indicating whether to studentize the test statistics.</p></dd>
+<dt id="arg-betanullvec">betaNullVec<a class="anchor" aria-label="anchor" href="#arg-betanullvec"></a></dt>
+<dd><p>A numeric vector of null hypothesis values for the regression coefficients.</p></dd>
 
 </dl></div>
     <div id="value">
