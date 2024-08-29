@@ -29,7 +29,7 @@ getHadamardCombinations <- function(tensor){
                             function(indices){
                               lastInd(tensor, num_dims, indices[1]) * lastInd(tensor, num_dims,  indices[2])
                             },
-                            simplify = FALSE) %>%
+                            simplify = FALSE) |>
     simplify2array()
   
   # Order is 11, 12, 22, 13, 23, 33, 14, 24, 34, 44,...

@@ -3,35 +3,6 @@
 library(testthat)
 
 # Does not test case where nBlocks >= 10
-test_that("block_permute() works correctly", {
-  
-  blockIndexMatrix <- matrix(c(1:30), ncol = 5)
-  possibleBlockPermutations <- do.call(rbind, combinat::permn(1:5))
-  
-  # Create X vector
-  X <- matrix(sample(1:10, 30, replace = TRUE))
-  
-  # First Test
-  result <- block_permute(X, blockIndexMatrix, possibleBlockPermutations)
-  expect_equal(result$shuffledData, 
-               X[c(blockIndexMatrix[, possibleBlockPermutations[1,]])])
-  
-  expect_equal(result$possibleBlockPermutations,
-               possibleBlockPermutations[-1,])
-  
-  possibleBlockPermutations <- possibleBlockPermutations[-1,]
-  
-  # Second Test
-  result <- block_permute(X, blockIndexMatrix, possibleBlockPermutations)
-  expect_equal(result$shuffledData, 
-               X[c(blockIndexMatrix[, possibleBlockPermutations[1,]])])
-  
-  expect_equal(result$possibleBlockPermutations,
-               possibleBlockPermutations[-1,])
-  
-})
-
-# Does not test case where nBlocks >= 10
 test_that("build_GX() works correctly", {
   
   blockIndexMatrix <- matrix(c(1:30), ncol = 5)

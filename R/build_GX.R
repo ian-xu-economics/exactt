@@ -16,7 +16,6 @@
 #'         derived from permuting blocks to increase its rank.
 #'
 #' @importFrom Matrix rankMatrix
-#' @importFrom combinat permn
 #' @noRd
 build_GX <- function(blockIndexMatrix){
   

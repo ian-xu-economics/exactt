@@ -200,8 +200,6 @@ exactt.iv
 #> educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559
 ```
 
-
-
 ```{r, eval = FALSE}
 exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
                     data = wooldridge::mroz,

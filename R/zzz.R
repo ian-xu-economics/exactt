@@ -57,7 +57,8 @@ startupMessage <- function(){
 #' @param pkgname The name of the package.
 #' @keywords internal
 .onLoad <- function(libname, pkgname) {
-  registerS3method("print", "et", print.et)
+  registerS3method("print", "exactt", print.exactt)
+  registerS3method("plot", "exactt", plot.exactt)
   
   if (!requireNamespace("GA", quietly = TRUE)) {
     stop("The 'GA' package is required but is not installed.")

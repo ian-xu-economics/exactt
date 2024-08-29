@@ -56,6 +56,7 @@
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom doRNG registerDoRNG
 #' @importFrom GA gaControl
+#' @importFrom combinat permn
 #' 
 #' @export
 exactt <- function(model,
@@ -399,7 +400,7 @@ exactt <- function(model,
   
   final_results[["call"]] <- call
   
-  class(final_results) <- "et"
+  class(final_results) <- "exactt"
   
   return(final_results) 
 }

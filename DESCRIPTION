@@ -21,9 +21,7 @@ RoxygenNote: 7.3.2
 Depends:
     R (>= 4.2.0)
 Suggests: 
-    ggplot2,
     knitr,
-    latex2exp,
     rmarkdown,
     testthat (>= 3.0.0),
     wooldridge
@@ -33,9 +31,10 @@ Imports:
     combinat,
     doParallel,
     doRNG,
-    dplyr,
     Formula,
     GA,
+    graphics,
+    grDevices,
     ivreg,
     Matrix,
     MASS,
@@ -43,6 +42,5 @@ Imports:
     parallel,
     rlang,
     stats,
-    tibble,
     utils
 VignetteBuilder: knitr

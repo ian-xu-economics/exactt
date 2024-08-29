@@ -25,8 +25,6 @@
 #'         These values represent the sequence around the estimated beta center, adjusted
 #'         according to the specified alpha and precision.
 #'
-#' @importFrom dplyr %>%
-#'
 #' @noRd
 getBetaNull <- function(Y.temp, 
                         X1.temp, 
@@ -91,9 +89,9 @@ getBetaNull <- function(Y.temp,
     
      beta0.new <- seq(round(beta_hat - 20*se, digits = -precisionToUse),
                         round(beta_hat + 20*se, digits = -precisionToUse),
-                        10^(precisionToUse + 1)) %>%
-       c(0) %>%
-       unique() %>%
+                        10^(precisionToUse + 1)) |>
+       c(0) |>
+       unique() |>
        sort()
   } else{
   
@@ -126,8 +124,8 @@ getBetaNull <- function(Y.temp,
                      0)
   }
   
-  beta0.final <- c(beta0, beta0.new) %>%
-    unique() %>%
+  beta0.final <- c(beta0, beta0.new) |>
+    unique() |>
     sort()
   
   beta0.pval.final <- rep(NA, length(beta0.final))

@@ -8,11 +8,8 @@
 #' @param nBlocks The number of blocks to use for block permutations.
 #' @param permIndices A matrix of permutation indices.
 #' @return A list containing the p-values and the randomization distribution.
-#' @importFrom combinat permn
 #' @importFrom parallel makeCluster detectCores stopCluster clusterExport clusterCall
 #' @importFrom doParallel registerDoParallel
-#' @importFrom tibble tibble
-#' @importFrom dplyr filter
 #' @keywords internal
 exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, Q.Z.temp, QGX1GX2.temp, GX1){
   
@@ -30,7 +27,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       function(x){
                         matrix(x[permIndices], nrow = n)
                       },
-                      simplify = FALSE) %>%
+                      simplify = FALSE) |>
     simplify2array()
   
   if(ncol(X2.temp) > 0){
@@ -40,8 +37,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       FUN = function(x){
                         t(Q.Z.temp) %*% x
                       },
-                      simplify = FALSE) %>%
-      simplify2array() %>%
+                      simplify = FALSE) |>
+      simplify2array() |>
       aperm(c(2,3,1)) # orients from nInstruments x numPerms x length(beta0.vec) to numPerms x length(beta0.vec) x nInstruments
     
     # Then we need to build combinations of Tau (e.g. T1sq, T1T2, T2sq)
@@ -58,7 +55,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                                   function(x){
                                     QGX1GX2.temp %*% x
                                   },
-                                  simplify = FALSE) %>%
+                                  simplify = FALSE) |>
           simplify2array()
         
         GSigma <- apply(eps_hat.permuted,
@@ -66,8 +63,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                         function(x){
                           t(QZComboArray) %*% x^2
                         },
-                        simplify = FALSE) %>%
-          simplify2array() %>%
+                        simplify = FALSE) |>
+          simplify2array() |>
           aperm(c(2,1,3))
         
         GSigmaInvMatrix = apply(GSigma,
@@ -91,7 +88,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                                         simplify = TRUE)
                                   
                                 },
-                                simplify = FALSE) %>%
+                                simplify = FALSE) |>
           simplify2array()
         
         # We know the order that is returned by getHadamardCombinations()
@@ -106,8 +103,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       } else{
                         return(TauCombosArray[,,i]*GSigmaInvMatrix[i,,])
                       }
-                    }) %>%
-          Reduce(f = '+') %>%
+                    }) |>
+          Reduce(f = '+') |>
           matrix(nrow = factorial(nBlocks))
       } else{ # If using GX1
         Y.temp.permuted <- matrix(Y.temp[permIndices], nrow = n)
@@ -144,8 +141,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       } else{
                         return(TauCombosArray[,,i]*GSigmaInvMatrix[i,])
                       }
-                    }) %>%
-          Reduce(f = '+') %>%
+                    }) |>
+          Reduce(f = '+') |>
           matrix(nrow = factorial(nBlocks))
       }
     } else{
@@ -163,8 +160,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       FUN = function(x){
                         t(Z.temp) %*% x
                       },
-                      simplify = FALSE) %>%
-      simplify2array() %>%
+                      simplify = FALSE) |>
+      simplify2array() |>
       aperm(c(2,3,1)) 
     
     # Then we need to build combinations of Tau (e.g. T1sq, T1T2, T2sq)
@@ -178,7 +175,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
         Y.temp.minus.X1.temp.beta0.permuted <- lapply(beta0.vec,
                                                       function(x){
                                                         matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
-                                                      }) %>%
+                                                      }) |>
           simplify2array()  
         
         eps_hat.permuted <- apply(Y.temp.minus.X1.temp.beta0.permuted,
@@ -186,7 +183,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                                   function(x){
                                     QGX1GX2.temp %*% x
                                   },
-                                  simplify = FALSE) %>%
+                                  simplify = FALSE) |>
           simplify2array()
         
         GSigma <- apply(eps_hat.permuted,
@@ -194,8 +191,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                         function(x){
                           t(ZComboArray) %*% x^2
                         },
-                        simplify = FALSE) %>%
-          simplify2array() %>%
+                        simplify = FALSE) |>
+          simplify2array() |>
           aperm(c(2,1,3))
         
         GSigmaInvMatrix = apply(GSigma,
@@ -219,7 +216,7 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                                         simplify = TRUE)
                                   
                                 },
-                                simplify = FALSE) %>%
+                                simplify = FALSE) |>
           simplify2array()
         
         # We know the order that is returned by getHadamardCombinations()
@@ -234,8 +231,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       } else{
                         return(TauCombosArray[,,i]*GSigmaInvMatrix[i,,])
                       }
-                    }) %>%
-          Reduce(f = '+') %>%
+                    }) |>
+          Reduce(f = '+') |>
           matrix(nrow = factorial(nBlocks))
       } else{ # If using GX1
         Y.temp.permuted <- matrix(Y.temp[permIndices], nrow = n)
@@ -272,8 +269,8 @@ exactt_pval_IV <- function(beta0.df, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, 
                       } else{
                         return(TauCombosArray[,,i]*GSigmaInvMatrix[i,])
                       }
-                    }) %>%
-          Reduce(f = '+') %>%
+                    }) |>
+          Reduce(f = '+') |>
           matrix(nrow = factorial(nBlocks))
       }
     } else{

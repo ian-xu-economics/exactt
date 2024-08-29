@@ -30,7 +30,7 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, block
                      Matrix::t(as(c(blockIndexMatrix[,x]), "pMatrix")) %*%
                      Q %*% 
                      as(permutation, "pMatrix") %*% 
-                     X1.temp %>%
+                     X1.temp |>
                      as.numeric()
                  })
   } else{
@@ -42,9 +42,9 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, block
                      Matrix::t(as(c(blockIndexMatrix[,x]), "pMatrix")) %*%
                      Q %*% 
                      as(permutation, "pMatrix") %*% 
-                     X1.temp %>%
-                     as.numeric() %>%
-                     `^`(2) %>%
+                     X1.temp |>
+                     as.numeric() |>
+                     (\(y) y^2)() |>
                      sum()
                  })
   }

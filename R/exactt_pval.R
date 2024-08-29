@@ -28,7 +28,6 @@
 #' matrix). These matrices are used to calculate test statistics and ultimately p-values.
 #' If `X2.temp` is empty, the function simplifies the computations by directly using `X1.temp`.
 #'
-#' @importFrom dplyr bind_cols
 #'
 #' @noRd
 exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, Q.X1.temp, QGX1GX2.temp, GX1){
@@ -48,7 +47,7 @@ exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices
                         function(x){
                           matrix(x[permIndices], nrow = n)
                         },
-                        simplify = FALSE) %>%
+                        simplify = FALSE) |>
        simplify2array()
     
     t_num <- apply(E.permuted,
@@ -63,7 +62,7 @@ exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices
         Y.temp.minus.X1.temp.beta0.permuted <- lapply(beta0.vec,
                                                       function(x){
                                                         matrix((Y.temp - X1.temp*x)[permIndices], nrow = n)
-                                                      }) %>%
+                                                      }) |>
           simplify2array()
         
         eps_hat.permuted <- apply(Y.temp.minus.X1.temp.beta0.permuted,
@@ -71,7 +70,7 @@ exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices
                                   function(x){
                                     QGX1GX2.temp %*% x
                                   },
-                                  simplify = FALSE) %>%
+                                  simplify = FALSE) |>
           simplify2array()
         
         t_denom <- apply(eps_hat.permuted,
