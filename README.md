@@ -159,10 +159,10 @@ exactt.3
 #> 
 #> 
 #> Summary:
-#>                   Estimate  Pr(>|t|)  5% W  95% W    5%  95%
-#> as.factor(dose)1      9.13      0.05  5.44     40  5.44   40
-#> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf  Inf
-#> suppVC               -3.70      1.00  -Inf    Inf  -Inf  Inf
+#>                   Estimate  Pr(>|t|)  5% W  95% W    5%   95%
+#> as.factor(dose)1      9.13      0.05  5.44   39.7  5.44  39.7
+#> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf
+#> suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals
@@ -280,32 +280,22 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
                     variables = 1,
                     optimize = TRUE,
                     parallel = TRUE,
-                    maxiter = 10,
-                    monitor = TRUE,
+                    maxiter = 25,
+                    monitor = FALSE,
                     seed = 2024)
 
 exactt.iv
 
 #> ℹ Optimizing ordering for `educ`.
-#> GA | iter = 1 | Mean = 2741598 | Best = 3187006
-#> GA | iter = 2 | Mean = 2742438 | Best = 3187006
-#> GA | iter = 3 | Mean = 2829015 | Best = 3187006
-#> GA | iter = 4 | Mean = 2774273 | Best = 3187006
-#> GA | iter = 5 | Mean = 2814367 | Best = 3214546
-#> GA | iter = 6 | Mean = 2765049 | Best = 3214546
-#> GA | iter = 7 | Mean = 2787454 | Best = 3214546
-#> GA | iter = 8 | Mean = 2825441 | Best = 3244843
-#> GA | iter = 9 | Mean = 2821111 | Best = 3244843
-#> GA | iter = 10 | Mean = 2808929 | Best = 3244843
 #> 
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
 #>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
-#>     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 10, 
-#>     monitor = TRUE)
+#>     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 25, 
+#>     monitor = FALSE)
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)  2.5% W  97.5% W    2.5%   97.5%
-#> educ    0.0614      0.05  -1e-04   0.1559  -1e-04  0.1559
+#>       Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%   97.5%
+#> educ    0.0614    0.1333  -0.0419   0.4024  -0.0419  0.4024
 ```

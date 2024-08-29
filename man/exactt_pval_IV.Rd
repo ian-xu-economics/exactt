@@ -5,7 +5,7 @@
 \title{Exact t-Test P-Value with Instrumental Variables}
 \usage{
 exactt_pval_IV(
-  betaNullVec,
+  beta0.df,
   Y.temp,
   X1.temp,
   X2.temp,
@@ -13,13 +13,11 @@ exactt_pval_IV(
   nBlocks,
   permIndices,
   Q.Z.temp,
-  studentize = TRUE,
+  QGX1GX2.temp,
   GX1
 )
 }
 \arguments{
-\item{betaNullVec}{A numeric vector of null hypothesis values for the regression coefficients.}
-
 \item{Y.temp}{A matrix of the dependent variable values.}
 
 \item{X1.temp}{A matrix of the independent variable(s) values.}
@@ -32,7 +30,7 @@ exactt_pval_IV(
 
 \item{permIndices}{A matrix of permutation indices.}
 
-\item{studentize}{A logical value indicating whether to studentize the test statistics.}
+\item{betaNullVec}{A numeric vector of null hypothesis values for the regression coefficients.}
 }
 \value{
 A list containing the p-values and the randomization distribution.

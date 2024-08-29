@@ -39,6 +39,7 @@ getBetaNull <- function(Y.temp,
                         se, 
                         precisionToUse, 
                         Q.X1.temp, 
+                        Q.Z.temp, 
                         QGX1GX2.temp, 
                         GX1){
   
@@ -52,7 +53,7 @@ getBetaNull <- function(Y.temp,
   if(is.null(Z.temp)){
     beta0.pvals <- exactt_pval(beta0.df.temp, Y.temp, X1.temp, X2.temp, nBlocks, permIndices, Q.X1.temp, QGX1GX2.temp, GX1)$beta0.df$beta0.pval
   } else{
-    beta0.pvals <- exactt_pval_IV(beta0.df.temp, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, studentize, GX1)$beta0.df$beta0.pval
+    beta0.pvals <- exactt_pval_IV(beta0.df.temp, Y.temp, X1.temp, X2.temp, Z.temp, nBlocks, permIndices, Q.Z.temp, QGX1GX2.temp, GX1)$beta0.df$beta0.pval
   }
   
   # for(i in 1:20){

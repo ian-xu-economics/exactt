@@ -341,9 +341,9 @@ exactt <- function(model,
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, studentize, precisionToUse)
+        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp = NULL, Q.Z.temp, QGX1GX2.temp, GX1)
       } else{
-        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp, QGX1GX2.temp, GX1)
+        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp, Q.Z.temp = NULL, QGX1GX2.temp, GX1)
       }
     }
     
@@ -355,8 +355,9 @@ exactt <- function(model,
                                       Z.temp,
                                       nBlocks, 
                                       permIndices,
-                                      GX.indices,
-                                      studentize)
+                                      Q.Z.temp,
+                                      QGX1GX2.temp,
+                                      GX1)
       
     } else{
       exacttResults <- exactt_pval(beta0.df, 
