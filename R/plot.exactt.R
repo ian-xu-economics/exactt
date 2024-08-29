@@ -53,7 +53,7 @@ plot.exactt = function(x, variables = NULL, ...){
     
     # Plot the basic setup without any data first
     plot(beta0, beta0.pval, type = "n",
-         xlab = expression(beta[dose]^0),
+         xlab = bquote(beta[.(variable_name)]^0),
          ylab = "P-value",
          ylim = c(0, 1),
          xlim = range(beta0),
