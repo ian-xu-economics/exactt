@@ -96,7 +96,8 @@
 </h2>
 <p>After installing <code>exactt</code>, we can attach the package to our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">exactt</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Package 'exactt' | Version 1.2.7</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -148,16 +149,17 @@
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                   variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.2</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   5% W   95% W     5%     95%</span></span>
-<span><span class="co">#&gt; dose    9.7636     0.075  2.414  16.517  2.414  16.517</span></span></code></pre></div>
+<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.517    2.414  16.517</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It is equivalent to the case where <code>variables = NULL</code> (all variables are of interest) because these confidence intervals are marginally valid.</p>
 </div>
 <div class="section level2">
@@ -178,7 +180,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
 <span><span class="co">#&gt;                   Estimate  Pr(&gt;|t|)  5% W  95% W    5%   95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44   39.7  5.44  39.7</span></span>
+<span><span class="co">#&gt; as.factor(dose)1      9.13      0.05  5.44   70.3  5.44  70.3</span></span>
 <span><span class="co">#&gt; as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf</span></span>
 <span><span class="co">#&gt; suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
@@ -204,25 +206,24 @@
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.4</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)1`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.888022 | Best = 5.038739</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.004796 | Best = 5.038739</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.170103 | Best = 5.038739</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.227257 | Best = 5.038739</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.128852 | Best = 5.038739</span></span>
-<span><span class="co">#&gt; ℹ Optimizing ordering for `as.factor(dose)2`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.770961 | Best = 4.212245</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2.891328 | Best = 5.021332</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.114271 | Best = 5.264609</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.116448 | Best = 5.699668</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.104743 | Best = 5.699668</span></span>
-<span><span class="co">#&gt; ℹ Optimizing ordering for `suppVC`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 4.360677 | Best = 7.382321</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 4.520933 | Best = 7.382321</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 4.417387 | Best = 7.619924</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 4.612187 | Best = 7.694893</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 4.720165 | Best = 8.341492</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)1`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.992124 | Best = 4.942080</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.134706 | Best = 4.942080</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.144138 | Best = 5.381865</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.069222 | Best = 5.381865</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.897159 | Best = 5.381865</span></span>
+<span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)2`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.799936 | Best = 5.007930</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.107845 | Best = 5.244658</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.469066 | Best = 5.244658</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.356677 | Best = 5.244658</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.129926 | Best = 5.244658</span></span>
+<span><span class="co">#&gt; ✔ Optimizing ordering for `suppVC`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 4.164565 | Best = 6.068181</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 4.608127 | Best = 7.120173</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 4.861197 | Best = 7.120173</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 4.465345 | Best = 7.791005</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 4.438026 | Best = 7.791005</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
@@ -231,20 +232,20 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)    5% W  95% W      5%    95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.850  10.80   5.850  10.80</span></span>
-<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  11.460  18.15  11.460  18.15</span></span>
-<span><span class="co">#&gt; suppVC              -3.700  0.0083333  -6.059  -1.51  -6.059  -1.51</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)    5% W   95% W      5%     95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.120  14.600   5.120  14.600</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  12.675  19.750  12.670  19.750</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.0583330  -7.044  -1.085  -7.044  -1.085</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative 90% confidence intervals for each category of <code>dose</code> and <code>supp</code> when they equal “2” and “VC” respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt.4$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>suppVC</code> variable, use:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
 <span></span>
 <span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
-<span><span class="co">#&gt; [1,] 7.382321 4.360677 5.017571 4.086329 3.267227 2.619588</span></span>
-<span><span class="co">#&gt; [2,] 7.382321 4.520933 5.357073 4.412913 3.453167 1.470805</span></span>
-<span><span class="co">#&gt; [3,] 7.619924 4.417387 5.219616 4.132301 3.524957 1.212991</span></span>
-<span><span class="co">#&gt; [4,] 7.694893 4.612187 5.652842 4.235755 3.446159 1.658354</span></span>
-<span><span class="co">#&gt; [5,] 8.341492 4.720165 5.778590 4.533247 3.691691 1.968057</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845</span></span>
+<span><span class="co">#&gt; [2,] 7.120173 4.608127 5.445378 4.569416 3.743193 1.569542</span></span>
+<span><span class="co">#&gt; [3,] 7.120173 4.861197 5.918520 5.205500 3.757399 1.944108</span></span>
+<span><span class="co">#&gt; [4,] 7.791005 4.465345 5.342829 4.491921 3.364883 1.883697</span></span>
+<span><span class="co">#&gt; [5,] 7.791005 4.438026 5.267938 4.423997 3.567307 1.555700</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
 </h3>
@@ -261,24 +262,36 @@
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                    maxiter <span class="op">=</span> <span class="fl">25</span>,</span>
-<span>                    monitor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                    seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                    monitor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    seed <span class="op">=</span> <span class="fl">2024</span>,</span>
+<span>                    GX1 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                    studentize <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
 <span></span>
-<span><span class="co">#&gt; ℹ Optimizing ordering for `educ`.</span></span>
+<span><span class="co">#&gt; ✔ Optimizing ordering for `educ`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2717502 | Best = 3126138</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2771190 | Best = 3214122</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2836298 | Best = 3214122</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2793909 | Best = 3251129</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2822831 | Best = 3251129</span></span>
+<span><span class="co">#&gt; GA | iter = 6 | Mean = 2789954 | Best = 3320237</span></span>
+<span><span class="co">#&gt; GA | iter = 7 | Mean = 2798405 | Best = 3320237</span></span>
+<span><span class="co">#&gt; GA | iter = 8 | Mean = 2819648 | Best = 3320237</span></span>
+<span><span class="co">#&gt; GA | iter = 9 | Mean = 2797339 | Best = 3320237</span></span>
+<span><span class="co">#&gt; GA | iter = 10 | Mean = 2794273 | Best = 3320237</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
-<span><span class="co">#&gt;     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 25, </span></span>
-<span><span class="co">#&gt;     monitor = FALSE)</span></span>
+<span><span class="co">#&gt;     studentize = FALSE, optimize = TRUE, GX1 = FALSE, seed = 2024, </span></span>
+<span><span class="co">#&gt;    parallel = TRUE, maxiter = 10, monitor = TRUE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%   97.5%</span></span>
-<span><span class="co">#&gt; educ    0.0614    0.1333  -0.0419   0.4024  -0.0419  0.4024</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%  97.5%</span></span>
+<span><span class="co">#&gt; educ    0.0614   0.06667  -0.0057    0.152  -0.0057  0.152</span></span></code></pre></div>
 </div>
 </div>
   </div>
