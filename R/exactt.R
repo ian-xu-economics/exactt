@@ -206,13 +206,13 @@ exactt <- function(model,
       }
       if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
         warning("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
-        gaArgs$crossover = "gaperm_oxCrossover_R"
       }
       
       gaArgs$type <- "permutation"
       gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations, GX.indices) }
       gaArgs$lower <- rep(1, n)
       gaArgs$upper <- rep(n, n)
+      gaArgs$crossover = "gaperm_oxCrossover_R"
     }
   }
   
