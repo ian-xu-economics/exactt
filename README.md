@@ -49,7 +49,8 @@ After installing `exactt`, we can attach the package to our session
 using the base `library()` function:
 
 ``` r
-library(exactt)
+library("exactt")
+#> Package 'exactt' | Version 1.2.7
 ```
 
 ## Example Usage: Regular Case
@@ -120,16 +121,17 @@ exactt.2 <- exactt(model = len ~ dose + supp,
                    alpha = 0.1,
                    variables = 1)
 
-print(exactt.2, digits = 5)
+print(exactt.1, digits = 5)
 #> 
 #> Call:
 #> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
-#>     alpha = 0.1, variables = 1)
+#>     alpha = 0.1)
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)   5% W   95% W     5%     95%
-#> dose    9.7636     0.075  2.414  16.517  2.414  16.517
+#>         Estimate  Pr(>|t|)     5% W   95% W       5%     95%
+#> dose      9.7636   0.07500    2.414  16.517    2.414  16.517
+#> suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300
 ```
 
 This creates a 90% confidence interval for `dose` only. It is equivalent
@@ -160,7 +162,7 @@ exactt.3
 #> 
 #> Summary:
 #>                   Estimate  Pr(>|t|)  5% W  95% W    5%   95%
-#> as.factor(dose)1      9.13      0.05  5.44   39.7  5.44  39.7
+#> as.factor(dose)1      9.13      0.05  5.44   70.3  5.44  70.3
 #> as.factor(dose)2     15.49      1.00  -Inf    Inf  -Inf   Inf
 #> suppVC               -3.70      1.00  -Inf    Inf  -Inf   Inf
 ```
@@ -203,25 +205,24 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 
 print(exactt.4, digits = 5)
 
-#> ℹ Optimizing ordering for `as.factor(dose)1`.
-#> GA | iter = 1 | Mean = 2.888022 | Best = 5.038739
-#> GA | iter = 2 | Mean = 3.004796 | Best = 5.038739
-#> GA | iter = 3 | Mean = 3.170103 | Best = 5.038739
-#> GA | iter = 4 | Mean = 3.227257 | Best = 5.038739
-#> GA | iter = 5 | Mean = 3.128852 | Best = 5.038739
-#> ℹ Optimizing ordering for `as.factor(dose)2`.
-#> GA | iter = 1 | Mean = 2.770961 | Best = 4.212245
-#> GA | iter = 2 | Mean = 2.891328 | Best = 5.021332
-#> GA | iter = 3 | Mean = 3.114271 | Best = 5.264609
-#> GA | iter = 4 | Mean = 3.116448 | Best = 5.699668
-#> GA | iter = 5 | Mean = 3.104743 | Best = 5.699668
-#> ℹ Optimizing ordering for `suppVC`.
-#> GA | iter = 1 | Mean = 4.360677 | Best = 7.382321
-#> GA | iter = 2 | Mean = 4.520933 | Best = 7.382321
-#> GA | iter = 3 | Mean = 4.417387 | Best = 7.619924
-#> GA | iter = 4 | Mean = 4.612187 | Best = 7.694893
-#> GA | iter = 5 | Mean = 4.720165 | Best = 8.341492
-#> 
+#> ✔ Optimizing ordering for `as.factor(dose)1`.
+#> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
+#> GA | iter = 2 | Mean = 3.134706 | Best = 4.942080
+#> GA | iter = 3 | Mean = 3.144138 | Best = 5.381865
+#> GA | iter = 4 | Mean = 3.069222 | Best = 5.381865
+#> GA | iter = 5 | Mean = 2.897159 | Best = 5.381865
+#> ✔ Optimizing ordering for `as.factor(dose)2`.
+#> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
+#> GA | iter = 2 | Mean = 3.107845 | Best = 5.244658
+#> GA | iter = 3 | Mean = 3.469066 | Best = 5.244658
+#> GA | iter = 4 | Mean = 3.356677 | Best = 5.244658
+#> GA | iter = 5 | Mean = 3.129926 | Best = 5.244658
+#> ✔ Optimizing ordering for `suppVC`.
+#> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
+#> GA | iter = 2 | Mean = 4.608127 | Best = 7.120173
+#> GA | iter = 3 | Mean = 4.861197 | Best = 7.120173
+#> GA | iter = 4 | Mean = 4.465345 | Best = 7.791005
+#> GA | iter = 5 | Mean = 4.438026 | Best = 7.791005
 #> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
@@ -230,10 +231,10 @@ print(exactt.4, digits = 5)
 #> 
 #> 
 #> Summary:
-#>                   Estimate   Pr(>|t|)    5% W  95% W      5%    95%
-#> as.factor(dose)1     9.130  0.0083333   5.850  10.80   5.850  10.80
-#> as.factor(dose)2    15.495  0.0083333  11.460  18.15  11.460  18.15
-#> suppVC              -3.700  0.0083333  -6.059  -1.51  -6.059  -1.51
+#>                   Estimate   Pr(>|t|)    5% W   95% W      5%     95%
+#> as.factor(dose)1     9.130  0.0083333   5.120  14.600   5.120  14.600
+#> as.factor(dose)2    15.495  0.0083333  12.675  19.750  12.670  19.750
+#> suppVC              -3.700  0.0583330  -7.044  -1.085  -7.044  -1.085
 ```
 
 Note that by optimizing the data ordering, `exactt()` is now able to
@@ -249,11 +250,11 @@ variable, use:
 exactt.4$gaResults$suppVC@summary
 
 #>           max     mean       q3   median       q1      min
-#> [1,] 7.382321 4.360677 5.017571 4.086329 3.267227 2.619588
-#> [2,] 7.382321 4.520933 5.357073 4.412913 3.453167 1.470805
-#> [3,] 7.619924 4.417387 5.219616 4.132301 3.524957 1.212991
-#> [4,] 7.694893 4.612187 5.652842 4.235755 3.446159 1.658354
-#> [5,] 8.341492 4.720165 5.778590 4.533247 3.691691 1.968057
+#> [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845
+#> [2,] 7.120173 4.608127 5.445378 4.569416 3.743193 1.569542
+#> [3,] 7.120173 4.861197 5.918520 5.205500 3.757399 1.944108
+#> [4,] 7.791005 4.465345 5.342829 4.491921 3.364883 1.883697
+#> [5,] 7.791005 4.438026 5.267938 4.423997 3.567307 1.555700
 ```
 
 ### Note on Optimization Effects
@@ -280,22 +281,34 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
                     variables = 1,
                     optimize = TRUE,
                     parallel = TRUE,
-                    maxiter = 25,
-                    monitor = FALSE,
-                    seed = 2024)
+                    maxiter = 10,
+                    monitor = TRUE,
+                    seed = 2024,
+                    GX1 = FALSE,
+                    studentize = FALSE)
 
 exactt.iv
 
-#> ℹ Optimizing ordering for `educ`.
+#> ✔ Optimizing ordering for `educ`.
+#> GA | iter = 1 | Mean = 2717502 | Best = 3126138
+#> GA | iter = 2 | Mean = 2771190 | Best = 3214122
+#> GA | iter = 3 | Mean = 2836298 | Best = 3214122
+#> GA | iter = 4 | Mean = 2793909 | Best = 3251129
+#> GA | iter = 5 | Mean = 2822831 | Best = 3251129
+#> GA | iter = 6 | Mean = 2789954 | Best = 3320237
+#> GA | iter = 7 | Mean = 2798405 | Best = 3320237
+#> GA | iter = 8 | Mean = 2819648 | Best = 3320237
+#> GA | iter = 9 | Mean = 2797339 | Best = 3320237
+#> GA | iter = 10 | Mean = 2794273 | Best = 3320237
 #> 
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
 #>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
-#>     optimize = TRUE, seed = 2024, parallel = TRUE, maxiter = 25, 
-#>     monitor = FALSE)
+#>     studentize = FALSE, optimize = TRUE, GX1 = FALSE, seed = 2024, 
+#>    parallel = TRUE, maxiter = 10, monitor = TRUE)
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%   97.5%
-#> educ    0.0614    0.1333  -0.0419   0.4024  -0.0419  0.4024
+#>       Estimate  Pr(>|t|)   2.5% W  97.5% W     2.5%  97.5%
+#> educ    0.0614   0.06667  -0.0057    0.152  -0.0057  0.152
 ```
