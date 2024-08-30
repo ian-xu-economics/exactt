@@ -170,8 +170,6 @@ exactt <- function(model,
   
   GX.indices <- build_GX(blockIndexMatrix)
   
-  final_results <- vector("list")
-  
   if(!optimize){ # Case 1: don't optimize
     if(!is.null(permutation)){
       X.use <- X.use[permutation,, drop = FALSE]
@@ -227,9 +225,8 @@ exactt <- function(model,
                                                paste0(alpha*100/2, "%"), 
                                                paste0(100-alpha*100/2, "%"))))
   
-  if(optimize && ncol(X) > 1){
-    final_results[["gaResults"]] <- vector("list")
-  }
+  detailedList <- vector("list")
+  gaResultsList <- vector("list")
   
   rowCounter <- 1
   
@@ -321,7 +318,7 @@ exactt <- function(model,
         Z.temp <- Z.temp[gaResults@solution,, drop = FALSE]
       }
       
-      final_results[["gaResults"]][[colnames(X)[i]]] <- gaResults
+      gaResultsList[[colnames(X)[i]]] <- gaResults
     }
     
     GX2.temp <- build_GX2(X2.temp, GX.indices)
@@ -346,9 +343,35 @@ exactt <- function(model,
     } else{
       # Find LB and UB roots
       if(exacttIV){                
-        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp = NULL, Q.Z.temp, QGX1GX2.temp, GX1)
+        beta0.df <- getBetaNull(Y.temp, 
+                                X1.temp, 
+                                X2.temp, 
+                                Z.temp, 
+                                alpha, 
+                                nBlocks, 
+                                permIndices, 
+                                beta_hat, 
+                                se, 
+                                precisionToUse, 
+                                Q.X1.temp = NULL, 
+                                Q.Z.temp, 
+                                QGX1GX2.temp, 
+                                GX1)
       } else{
-        beta0.df <- getBetaNull(Y.temp, X1.temp, X2.temp, Z.temp = NULL, alpha, nBlocks, permIndices, beta_hat, se, precisionToUse, Q.X1.temp, Q.Z.temp = NULL, QGX1GX2.temp, GX1)
+        beta0.df <- getBetaNull(Y.temp, 
+                                X1.temp, 
+                                X2.temp, 
+                                Z.temp = NULL, 
+                                alpha, 
+                                nBlocks, 
+                                permIndices, 
+                                beta_hat, 
+                                se, 
+                                precisionToUse, 
+                                Q.X1.temp, 
+                                Q.Z.temp = NULL, 
+                                QGX1GX2.temp, 
+                                GX1)
       }
     }
     
@@ -376,16 +399,15 @@ exactt <- function(model,
                                    GX1)
     }
 
-    
-    final_results[["detailed"]][[colnames(X)[i]]] <- exacttResults$beta0.df
+    detailedList[[colnames(X)[i]]] <- exacttResults$beta0.df
     
     if(randomizationDist){
       randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
       t_numList <- asplit(exacttResults$t_num, MARGIN = 1)
       
-      final_results[["detailed"]][[colnames(X)[i]]] <- cbind(final_results[["detailed"]][[colnames(X)[i]]],
-                                                             data.frame("randomizationDist" = randomizationDistList),
-                                                             data.frame("t_num" = t_numList))
+      detailedList[[colnames(X)[i]]] <- cbind(detailedList[[colnames(X)[i]]],
+                                              data.frame("randomizationDist" = randomizationDistList),
+                                              data.frame("t_num" = t_numList))
     }
     
     pvalBetaNull0 <- ifelse(length(subset(exacttResults$beta0.df, beta0 == 0)) == 0, 
@@ -400,11 +422,15 @@ exactt <- function(model,
     rowCounter <- rowCounter + 1
   }
   
-  final_results[["summary"]] <- summaryTable.out
+  result <- structure(list(call = call,
+                           summary = summaryTable.out,
+                           detailed = detailedList,
+                           gaResults = gaResultsList),
+                      class = "exactt")
   
-  final_results[["call"]] <- call
+  if(length(gaResultsList) > 0){
+    result$gaResults <- gaResultsList
+  } 
   
-  class(final_results) <- "exactt"
-  
-  return(final_results) 
+  return(result) 
 }

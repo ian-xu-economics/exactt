@@ -22,7 +22,10 @@
 #' @export
 plot.exactt = function(x, variables = NULL, ...){
   
-  alpha <- ifelse(is.null(x$call$alpha), yes = 0.05, no = x$call$alpha)
+  dots = list(...)
+  
+  if("alpha" %in% names(dots)) alpha <- dots$alpha
+  else alpha <- ifelse(is.null(x$call$alpha), yes = 0.05, no = x$call$alpha)
   
   if(is.null(variables)){
     variables <- 1:length(x$detailed)
