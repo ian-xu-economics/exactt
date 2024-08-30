@@ -59,21 +59,4 @@ startupMessage <- function(){
 .onLoad <- function(libname, pkgname) {
   registerS3method("print", "exactt", print.exactt)
   registerS3method("plot", "exactt", plot.exactt)
-  
-  if (!requireNamespace("GA", quietly = TRUE)) {
-    stop("The 'GA' package is required but is not installed.")
-  }
-  
-  # https://github.com/luca-scr/GA/issues/52
-  # Load the GA package namespace
-  GA_pkg <- asNamespace("GA")
-  
-  # Unlock the binding for .ga.default
-  unlockBinding(".ga.default", GA_pkg)
-  
-  # Modify the useRcpp setting directly
-  GA_pkg$.ga.default$useRcpp <- FALSE
-  
-  # Re-lock the binding (optional, to maintain the package integrity)
-  lockBinding(".ga.default", GA_pkg)
 }
