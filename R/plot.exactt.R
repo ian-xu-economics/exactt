@@ -84,6 +84,7 @@ plot.exactt = function(x, variables = NULL, ...){
                     lwd = 1.5)
     graphics::points(beta0, 
                      beta0.pval, 
+                     col = grDevices::rgb(0, 0, 0, alpha = 0.70),
                      pch = 1, 
                      cex = 0.8)
     
