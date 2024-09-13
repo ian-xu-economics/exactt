@@ -17,13 +17,12 @@
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
-#' @param precisionToUse The precision level for rounding off the beta values in the
-#'        resulting sequence.
-#' @param permutation Optional; a specific permutation vector to rearrange order of data.
-#' @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
+# @param precisionToUse The precision level for rounding off the beta values in the
+#        resulting sequence.
+# @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
-#' @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
-#'        Using X1 has slightly more power at slightly more computational expense.
+# @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
+#        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
@@ -67,12 +66,12 @@ exactt <- function(model,
                    nBlocks = 5,
                    nPerms = NULL,
                    studentize = TRUE,
-                   precisionToUse = NULL,
-                   permutation = NULL,
-                   randomizationDist = FALSE,
+                   #precisionToUse = NULL,
+                   #randomizationDist = FALSE,
                    optimize = FALSE,
-                   GX1 = TRUE,
+                   #GX1 = TRUE,
                    seed = 31740,
+                   #new.method = FALSE,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -84,11 +83,6 @@ exactt <- function(model,
     stop("The 'model' parameter must be provided.")
   } else if(!rlang::is_formula(model, lhs = TRUE)){
     stop("The 'model' parameter must be a formula with a LHS.")
-  }
-  
-  # Check if length of permutation equals number of observations
-  if(!is.null(permutation) && length(permutation) != nrow(data)){
-    cli::cli_abort("The length of 'permutation' does not equal the number of observations in 'data'.")
   }
   
   ivregObject <- ivreg::ivreg(model,
@@ -108,12 +102,6 @@ exactt <- function(model,
   
   data.n <- nrow(data)
   n <- floor(data.n/nBlocks)*nBlocks
-  
-  # Check if length of permutation equals number of observations
-  if(length(permutation) > n){
-    cli::cli_warn("After dropping remainder observations, 'permutation' is longer than the number of observations in the data. Remainder observations will be dropped from 'permutation' as well.")
-    permutation <- permutation[permutation %in% 1:n]
-  }
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
@@ -170,48 +158,29 @@ exactt <- function(model,
   
   GX.indices <- build_GX(blockIndexMatrix)
   
-  if(!optimize){ # Case 1: don't optimize
-    if(!is.null(permutation)){
-      X.use <- X.use[permutation,, drop = FALSE]
-      Y.use <- Y.use[permutation,, drop = FALSE]
-      if(IV){
-        Z.use <- Z.use[permutation,, drop = FALSE]
-      }
+  if(optimize){ # Case 1: don't optimize
+    if("type" %in% names(gaArgs)){
+      cli::cli_warn("Custom 'type' value is ignored in this function.")
+      gaArgs$type <- NULL
+    } 
+    if("fitness" %in% names(gaArgs)){
+      cli::cli_warn("Custom 'fitness' value is ignored in this function.")
+      gaArgs$fitness <- NULL
+    } 
+    if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
+      cli::cli_warn("Custom 'lower' and 'upper' values are ignored in this function.")
+      gaArgs$lower <- NULL
+      gaArgs$upper <- NULL
     }
-  } else{ # Case 2: optimize
+    if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
+      cli::cli_warn("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
+    }
     
-    if(!is.null(permutation)){ 
-      cli::cli_warn("Optimization will not be implemented because 'permutation' specified. If optimization is desired, either remove 'permutation' or include 'permutation' in matrix of suggestions and pass to function.")
-      X.use <- X.use[permutation,, drop = FALSE]
-      Y.use <- Y.use[permutation,, drop = FALSE]
-      if(IV){
-        Z.use <- Z.use[permutation,, drop = FALSE]
-      }
-      optimize <- FALSE
-    } else{
-      if("type" %in% names(gaArgs)){
-        warning("Custom 'type' value is ignored in this function.")
-        gaArgs$type <- NULL
-      } 
-      if("fitness" %in% names(gaArgs)){
-        warning("Custom 'fitness' value is ignored in this function.")
-        gaArgs$fitness <- NULL
-      } 
-      if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
-        warning("Custom 'lower' and 'upper' values are ignored in this function.")
-        gaArgs$lower <- NULL
-        gaArgs$upper <- NULL
-      }
-      if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
-        warning("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
-      }
-      
-      gaArgs$type <- "permutation"
-      gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations, GX.indices) }
-      gaArgs$lower <- rep(1, n)
-      gaArgs$upper <- rep(n, n)
-      gaArgs$crossover = "gaperm_oxCrossover_R"
-    }
+    gaArgs$type <- "permutation"
+    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations, GX.indices) }
+    gaArgs$lower <- rep(1, n)
+    gaArgs$upper <- rep(n, n)
+    gaArgs$crossover = "gaperm_oxCrossover_R"
   }
   
   summaryTable.out <- matrix(data = NA_real_,
@@ -332,94 +301,118 @@ exactt <- function(model,
     }
     
     if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1)
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1 = TRUE)
     } else{
       QGX1GX2.temp <- NULL
     }
     
-    if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
-      beta0.df <- data.frame(beta0 = beta0[[as.character(attr(X, "assign")[i])]],
-                             beta0.pval = NA)
-    } else{
-      # Find LB and UB roots
-      if(exacttIV){                
-        beta0.df <- getBetaNull(Y.temp, 
-                                X1.temp, 
-                                X2.temp, 
-                                Z.temp, 
-                                alpha, 
-                                nBlocks, 
-                                permIndices, 
-                                beta_hat, 
-                                se, 
-                                precisionToUse, 
-                                Q.X1.temp = NULL, 
-                                Q.Z.temp, 
-                                QGX1GX2.temp, 
-                                GX1)
+    if(TRUE){
+      if(exacttIV){
+        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp)
       } else{
-        beta0.df <- getBetaNull(Y.temp, 
-                                X1.temp, 
-                                X2.temp, 
-                                Z.temp = NULL, 
-                                alpha, 
-                                nBlocks, 
-                                permIndices, 
-                                beta_hat, 
-                                se, 
-                                precisionToUse, 
-                                Q.X1.temp, 
-                                Q.Z.temp = NULL, 
-                                QGX1GX2.temp, 
-                                GX1)
+        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, permIndices, Q.X1.temp, QGX1GX2.temp)
       }
-    }
-    
-    if(exacttIV){
-      exacttResults <- exactt_pval_IV(beta0.df, 
-                                      Y.temp, 
-                                      X1.temp,
-                                      X2.temp, 
-                                      Z.temp,
-                                      nBlocks, 
-                                      permIndices,
-                                      Q.Z.temp,
-                                      QGX1GX2.temp,
-                                      GX1)
+      
+      detailedList[[colnames(X)[i]]] <- pvals.df
+      
+      pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
+      
+      ci.lower.index <- min(which(pvals.df$pvals >= alpha))
+      ci.upper.index <- max(which(pvals.df$pvals >= alpha))
+      
+      summaryTable.out[rowCounter,] <- c(beta_hat,
+                                         pvals.df$pvals[pvalBeta0.index],
+                                         c(pvals.df$beta0.start[ci.lower.index], pvals.df$beta0.end[ci.upper.index]),
+                                         c(pvals.df$beta0.start[ci.lower.index], pvals.df$beta0.end[ci.upper.index]))
+      
+      rowCounter <- rowCounter + 1
       
     } else{
-      exacttResults <- exactt_pval(beta0.df, 
-                                   Y.temp,
-                                   X1.temp,
-                                   X2.temp, 
-                                   nBlocks, 
-                                   permIndices,
-                                   Q.X1.temp,
-                                   QGX1GX2.temp,
-                                   GX1)
-    }
-
-    detailedList[[colnames(X)[i]]] <- exacttResults$beta0.df
-    
-    if(randomizationDist){
-      randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
-      t_numList <- asplit(exacttResults$t_num, MARGIN = 1)
+      if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
+        beta0.df <- data.frame(beta0 = beta0[[as.character(attr(X, "assign")[i])]],
+                               beta0.pval = NA)
+      }  else{
+        # Find LB and UB roots
+        if(exacttIV){                
+          beta0.df <- getBetaNull(Y.temp, 
+                                  X1.temp, 
+                                  X2.temp, 
+                                  Z.temp, 
+                                  alpha, 
+                                  nBlocks, 
+                                  permIndices, 
+                                  beta_hat, 
+                                  se, 
+                                  precisionToUse, 
+                                  Q.X1.temp = NULL, 
+                                  Q.Z.temp, 
+                                  QGX1GX2.temp, 
+                                  GX1)
+        } else{
+          beta0.df <- getBetaNull(Y.temp, 
+                                  X1.temp, 
+                                  X2.temp, 
+                                  Z.temp = NULL, 
+                                  alpha, 
+                                  nBlocks, 
+                                  permIndices, 
+                                  beta_hat, 
+                                  se, 
+                                  precisionToUse, 
+                                  Q.X1.temp, 
+                                  Q.Z.temp = NULL, 
+                                  QGX1GX2.temp, 
+                                  GX1)
+        }
+      }
       
-      detailedList[[colnames(X)[i]]] <- cbind(detailedList[[colnames(X)[i]]],
-                                              data.frame("randomizationDist" = randomizationDistList),
-                                              data.frame("t_num" = t_numList))
+      if(exacttIV){
+        exacttResults <- exactt_pval_IV(beta0.df, 
+                                        Y.temp, 
+                                        X1.temp,
+                                        X2.temp, 
+                                        Z.temp,
+                                        nBlocks, 
+                                        permIndices,
+                                        Q.Z.temp,
+                                        QGX1GX2.temp,
+                                        GX1)
+        
+      } else{
+        exacttResults <- exactt_pval(beta0.df, 
+                                     Y.temp,
+                                     X1.temp,
+                                     X2.temp, 
+                                     nBlocks, 
+                                     permIndices,
+                                     Q.X1.temp,
+                                     QGX1GX2.temp,
+                                     GX1)
+      }
+      
+      detailedList[[colnames(X)[i]]] <- exacttResults$beta0.df
+      
+      if(randomizationDist){
+        randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
+        t_numList <- asplit(exacttResults$t_num, MARGIN = 1)
+        
+        detailedList[[colnames(X)[i]]] <- cbind(detailedList[[colnames(X)[i]]],
+                                                data.frame("randomizationDist" = randomizationDistList),
+                                                data.frame("t_num" = t_numList))
+      }
+      
+      pvalBetaNull0 <- ifelse(length(subset(exacttResults$beta0.df, beta0 == 0)) == 0, 
+                              yes = NA,
+                              no = subset(exacttResults$beta0.df, beta0 == 0)$beta0.pval)
+      
+      summaryTable.out[rowCounter,] <- c(beta_hat,
+                                         pvalBetaNull0,
+                                         ciByInversion(exacttResults$beta0.df, alpha, weighted = TRUE),
+                                         ciByInversion(exacttResults$beta0.df, alpha, weighted = FALSE))
+      
+      rowCounter <- rowCounter + 1
     }
     
-    pvalBetaNull0 <- ifelse(length(subset(exacttResults$beta0.df, beta0 == 0)) == 0, 
-                            yes = NA,
-                            no = subset(exacttResults$beta0.df, beta0 == 0)$beta0.pval)
-    
-    summaryTable.out[rowCounter,] <- c(beta_hat,
-                                       pvalBetaNull0,
-                                       ciByInversion(exacttResults$beta0.df, alpha, weighted = TRUE),
-                                       ciByInversion(exacttResults$beta0.df, alpha, weighted = FALSE))
-    
-    rowCounter <- rowCounter + 1
   }
   
   result <- structure(list(call = call,

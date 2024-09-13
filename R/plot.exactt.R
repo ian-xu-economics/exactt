@@ -31,97 +31,200 @@ plot.exactt = function(x, variables = NULL, ...){
     variables <- 1:length(x$detailed)
   }
   
-  for(i in 1:length(x$detailed)){
-    if(!i %in% variables){
+  for(var.num in 1:length(x$detailed)){
+    if(!var.num %in% variables){
       next
     }
     
-    point_estimate <- x$summary[i, 1]
-    variable_name <- names(x$detailed)[i]
+    data <- x$detailed[[var.num]]
     
-    data <- x$detailed[[i]]
-    data$point_estimate = point_estimate
-    data$alpha = alpha
+    # Determine finite data for calculating plot limits
+    finite_beta0 <- c(data$beta0.start, data$beta0.end)
+    finite_beta0 <- finite_beta0[is.finite(finite_beta0)]
     
-    if(data$beta0[1] == 0 
-       && data$beta0[2] - data$beta0[1] != data$beta0[3] - data$beta0[2]){
-      data <- data[-1, ]
+    # Calculate the finite range
+    finite_range <- range(finite_beta0)
+    
+    # Extend the finite range by 5% on both sides for plotting limits
+    x_extension <- 0.05 * diff(finite_range)
+    x_limits <- c(finite_range[1] - x_extension, finite_range[2] + x_extension)
+    
+    # Replace -Inf and Inf with finite values beyond the plotting limits
+    data$beta0.start[!is.finite(data$beta0.start)] <- x_limits[1] - x_extension
+    data$beta0.end[!is.finite(data$beta0.end)]     <- x_limits[2] + x_extension
+    
+    # Initialize the plot
+    graphics::plot(1, type = "n",
+         xlim = x_limits,
+         ylim = c(0, 1),
+         xlab = expression(beta[0]),
+         ylab = "P-value",
+         xaxt = "n", yaxt = "n",
+         cex.axis = 1, cex.lab = 1.4, family = "Helvetica")
+    
+    # Add gridlines
+    graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dashed")
+    graphics::abline(v = pretty(x_limits, n = 8), col = "gray90", lty = "dashed")
+    
+    # Shade regions where p-values are above alpha
+    above_alpha <- which(data$pvals > alpha)
+    if(length(above_alpha) > 0) {
+      for(i in above_alpha) {
+        graphics::rect(
+          xleft = max(data$beta0.start[i], x_limits[1]),
+          xright = min(data$beta0.end[i], x_limits[2]),
+          ybottom = alpha,
+          ytop = data$pvals[i],
+          col = rgb(0, 1, 0, alpha = 0.3),
+          border = NA
+        )
+      }
     }
     
-    beta0 <- data$beta0
-    beta0.pval <- data$beta0.pval
+    num.rows <- nrow(data)
     
-    # Find the indices where p-values are above alpha
-    above_alpha <- which(beta0.pval > alpha)
+    # Plot horizontal lines for each interval
+    for(i in 1:num.rows) {
+      graphics::segments(
+        x0 = max(data$beta0.start[i], x_limits[1]),
+        x1 = min(data$beta0.end[i], x_limits[2]),
+        y0 = data$pvals[i],
+        y1 = data$pvals[i],
+        col = "black",
+        lwd = 0.8
+      )
+    }
     
-    # Plot the basic setup without any data first
-    plot(beta0, beta0.pval, type = "n",
-         xlab = bquote(beta[.(variable_name)]^0),
-         ylab = "P-value",
-         ylim = c(0, 1),
-         xlim = range(beta0),
-         xaxt = "n", yaxt = "n", # Remove default axes for custom control
-         cex.axis = 1, cex.lab = 1.4, family = "Helvetica"
+    graphics::arrows(
+      x0 = x_limits[1],
+      y0 = data$pvals[1],
+      x1 = data$beta0.end[1],
+      y1 = data$pvals[1],
+      col = "black",
+      lwd = 0.75,
+      length = 0.05,
+      angle = 30,
+      code = 1  # Arrowhead at the start
     )
     
-    # Lighter gridlines
-    graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dashed")
-    graphics::abline(v = pretty(beta0, n = 8), col = "gray90", lty = "dashed")
-    
-    # Add the green shaded region where p-values are above alpha
-    if(length(above_alpha) > 0) {
-      graphics::polygon(c(beta0[above_alpha], 
-                          rev(beta0[above_alpha])), 
-                        c(rep(alpha, length(above_alpha)), 
-                          rev(beta0.pval[above_alpha])),
-              col = grDevices::rgb(0, 1, 0, alpha = 0.3), border = NA)
-    }
-    
-    # Add the points and line with improved styling
-    graphics::lines(beta0, 
-                    beta0.pval, 
-                    col = "black", 
-                    lwd = 1.5)
-    graphics::points(beta0, 
-                     beta0.pval, 
-                     col = grDevices::rgb(0, 0, 0, alpha = 0.75),
-                     pch = 1, 
-                     cex = 0.8)
+    graphics::arrows(
+      x0 = data$beta0.start[num.rows],
+      y0 = data$pvals[num.rows],
+      x1 = x_limits[2],
+      y1 = data$pvals[num.rows],
+      col = "black",
+      lwd = 0.75,
+      length = 0.05,
+      angle = 30,
+      code = 2  # Arrowhead at the end
+    )
     
     # Add horizontal and vertical reference lines
-    graphics::abline(h = alpha, 
-                     col = "blue", 
-                     lty = "dashed", 
-                     lwd = 1.5)
-    graphics::abline(v = point_estimate, 
-                     col = "red", 
-                     lty = "dotted", 
-                     lwd = 1.5)
+    graphics::abline(h = alpha, col = "blue", lty = "dashed", lwd = 0.75)
+    graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dotted", lwd = 0.75)
     
     # Customize the axes
-    graphics::axis(1, 
-                   at = pretty(beta0, n = 8), 
-                   labels = TRUE, 
-                   las = 1, 
-                   cex.axis = 1, 
-                   family = "Helvetica")
+    graphics::axis(1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1, cex.axis = 1, family = "Helvetica")
     
     # Add ticks at 0.1 intervals, but labels at 0.2 intervals
-    graphics::axis(2, 
-                   at = seq(0, 1, 0.1), 
-                   labels = NA, 
-                   tck = -0.02)
-    graphics::axis(2, 
-                   at = seq(0, 1, 0.2), 
-                   labels = seq(0, 1, 0.2), 
-                   cex.axis = 1, 
-                   family = "Helvetica")
+    graphics::axis(2, at = seq(0, 1, 0.1), labels = NA, tck = -0.02)
+    graphics::axis(2, at = seq(0, 1, 0.2), labels = seq(0, 1, 0.2), cex.axis = 1, family = "Helvetica")
     
     # Position the legend inside the plot area with a transparent background
     graphics::legend("topright", inset = c(0.04, 0.04),
-                     legend = c(expression(alpha), expression(hat(beta))),
-                     col = c("blue", "red"), 
-                     lty = c("dashed", "dotted"),
-                     bty = "o", cex = 1.2, box.col = "black")
+           legend = c(expression(alpha), expression(hat(beta))),
+           col = c("blue", "red"), lty = c("dashed", "dotted"),
+           bty = "o", cex = 1.2, box.col = "black")
+    
+    
   }
 }
+
+# Previous code
+# point_estimate <- x$summary[i, 1]
+# variable_name <- names(x$detailed)[i]
+# 
+# pvalue.segments <- x$detailed[[i]]
+# data$point_estimate = point_estimate
+# data$alpha = alpha
+# 
+# if(data$beta0[1] == 0 
+#    && data$beta0[2] - data$beta0[1] != data$beta0[3] - data$beta0[2]){
+#   data <- data[-1, ]
+# }
+# 
+# beta0 <- data$beta0
+# beta0.pval <- data$beta0.pval
+# 
+# # Find the indices where p-values are above alpha
+# above_alpha <- which(beta0.pval > alpha)
+# 
+# # Plot the basic setup without any data first
+# plot(beta0, beta0.pval, type = "n",
+#      xlab = bquote(beta[.(variable_name)]^0),
+#      ylab = "P-value",
+#      ylim = c(0, 1),
+#      xlim = range(beta0),
+#      xaxt = "n", yaxt = "n", # Remove default axes for custom control
+#      cex.axis = 1, cex.lab = 1.4, family = "Helvetica"
+# )
+# 
+# # Lighter gridlines
+# graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dashed")
+# graphics::abline(v = pretty(beta0, n = 8), col = "gray90", lty = "dashed")
+# 
+# # Add the green shaded region where p-values are above alpha
+# if(length(above_alpha) > 0) {
+#   graphics::polygon(c(beta0[above_alpha], 
+#                       rev(beta0[above_alpha])), 
+#                     c(rep(alpha, length(above_alpha)), 
+#                       rev(beta0.pval[above_alpha])),
+#                     col = grDevices::rgb(0, 1, 0, alpha = 0.3), border = NA)
+# }
+# 
+# # Add the points and line with improved styling
+# graphics::lines(beta0, 
+#                 beta0.pval, 
+#                 col = "black", 
+#                 lwd = 1.5)
+# graphics::points(beta0, 
+#                  beta0.pval, 
+#                  col = grDevices::rgb(0, 0, 0, alpha = 0.75),
+#                  pch = 1, 
+#                  cex = 0.8)
+# 
+# # Add horizontal and vertical reference lines
+# graphics::abline(h = alpha, 
+#                  col = "blue", 
+#                  lty = "dashed", 
+#                  lwd = 1.5)
+# graphics::abline(v = point_estimate, 
+#                  col = "red", 
+#                  lty = "dotted", 
+#                  lwd = 1.5)
+# 
+# # Customize the axes
+# graphics::axis(1, 
+#                at = pretty(beta0, n = 8), 
+#                labels = TRUE, 
+#                las = 1, 
+#                cex.axis = 1, 
+#                family = "Helvetica")
+# 
+# # Add ticks at 0.1 intervals, but labels at 0.2 intervals
+# graphics::axis(2, 
+#                at = seq(0, 1, 0.1), 
+#                labels = NA, 
+#                tck = -0.02)
+# graphics::axis(2, 
+#                at = seq(0, 1, 0.2), 
+#                labels = seq(0, 1, 0.2), 
+#                cex.axis = 1, 
+#                family = "Helvetica")
+# 
+# # Position the legend inside the plot area with a transparent background
+# graphics::legend("topright", inset = c(0.04, 0.04),
+#                  legend = c(expression(alpha), expression(hat(beta))),
+#                  col = c("blue", "red"), 
+#                  lty = c("dashed", "dotted"),
+#                  bty = "o", cex = 1.2, box.col = "black")

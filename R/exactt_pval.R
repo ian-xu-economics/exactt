@@ -114,4 +114,6 @@ exactt_pval <- function(beta0.df, Y.temp, X1.temp, X2.temp, nBlocks, permIndices
   return(list(beta0.df = beta0.df,
               randomizationDist = t(t),
               t_num = t(t_num)))
+  
+  return(beta0.df)
 }
