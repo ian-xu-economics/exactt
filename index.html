@@ -149,17 +149,16 @@
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                   variables <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.2</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     alpha = 0.1)</span></span>
+<span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;         Estimate  Pr(&gt;|t|)     5% W   95% W       5%     95%</span></span>
-<span><span class="co">#&gt; dose      9.7636   0.07500    2.414  16.517    2.414  16.517</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000   0.26667  -11.880  10.300  -11.880  10.300</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   5% W   95% W     5%     95%</span></span>
+<span><span class="co">#&gt; dose    9.7636     0.075  2.414  16.517  2.414  16.517</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It is equivalent to the case where <code>variables = NULL</code> (all variables are of interest) because these confidence intervals are marginally valid.</p>
 </div>
 <div class="section level2">
@@ -225,6 +224,7 @@
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 4.465345 | Best = 7.791005</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 4.438026 | Best = 7.791005</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, </span></span>
@@ -232,10 +232,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)    5% W   95% W      5%     95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.120  14.600   5.120  14.600</span></span>
-<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  12.675  19.750  12.670  19.750</span></span>
-<span><span class="co">#&gt; suppVC              -3.700  0.0583330  -7.044  -1.085  -7.044  -1.085</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)     5% W    95% W       5%      95%</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.1197  14.6030   5.1197  14.6030</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  12.6780  19.7530  12.6780  19.7530</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.0583330  -7.0441  -1.0846  -7.0441  -1.0846</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative 90% confidence intervals for each category of <code>dose</code> and <code>supp</code> when they equal “2” and “VC” respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt.4$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>suppVC</code> variable, use:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
@@ -264,34 +264,33 @@
 <span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                    monitor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                    seed <span class="op">=</span> <span class="fl">2024</span>,</span>
-<span>                    GX1 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                    studentize <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>                    seed <span class="op">=</span> <span class="fl">31740</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
 <span></span>
 <span><span class="co">#&gt; ✔ Optimizing ordering for `educ`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2717502 | Best = 3126138</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2771190 | Best = 3214122</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2836298 | Best = 3214122</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2793909 | Best = 3251129</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2822831 | Best = 3251129</span></span>
-<span><span class="co">#&gt; GA | iter = 6 | Mean = 2789954 | Best = 3320237</span></span>
-<span><span class="co">#&gt; GA | iter = 7 | Mean = 2798405 | Best = 3320237</span></span>
-<span><span class="co">#&gt; GA | iter = 8 | Mean = 2819648 | Best = 3320237</span></span>
-<span><span class="co">#&gt; GA | iter = 9 | Mean = 2797339 | Best = 3320237</span></span>
-<span><span class="co">#&gt; GA | iter = 10 | Mean = 2794273 | Best = 3320237</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2717657 | Best = 3138106</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2805246 | Best = 3138106</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2786866 | Best = 3161103</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2802297 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2704045 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 6 | Mean = 2766136 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 7 | Mean = 2773401 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 8 | Mean = 2752249 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 9 | Mean = 2766553 | Best = 3184349</span></span>
+<span><span class="co">#&gt; GA | iter = 10 | Mean = 2733912 | Best = 3184349</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
-<span><span class="co">#&gt;     studentize = FALSE, optimize = TRUE, GX1 = FALSE, seed = 2024, </span></span>
-<span><span class="co">#&gt;    parallel = TRUE, maxiter = 10, monitor = TRUE)</span></span>
+<span><span class="co">#&gt;     optimize = TRUE, seed = 31740, parallel = TRUE, maxiter = 10, </span></span>
+<span><span class="co">#&gt;     monitor = TRUE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)   2.5% W  97.5% W     2.5%  97.5%</span></span>
-<span><span class="co">#&gt; educ    0.0614   0.06667  -0.0057    0.152  -0.0057  0.152</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)    2.5% W  97.5% W      2.5%   97.5%</span></span>
+<span><span class="co">#&gt; educ    0.0614     0.375  -0.06454   0.1689  -0.06454  0.1689</span></span></code></pre></div>
 </div>
 </div>
   </div>
