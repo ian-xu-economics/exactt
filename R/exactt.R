@@ -183,21 +183,9 @@ exactt <- function(model,
     gaArgs$crossover = "gaperm_oxCrossover_R"
   }
   
-  summaryTable.out <- matrix(data = NA_real_,
-                             nrow = sum(assign %in% variables), 
-                             ncol = 6, 
-                             dimnames = list(colnames(X)[assign %in% variables], 
-                                             c("Estimate", 
-                                               "Pr(>|t|)", 
-                                               paste0(alpha*100/2, "%", " W"), 
-                                               paste0(100-alpha*100/2, "%", " W"),
-                                               paste0(alpha*100/2, "%"), 
-                                               paste0(100-alpha*100/2, "%"))))
-  
+  summaryTableList <- vector("list")
   detailedList <- vector("list")
   gaResultsList <- vector("list")
-  
-  rowCounter <- 1
   
   for(i in seq_along(attr(X, "assign"))){
     
@@ -320,12 +308,17 @@ exactt <- function(model,
       ci.lower.index <- min(which(pvals.df$pvals >= alpha))
       ci.upper.index <- max(which(pvals.df$pvals >= alpha))
       
-      summaryTable.out[rowCounter,] <- c(beta_hat,
-                                         pvals.df$pvals[pvalBeta0.index],
-                                         c(pvals.df$beta0.start[ci.lower.index], pvals.df$beta0.end[ci.upper.index]),
-                                         c(pvals.df$beta0.start[ci.lower.index], pvals.df$beta0.end[ci.upper.index]))
-      
-      rowCounter <- rowCounter + 1
+      summaryTableList[[i]] <- matrix(data = c(beta_hat,
+                                               pvals.df$pvals[pvalBeta0.index],
+                                               pvals.df$beta0.start[ci.lower.index], 
+                                               pvals.df$beta0.end[ci.upper.index]),
+                                      nrow = 1, 
+                                      ncol = 4, 
+                                      dimnames = list(colnames(X)[i], 
+                                                      c("Estimate", 
+                                                        "Pr(>|t|)", 
+                                                        paste0(alpha*100/2, "%", " W"), 
+                                                        paste0(100-alpha*100/2, "%", " W"))))
       
     } else{
       if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
@@ -416,7 +409,7 @@ exactt <- function(model,
   }
   
   result <- structure(list(call = call,
-                           summary = summaryTable.out,
+                           summary = do.call('rbind', summaryTableList),
                            detailed = detailedList,
                            gaResults = gaResultsList),
                       class = "exactt")

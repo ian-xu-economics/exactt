@@ -36,7 +36,16 @@ plot.exactt = function(x, variables = NULL, ...){
       next
     }
     
+    variable_name <- names(x$detailed)[var.num]
+    
     data <- x$detailed[[var.num]]
+    
+    ci.lower <- data$beta0.start[min(which(data$pvals >= alpha))]
+    ci.upper <- data$beta0.end[max(which(data$pvals >= alpha))]
+    
+    # Extend the bottom margin to make space for the legend
+    #old_par <- par(no.readonly = TRUE)  # Save old par settings
+    graphics::par(mar = c(7, 4.5, 1, 1))  # Increase bottom margin
     
     # Determine finite data for calculating plot limits
     finite_beta0 <- c(data$beta0.start, data$beta0.end)
@@ -51,33 +60,32 @@ plot.exactt = function(x, variables = NULL, ...){
     
     # Replace -Inf and Inf with finite values beyond the plotting limits
     data$beta0.start[!is.finite(data$beta0.start)] <- x_limits[1] - x_extension
-    data$beta0.end[!is.finite(data$beta0.end)]     <- x_limits[2] + x_extension
+    data$beta0.end[!is.finite(data$beta0.end)] <- x_limits[2] + x_extension
     
     # Initialize the plot
-    graphics::plot(1, type = "n",
-         xlim = x_limits,
-         ylim = c(0, 1),
-         xlab = expression(beta[0]),
-         ylab = "P-value",
-         xaxt = "n", yaxt = "n",
-         cex.axis = 1, cex.lab = 1.4, family = "Helvetica")
+    graphics::plot(1, 
+                   type = "n",
+                   xlim = x_limits,
+                   ylim = c(0, 1),
+                   xlab = bquote(beta[.(variable_name)]^0),
+                   ylab = "P-value",
+                   xaxt = "n", yaxt = "n",
+                   cex.axis = 1, cex.lab = 1.4, family = "Helvetica")
     
     # Add gridlines
-    graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dashed")
-    graphics::abline(v = pretty(x_limits, n = 8), col = "gray90", lty = "dashed")
+    graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dotted", lwd = 0.75)
+    graphics::abline(v = pretty(x_limits, n = 8), col = "gray90", lty = "dotted", lwd = 0.75)
     
     # Shade regions where p-values are above alpha
     above_alpha <- which(data$pvals > alpha)
     if(length(above_alpha) > 0) {
       for(i in above_alpha) {
-        graphics::rect(
-          xleft = max(data$beta0.start[i], x_limits[1]),
-          xright = min(data$beta0.end[i], x_limits[2]),
-          ybottom = alpha,
-          ytop = data$pvals[i],
-          col = rgb(0, 1, 0, alpha = 0.3),
-          border = NA
-        )
+        graphics::rect(xleft = max(data$beta0.start[i], x_limits[1]),
+                       xright = min(data$beta0.end[i], x_limits[2]),
+                       ybottom = alpha,
+                       ytop = data$pvals[i],
+                       col = rgb(0, 1, 0, alpha = 0.3),
+                       border = NA)
       }
     }
     
@@ -85,43 +93,71 @@ plot.exactt = function(x, variables = NULL, ...){
     
     # Plot horizontal lines for each interval
     for(i in 1:num.rows) {
-      graphics::segments(
-        x0 = max(data$beta0.start[i], x_limits[1]),
-        x1 = min(data$beta0.end[i], x_limits[2]),
-        y0 = data$pvals[i],
-        y1 = data$pvals[i],
-        col = "black",
-        lwd = 0.8
-      )
+      graphics::segments(x0 = max(data$beta0.start[i], x_limits[1]),
+                         x1 = min(data$beta0.end[i], x_limits[2]),
+                         y0 = data$pvals[i],
+                         y1 = data$pvals[i],
+                         col = "black",
+                         lwd = 1.25)
     }
     
-    graphics::arrows(
-      x0 = x_limits[1],
-      y0 = data$pvals[1],
-      x1 = data$beta0.end[1],
-      y1 = data$pvals[1],
-      col = "black",
-      lwd = 0.75,
-      length = 0.05,
-      angle = 30,
-      code = 1  # Arrowhead at the start
-    )
+    # Arrowhead at the start
+    graphics::arrows(x0 = x_limits[1],
+                     y0 = data$pvals[1],
+                     x1 = data$beta0.end[1],
+                     y1 = data$pvals[1],
+                     col = "black",
+                     lwd = 1.1,
+                     length = 0.05,
+                     angle = 30,
+                     code = 1)
     
-    graphics::arrows(
-      x0 = data$beta0.start[num.rows],
-      y0 = data$pvals[num.rows],
-      x1 = x_limits[2],
-      y1 = data$pvals[num.rows],
-      col = "black",
-      lwd = 0.75,
-      length = 0.05,
-      angle = 30,
-      code = 2  # Arrowhead at the end
-    )
+    # Arrowhead at the end
+    graphics::arrows(x0 = data$beta0.start[num.rows],
+                     y0 = data$pvals[num.rows],
+                     x1 = x_limits[2],
+                     y1 = data$pvals[num.rows],
+                     col = "black",
+                     lwd = 1.1,
+                     length = 0.05,
+                     angle = 30,
+                     code = 2)
     
     # Add horizontal and vertical reference lines
-    graphics::abline(h = alpha, col = "blue", lty = "dashed", lwd = 0.75)
-    graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dotted", lwd = 0.75)
+    graphics::abline(h = alpha, col = "orange", lty = "dashed", lwd = 0.75)
+    graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
+    graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+    
+    # Calculate offset for text positioning (2% of the x-axis range)
+    x_offset <- 0.02 * diff(x_limits)
+    
+    # Add text label for ci.lower (Lower Bound)
+    graphics::text(x = ci.lower - x_offset,
+                   y = 0.5,  # Vertical position (middle of the plot)
+                   labels = paste0("Lower bound of ", 
+                                   (1-alpha)*100, 
+                                   "% CI (", 
+                                   round(ci.lower, 3), 
+                                   ")"),
+                   srt = 90,  # Rotate text 90 degrees
+                   adj = c(0.5, 0.25),
+                   col = "cornflowerblue",
+                   cex = 0.9,
+                   family = "Helvetica")
+    
+    # Add text label for ci.upper (Upper Bound)
+    graphics::text(x = ci.upper + x_offset,
+                   y = 0.5,  # Vertical position (middle of the plot)
+                   labels = paste0("Upper bound of ", 
+                                   (1-alpha)*100, 
+                                   "% CI (", 
+                                   round(ci.upper, 3), 
+                                   ")"),
+                   srt = -90,  # Rotate text 90 degrees
+                   adj = c(0.5, 0.25),
+                   col = "cornflowerblue",
+                   cex = 0.9,
+                   family = "Helvetica")
     
     # Customize the axes
     graphics::axis(1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1, cex.axis = 1, family = "Helvetica")
@@ -131,11 +167,16 @@ plot.exactt = function(x, variables = NULL, ...){
     graphics::axis(2, at = seq(0, 1, 0.2), labels = seq(0, 1, 0.2), cex.axis = 1, family = "Helvetica")
     
     # Position the legend inside the plot area with a transparent background
-    graphics::legend("topright", inset = c(0.04, 0.04),
-           legend = c(expression(alpha), expression(hat(beta))),
-           col = c("blue", "red"), lty = c("dashed", "dotted"),
-           bty = "o", cex = 1.2, box.col = "black")
-    
+    graphics::legend("bottom", 
+                     inset=c(0, -0.28),
+                     legend = c(expression(alpha), expression(hat(beta)), "CI bounds"),
+                     col = c("orange", "red", "cornflowerblue"), lty = c("dashed", "dashed", "dashed"),
+                     cex = 0.9, 
+                     bty = "n", 
+                     bg = "transparent",
+                     horiz = TRUE,
+                     xpd = TRUE)
+    #par(old_par)
     
   }
 }
