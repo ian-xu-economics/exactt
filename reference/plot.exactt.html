@@ -19,7 +19,7 @@ with a horizontal line and the estimate from the summary with a vertical line.">
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.2.0</span>
       </span>
     </div>
 
@@ -58,7 +58,7 @@ with a horizontal line and the estimate from the summary with a vertical line.</
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'exactt'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, variables <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, variables <span class="op">=</span> <span class="cn">NULL</span>, pointEstimate <span class="op">=</span> <span class="cn">TRUE</span>, ciBounds <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -74,6 +74,14 @@ and 'call' from which the significance level 'alpha' is extracted.</p></dd>
 <dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
 <dd><p>A character vector specifying which variables to plot.
 If NULL, plots are generated for all variables contained in the 'exactt' object.</p></dd>
+
+
+<dt id="arg-pointestimate">pointEstimate<a class="anchor" aria-label="anchor" href="#arg-pointestimate"></a></dt>
+<dd><p>A Boolean indicating whether to include the point estimate in the plot.</p></dd>
+
+
+<dt id="arg-cibounds">ciBounds<a class="anchor" aria-label="anchor" href="#arg-cibounds"></a></dt>
+<dd><p>a Boolean indicating whether to include confidence interval bounds in the plot.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
