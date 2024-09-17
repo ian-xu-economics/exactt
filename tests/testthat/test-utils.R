@@ -1,5 +1,4 @@
 # tests/testthat/test-utils.R
-
 library(testthat)
 
 # Does not test case where nBlocks >= 10
@@ -48,6 +47,48 @@ test_that("build_GX2(), build_QGX2(), and build_QGX1GX2() work correctly", {
   
   expect_equal(result.QGX1GX2, 
                readRDS(test_path("expected_values_build_QGX1GX2.rds")))
+})
+
+test_that("exactt_pval_new_reg() works correctly", {
+
+  set.seed(31740)
+  n = 50
+  X1 <- matrix(rbinom(n, size = 8, prob = 0.5))
+  X2 <- 0.2*X1 + matrix(rexp(n))
+  eps <- matrix(rnorm(n, sd = 2))
+  Y <- matrix(3*X1 + 2*X2 + eps)
+
+  nBlocks = 5
+  blockIndexMatrix = matrix(1:n, ncol = nBlocks)
+  blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
+  permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+  GX.indices <- build_GX(blockIndexMatrix)
+  
+  GX2 <- matrix(X2[GX.indices], nrow = n)
+  
+  QGX2 <- build_QGX2(GX2)
+  
+  Q.X1.temp <- QGX2 %*% X1
+  QGX1GX2.temp <- build_QGX1GX2(X1, GX2, GX.indices)
+  
+  # First test (studentize)
+  result.1 <- exactt.pval.new.reg(Y.temp = Y,
+                                  X1.temp = X1,
+                                  permIndices,
+                                  Q.X1.temp,
+                                  QGX1GX2.temp)
+  # saveRDS(result.1, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_new_reg_studentized.rds")
+  expect_equal(result.1, readRDS(test_path("expected_values_exactt_pval_new_reg_studentized.rds")))
+
+  # First test (unstudentized)
+  result.2 <- exactt.pval.new.reg(Y.temp = Y,
+                                  X1.temp = X1,
+                                  permIndices,
+                                  Q.X1.temp,
+                                  QGX1GX2.temp = NULL)
+  
+  # saveRDS(result.2, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_new_reg_unstudentized.rds")
+  expect_equal(result.2, readRDS(test_path("expected_values_exactt_pval_new_reg_unstudentized.rds")))
 })
 
 # test_that("exactt_pval() works correctly", {
