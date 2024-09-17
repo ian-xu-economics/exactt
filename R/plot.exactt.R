@@ -11,8 +11,11 @@
 #'   If NULL, plots are generated for all variables contained in the 'exactt' object.
 #' @param pointEstimate A Boolean indicating whether to include the point estimate in the plot.
 #' @param ciBounds a Boolean indicating whether to include confidence interval bounds in the plot.
-#' @param ... Additional arguments passed to the plot function (not used currently, but included for consistency).
-#'
+#' @param ... Additional arguments passed to the legend function.
+#' - `legend_position`: A character indicating where to place the legend ("topright" by default).
+#' - `legend_inset`: A vector of length 2 indicating the inset distance(s) from the margins (c(0.025, 0.025) by default).
+#' - `legend_cex`: A double indicating the character expansion factor (0.9 by default).
+#' 
 #' @return A list of ggplot objects, one for each variable specified. Each plot represents
 #'   the relationship between P-values and beta-null values for that variable,
 #'   highlighted with reference lines for the estimated coefficient and significance level.
@@ -22,12 +25,15 @@
 #'
 #' @method plot exactt
 #' @export
-plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, ...){
+plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, xlimits = NULL, ylimits = NULL, ...){
   
   dots = list(...)
   
-  if("alpha" %in% names(dots)) alpha <- dots$alpha
-  else alpha <- ifelse(is.null(x$call$alpha), yes = 0.05, no = x$call$alpha)
+  if("alpha" %in% names(dots)){
+    alpha <- dots$alpha
+  } else{
+    alpha <- ifelse(is.null(x$call$alpha), yes = 0.05, no = x$call$alpha)
+  }
   
   if(is.null(variables)){
     variables <- 1:length(x$detailed)
@@ -43,8 +49,7 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
     data <- x$detailed[[var.num]]
     
     # Extend the bottom margin to make space for the legend
-    #old_par <- par(no.readonly = TRUE)  # Save old par settings
-    graphics::par(mar = c(7, 4.5, 1, 1))  # Increase bottom margin
+    graphics::par(mar = c(4.5, 4.5, 1, 1))  # Increase bottom margin
     
     # Determine finite data for calculating plot limits
     finite_beta0 <- c(data$beta0.start, data$beta0.end)
@@ -55,72 +60,113 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
     
     # Extend the finite range by 5% on both sides for plotting limits
     x_extension <- 0.05 * diff(finite_range)
-    x_limits <- c(finite_range[1] - x_extension, finite_range[2] + x_extension)
+    x_limits_auto <- c(finite_range[1] - x_extension, finite_range[2] + x_extension)
     
-    # Replace -Inf and Inf with finite values beyond the plotting limits
-    data$beta0.start[!is.finite(data$beta0.start)] <- x_limits[1] - x_extension
-    data$beta0.end[!is.finite(data$beta0.end)] <- x_limits[2] + x_extension
+    # Adjust x_limits if user provides xlimits
+    if(!is.null(xlimits)){
+      x_limits <- xlimits
+    } else {
+      x_limits <- x_limits_auto
+    }
+    
+    # Ensure x_extension is defined
+    if(diff(x_limits) == 0){
+      x_extension <- 0.05  # A small fixed extension
+    } else {
+      x_extension <- 0.05 * diff(x_limits)
+    }
+    
+    # Replace -Inf and Inf with x_limits[1] and x_limits[2]
+    data$beta0.start[!is.finite(data$beta0.start)] <- x_limits[1]
+    data$beta0.end[!is.finite(data$beta0.end)] <- x_limits[2]
+    
+    # Set y_limits
+    if(is.null(ylimits)){
+      y_limits <- c(0, 1)
+    } else {
+      y_limits <- ylimits
+    }
     
     # Initialize the plot
     graphics::plot(1, 
                    type = "n",
                    xlim = x_limits,
-                   ylim = c(0, 1),
+                   ylim = y_limits,
                    xlab = bquote(beta[.(variable_name)]^0),
                    ylab = "P-value",
                    xaxt = "n", yaxt = "n",
                    cex.axis = 1, cex.lab = 1.4, family = "Helvetica")
     
     # Add gridlines
-    graphics::abline(h = seq(0, 1, 0.1), col = "gray90", lty = "dotted", lwd = 0.75)
+    graphics::abline(h = seq(y_limits[1], y_limits[2], 0.1), col = "gray90", lty = "dotted", lwd = 0.75)
     graphics::abline(v = pretty(x_limits, n = 8), col = "gray90", lty = "dotted", lwd = 0.75)
     
     # Shade regions where p-values are above alpha
     above_alpha <- which(data$pvals > alpha)
     if(length(above_alpha) > 0) {
       for(i in above_alpha) {
-        graphics::rect(xleft = max(data$beta0.start[i], x_limits[1]),
-                       xright = min(data$beta0.end[i], x_limits[2]),
-                       ybottom = alpha,
-                       ytop = data$pvals[i],
-                       col = rgb(0, 1, 0, alpha = 0.3),
-                       border = NA)
+        shade_start <- max(data$beta0.start[i], x_limits[1])
+        shade_end <- min(data$beta0.end[i], x_limits[2])
+        if(shade_end > shade_start) {
+          graphics::rect(xleft = shade_start,
+                         xright = shade_end,
+                         ybottom = alpha,
+                         ytop = data$pvals[i],
+                         col = rgb(0, 1, 0, alpha = 0.3),
+                         border = NA)
+        }
       }
     }
     
     num.rows <- nrow(data)
     
-    # Plot horizontal lines for each interval
+    # Plot horizontal lines for each interval within x_limits
     for(i in 1:num.rows) {
-      graphics::segments(x0 = max(data$beta0.start[i], x_limits[1]),
-                         x1 = min(data$beta0.end[i], x_limits[2]),
-                         y0 = data$pvals[i],
-                         y1 = data$pvals[i],
-                         col = "black",
-                         lwd = 1.25)
+      segment_start <- max(data$beta0.start[i], x_limits[1])
+      segment_end <- min(data$beta0.end[i], x_limits[2])
+      if(segment_end > segment_start) {
+        graphics::segments(x0 = segment_start,
+                           x1 = segment_end,
+                           y0 = data$pvals[i],
+                           y1 = data$pvals[i],
+                           col = "black",
+                           lwd = 1.25)
+      }
     }
     
-    # Arrowhead at the start
-    graphics::arrows(x0 = x_limits[1],
-                     y0 = data$pvals[1],
-                     x1 = data$beta0.end[1],
-                     y1 = data$pvals[1],
-                     col = "black",
-                     lwd = 1.1,
-                     length = 0.05,
-                     angle = 30,
-                     code = 1)
+    # Adjust arrow plotting at the start
+    if(data$beta0.end[1] >= x_limits[1]) {
+      arrow_start <- max(data$beta0.start[1], x_limits[1])
+      arrow_end <- min(data$beta0.end[1], x_limits[2])
+      if(arrow_end > arrow_start) {
+        graphics::arrows(x0 = arrow_start,
+                         y0 = data$pvals[1],
+                         x1 = arrow_end,
+                         y1 = data$pvals[1],
+                         col = "black",
+                         lwd = 1.1,
+                         length = 0.05,
+                         angle = 30,
+                         code = ifelse(data$beta0.start[1] <= x_limits[1], 1, 0))
+      }
+    }
     
-    # Arrowhead at the end
-    graphics::arrows(x0 = data$beta0.start[num.rows],
-                     y0 = data$pvals[num.rows],
-                     x1 = x_limits[2],
-                     y1 = data$pvals[num.rows],
-                     col = "black",
-                     lwd = 1.1,
-                     length = 0.05,
-                     angle = 30,
-                     code = 2)
+    # Adjust arrow plotting at the end
+    if(data$beta0.start[num.rows] < x_limits[2]) {
+      arrow_start <- max(data$beta0.start[num.rows], x_limits[1])
+      arrow_end <- min(data$beta0.end[num.rows], x_limits[2])
+      if(arrow_end > arrow_start) {
+        graphics::arrows(x0 = arrow_start,
+                         y0 = data$pvals[num.rows],
+                         x1 = arrow_end,
+                         y1 = data$pvals[num.rows],
+                         col = "black",
+                         lwd = 1.1,
+                         length = 0.05,
+                         angle = 30,
+                         code = ifelse(data$beta0.end[num.rows] >= x_limits[2], 2, 0))
+      }
+    }
     
     legendText <- NULL
     legendCol <- NULL
@@ -132,74 +178,98 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
     legendLty <- c(legendLty, "dashed")
     
     if(pointEstimate){
-      graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
-      
-      legendText <- c(legendText, expression(hat(beta)))
-      legendCol <- c(legendCol, "red")
-      legendLty <- c(legendLty, "dashed")
+      # Only plot if point estimate is within x_limits
+      if(x$summary[var.num, 1] >= x_limits[1] && x$summary[var.num, 1] <= x_limits[2]){
+        graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
+        
+        legendText <- c(legendText, expression(hat(beta)))
+        legendCol <- c(legendCol, "red")
+        legendLty <- c(legendLty, "dashed")
+      }
     }
     
     if(ciBounds){
-      ci.lower <- data$beta0.start[min(which(data$pvals >= alpha))]
-      ci.upper <- data$beta0.end[max(which(data$pvals >= alpha))]
-      graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+      ci.lower.index <- min(which(data$pvals >= alpha))
+      ci.upper.index <- max(which(data$pvals >= alpha))
+      ci.lower <- data$beta0.start[ci.lower.index]
+      ci.upper <- data$beta0.end[ci.upper.index]
       
-      # Calculate offset for text positioning (2% of the x-axis range)
-      x_offset <- 0.02 * diff(x_limits)
-      
-      # Add text label for ci.lower (Lower Bound)
-      graphics::text(x = ci.lower - x_offset,
-                     y = 0.5,  # Vertical position (middle of the plot)
-                     labels = paste0("Lower bound of ", 
-                                     (1-alpha)*100, 
-                                     "% CI (", 
-                                     round(ci.lower, 3), 
-                                     ")"),
-                     srt = 90,  # Rotate text 90 degrees
-                     adj = c(0.5, 0.25),
-                     col = "cornflowerblue",
-                     cex = 0.9,
-                     family = "Helvetica")
-      
-      # Add text label for ci.upper (Upper Bound)
-      graphics::text(x = ci.upper + x_offset,
-                     y = 0.5,  # Vertical position (middle of the plot)
-                     labels = paste0("Upper bound of ", 
-                                     (1-alpha)*100, 
-                                     "% CI (", 
-                                     round(ci.upper, 3), 
-                                     ")"),
-                     srt = -90,  # Rotate text 90 degrees
-                     adj = c(0.5, 0.25),
-                     col = "cornflowerblue",
-                     cex = 0.9,
-                     family = "Helvetica")
-      
-      legendText <- c(legendText, "CI Bounds")
-      legendCol <- c(legendCol, "cornflowerblue")
-      legendLty <- c(legendLty, "dashed")
+      # Only plot if CI bounds are within x_limits
+      ci_bounds_within_limits <- (ci.lower >= x_limits[1] && ci.lower <= x_limits[2]) ||
+        (ci.upper >= x_limits[1] && ci.upper <= x_limits[2])
+      if(ci_bounds_within_limits){
+        graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+        
+        # Calculate offset for text positioning (2% of the x-axis range)
+        x_offset <- 0.02 * diff(x_limits)
+        
+        # Add text label for ci.lower (Lower Bound)
+        if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2]){
+          graphics::text(x = ci.lower - x_offset,
+                         y = 0.5 * (y_limits[1] + y_limits[2]),
+                         labels = paste0("Lower bound of ", 
+                                         (1-alpha)*100, 
+                                         "% CI (", 
+                                         round(ci.lower, 3), 
+                                         ")"),
+                         srt = 90,  # Rotate text 90 degrees
+                         adj = c(0.5, 0.25),
+                         col = "cornflowerblue",
+                         cex = 0.9,
+                         family = "Helvetica")
+        }
+        
+        # Add text label for ci.upper (Upper Bound)
+        if(ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
+          graphics::text(x = ci.upper + x_offset,
+                         y = 0.5 * (y_limits[1] + y_limits[2]),
+                         labels = paste0("Upper bound of ", 
+                                         (1-alpha)*100, 
+                                         "% CI (", 
+                                         round(ci.upper, 3), 
+                                         ")"),
+                         srt = -90,  # Rotate text -90 degrees
+                         adj = c(0.5, 0.25),
+                         col = "cornflowerblue",
+                         cex = 0.9,
+                         family = "Helvetica")
+        }
+        
+        legendText <- c(legendText, "CI Bounds")
+        legendCol <- c(legendCol, "cornflowerblue")
+        legendLty <- c(legendLty, "dashed")
+      }
     }
-
+    
     # Customize the axes
     graphics::axis(1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1, cex.axis = 1, family = "Helvetica")
     
     # Add ticks at 0.1 intervals, but labels at 0.2 intervals
-    graphics::axis(2, at = seq(0, 1, 0.1), labels = NA, tck = -0.02)
-    graphics::axis(2, at = seq(0, 1, 0.2), labels = seq(0, 1, 0.2), cex.axis = 1, family = "Helvetica")
+    graphics::axis(2, at = seq(y_limits[1], y_limits[2], 0.1), labels = NA, tck = -0.02)
+    graphics::axis(2, at = seq(y_limits[1], y_limits[2], 0.2), labels = seq(y_limits[1], y_limits[2], 0.2), cex.axis = 1, family = "Helvetica")
     
-    # Position the legend inside the plot area with a transparent background
-    graphics::legend("bottom", 
-                     inset=c(0, -0.28),
+    # Build legend
+    legend_position <- ifelse(is.null(dots$legend_position), 
+                              yes = "topright",
+                              no = dots$legend_position)
+    
+    if(is.null(dots$legend_inset)){ 
+      legend_inset <- c(0.025, 0.025)
+    } else{
+      legend_inset <- dots$legend_inset
+    }
+    
+    legend_cex <- ifelse(is.null(dots$legend_cex), 
+                         yes = 0.9,
+                         no = dots$legend_cex)
+    
+    graphics::legend(legend_position, 
+                     inset = legend_inset,
                      legend = legendText,
                      col = legendCol, 
                      lty = legendLty,
-                     cex = 0.9, 
-                     bty = "n", 
-                     bg = "transparent",
-                     horiz = TRUE,
-                     xpd = TRUE)
-    #par(old_par)
-    
+                     cex = legend_cex, 
+                     bty = "o")
   }
 }
 
