@@ -9,6 +9,8 @@
 #'   and 'call' from which the significance level 'alpha' is extracted.
 #' @param variables A character vector specifying which variables to plot.
 #'   If NULL, plots are generated for all variables contained in the 'exactt' object.
+#' @param pointEstimate A Boolean indicating whether to include the point estimate in the plot.
+#' @param ciBounds a Boolean indicating whether to include confidence interval bounds in the plot.
 #' @param ... Additional arguments passed to the plot function (not used currently, but included for consistency).
 #'
 #' @return A list of ggplot objects, one for each variable specified. Each plot represents
@@ -20,7 +22,7 @@
 #'
 #' @method plot exactt
 #' @export
-plot.exactt = function(x, variables = NULL, ...){
+plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, ...){
   
   dots = list(...)
   
@@ -32,16 +34,13 @@ plot.exactt = function(x, variables = NULL, ...){
   }
   
   for(var.num in 1:length(x$detailed)){
-    if(!var.num %in% variables){
+    if(!attr(x$detailed[[var.num]], "assign") %in% variables){
       next
     }
     
     variable_name <- names(x$detailed)[var.num]
     
     data <- x$detailed[[var.num]]
-    
-    ci.lower <- data$beta0.start[min(which(data$pvals >= alpha))]
-    ci.upper <- data$beta0.end[max(which(data$pvals >= alpha))]
     
     # Extend the bottom margin to make space for the legend
     #old_par <- par(no.readonly = TRUE)  # Save old par settings
@@ -123,42 +122,64 @@ plot.exactt = function(x, variables = NULL, ...){
                      angle = 30,
                      code = 2)
     
+    legendText <- NULL
+    legendCol <- NULL
+    legendLty <- NULL
     # Add horizontal and vertical reference lines
     graphics::abline(h = alpha, col = "orange", lty = "dashed", lwd = 0.75)
-    graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
-    graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+    legendText <- c(legendText, expression(alpha))
+    legendCol <- c(legendCol, "orange")
+    legendLty <- c(legendLty, "dashed")
     
-    # Calculate offset for text positioning (2% of the x-axis range)
-    x_offset <- 0.02 * diff(x_limits)
+    if(pointEstimate){
+      graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
+      
+      legendText <- c(legendText, expression(hat(beta)))
+      legendCol <- c(legendCol, "red")
+      legendLty <- c(legendLty, "dashed")
+    }
     
-    # Add text label for ci.lower (Lower Bound)
-    graphics::text(x = ci.lower - x_offset,
-                   y = 0.5,  # Vertical position (middle of the plot)
-                   labels = paste0("Lower bound of ", 
-                                   (1-alpha)*100, 
-                                   "% CI (", 
-                                   round(ci.lower, 3), 
-                                   ")"),
-                   srt = 90,  # Rotate text 90 degrees
-                   adj = c(0.5, 0.25),
-                   col = "cornflowerblue",
-                   cex = 0.9,
-                   family = "Helvetica")
-    
-    # Add text label for ci.upper (Upper Bound)
-    graphics::text(x = ci.upper + x_offset,
-                   y = 0.5,  # Vertical position (middle of the plot)
-                   labels = paste0("Upper bound of ", 
-                                   (1-alpha)*100, 
-                                   "% CI (", 
-                                   round(ci.upper, 3), 
-                                   ")"),
-                   srt = -90,  # Rotate text 90 degrees
-                   adj = c(0.5, 0.25),
-                   col = "cornflowerblue",
-                   cex = 0.9,
-                   family = "Helvetica")
-    
+    if(ciBounds){
+      ci.lower <- data$beta0.start[min(which(data$pvals >= alpha))]
+      ci.upper <- data$beta0.end[max(which(data$pvals >= alpha))]
+      graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+      
+      # Calculate offset for text positioning (2% of the x-axis range)
+      x_offset <- 0.02 * diff(x_limits)
+      
+      # Add text label for ci.lower (Lower Bound)
+      graphics::text(x = ci.lower - x_offset,
+                     y = 0.5,  # Vertical position (middle of the plot)
+                     labels = paste0("Lower bound of ", 
+                                     (1-alpha)*100, 
+                                     "% CI (", 
+                                     round(ci.lower, 3), 
+                                     ")"),
+                     srt = 90,  # Rotate text 90 degrees
+                     adj = c(0.5, 0.25),
+                     col = "cornflowerblue",
+                     cex = 0.9,
+                     family = "Helvetica")
+      
+      # Add text label for ci.upper (Upper Bound)
+      graphics::text(x = ci.upper + x_offset,
+                     y = 0.5,  # Vertical position (middle of the plot)
+                     labels = paste0("Upper bound of ", 
+                                     (1-alpha)*100, 
+                                     "% CI (", 
+                                     round(ci.upper, 3), 
+                                     ")"),
+                     srt = -90,  # Rotate text 90 degrees
+                     adj = c(0.5, 0.25),
+                     col = "cornflowerblue",
+                     cex = 0.9,
+                     family = "Helvetica")
+      
+      legendText <- c(legendText, "CI Bounds")
+      legendCol <- c(legendCol, "cornflowerblue")
+      legendLty <- c(legendLty, "dashed")
+    }
+
     # Customize the axes
     graphics::axis(1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1, cex.axis = 1, family = "Helvetica")
     
@@ -169,8 +190,9 @@ plot.exactt = function(x, variables = NULL, ...){
     # Position the legend inside the plot area with a transparent background
     graphics::legend("bottom", 
                      inset=c(0, -0.28),
-                     legend = c(expression(alpha), expression(hat(beta)), "CI bounds"),
-                     col = c("orange", "red", "cornflowerblue"), lty = c("dashed", "dashed", "dashed"),
+                     legend = legendText,
+                     col = legendCol, 
+                     lty = legendLty,
                      cex = 0.9, 
                      bty = "n", 
                      bg = "transparent",

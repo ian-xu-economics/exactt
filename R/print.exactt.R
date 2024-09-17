@@ -19,8 +19,12 @@
 #' @export
 print.exactt = function(x, digits = 4, ...){
   
-  cat(cli::style_bold(cli::col_blue("\nCall:\n")),
-      paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+  dots <- list(...)
+  
+  if(!("call" %in% names(dots) && dots$call == FALSE)){
+    cat(cli::style_bold(cli::col_blue("\nCall:\n")),
+        paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+  }
   cat(cli::style_bold(cli::col_blue("\nSummary:\n")))
   print.default(signif(x$summary, digits),
                 print.gap = 2L, quote = FALSE)

@@ -4,7 +4,7 @@
 \alias{plot.exactt}
 \title{Plot P-values for 'exactt' Objects}
 \usage{
-\method{plot}{exactt}(x, variables = NULL, ...)
+\method{plot}{exactt}(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class 'exactt', typically the output from \code{exactt} function,
@@ -13,6 +13,10 @@ and 'call' from which the significance level 'alpha' is extracted.}
 
 \item{variables}{A character vector specifying which variables to plot.
 If NULL, plots are generated for all variables contained in the 'exactt' object.}
+
+\item{pointEstimate}{A Boolean indicating whether to include the point estimate in the plot.}
+
+\item{ciBounds}{a Boolean indicating whether to include confidence interval bounds in the plot.}
 
 \item{...}{Additional arguments passed to the plot function (not used currently, but included for consistency).}
 }

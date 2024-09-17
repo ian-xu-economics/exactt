@@ -2,6 +2,7 @@
 
 S3method(plot,exactt)
 S3method(print,exactt)
+S3method(summary,exactt)
 export(exactt)
 importFrom(Formula,Formula)
 importFrom(GA,gaControl)

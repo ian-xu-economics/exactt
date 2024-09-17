@@ -48,7 +48,7 @@ that are used to configure the genetic algorithm. Note that when sample size is 
 optimizing is computationally expensive and has little effect.}
 }
 \value{
-An object of class 'et', which includes:
+An object of class 'exactt', which includes:
 \itemize{
 \item \code{summary}: A matrix summarizing the test results for each variable.
 \item \code{detailed}: A list containing detailed test results for each variable.

@@ -59,4 +59,5 @@ startupMessage <- function(){
 .onLoad <- function(libname, pkgname) {
   registerS3method("print", "exactt", print.exactt)
   registerS3method("plot", "exactt", plot.exactt)
+  registerS3method("summary", "exactt", summary.exactt)
 }

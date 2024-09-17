@@ -8,6 +8,6 @@ bibentry(
     person(given = "Ian", family = "Xu", email = "ianxu@uchicago.edu")
   ),
   year    = "2024",
-  note    = "R package version 2.1.0",
+  note    = "R package version 2.2.0",
   url     = "https://github.com/ian-xu-economics/exactt"
 )
