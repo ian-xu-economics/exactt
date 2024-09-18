@@ -58,7 +58,17 @@ with a horizontal line and the estimate from the summary with a vertical line.</
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'exactt'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, variables <span class="op">=</span> <span class="cn">NULL</span>, pointEstimate <span class="op">=</span> <span class="cn">TRUE</span>, ciBounds <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pointEstimate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ciBounds <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  plot.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  legend.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  axis.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -69,6 +79,10 @@ with a horizontal line and the estimate from the summary with a vertical line.</
 <dd><p>An object of class 'exactt', typically the output from <code>exactt</code> function,
 containing elements 'detailed' for plotting data, 'summary' for vertical lines at estimates,
 and 'call' from which the significance level 'alpha' is extracted.</p></dd>
+
+
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dd><p>The significance level used for the hypothesis tests; defaults to alpha used when calling the exactt function.</p></dd>
 
 
 <dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
@@ -84,8 +98,27 @@ If NULL, plots are generated for all variables contained in the 'exactt' object.
 <dd><p>a Boolean indicating whether to include confidence interval bounds in the plot.</p></dd>
 
 
+<dt id="arg-plot-args">plot.args<a class="anchor" aria-label="anchor" href="#arg-plot-args"></a></dt>
+<dd><p>A named list of additional arguments to pass to the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></code> function.
+This allows customization of the main plot, such as setting titles (<code>main</code>), axis labels (<code>xlab</code>,
+<code>ylab</code>), colors (<code>col</code>, <code>col.axis</code>), line types (<code>lty</code>), and other graphical parameters.
+Use this to adjust the appearance of the plot according to your preferences.</p></dd>
+
+
+<dt id="arg-legend-args">legend.args<a class="anchor" aria-label="anchor" href="#arg-legend-args"></a></dt>
+<dd><p>A named list of additional arguments to pass to the <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code> function.
+This enables customization of the legend, including position (<code>x</code>, <code>y</code>), background color (<code>bg</code>),
+border (<code>bty</code>), text size (<code>cex</code>), and more. Use this list to modify the legend's appearance and placement within the plot.</p></dd>
+
+
+<dt id="arg-axis-args">axis.args<a class="anchor" aria-label="anchor" href="#arg-axis-args"></a></dt>
+<dd><p>A named list of additional arguments to pass to the <code><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></code> function when customizing the axes.
+This can include parameters such as axis label size (<code>cex.axis</code>), axis label color (<code>col.axis</code>), font style (<code>font.axis</code>),
+tick mark length (<code>tck</code>), and others. Utilize this list to fine-tune the appearance of the plot axes.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to the plot function (not used currently, but included for consistency).</p></dd>
+<dd><p>Additional arguments passed to the legend function (not currently used by included for consistency).</p></dd>
 
 </dl></div>
     <div id="value">
