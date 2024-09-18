@@ -164,9 +164,9 @@ parameters, then by default:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)        5%      95%</span></span>
-<span><span class="co">#&gt; dose      9.7636     0.075    2.4137  16.5180</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000     0.250  -10.9840   7.6065</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  Pr(&gt;|t|)      5%     95%</span></span>
+<span><span class="co">#&gt; dose      9.7636   0.07500  2.4137  16.518</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000   0.34167    -Inf     Inf</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -222,8 +222,8 @@ categorical variable to explore its discrete impact on tooth length:</p>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate  Pr(&gt;|t|)    5%  95%</span></span>
 <span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333  -Inf  Inf</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.50  0.866700  -Inf  Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70  0.058330  -Inf  Inf</span></span></code></pre></div>
+<span><span class="co">#&gt; as.factor(dose)2     15.50  0.991700  -Inf  Inf</span></span>
+<span><span class="co">#&gt; suppVC               -3.70  1.000000  -Inf  Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and
 <code>supp</code> equals “VC” is not informative due to suboptimal data
 ordering, which can diminish the statistical power of the test. This
