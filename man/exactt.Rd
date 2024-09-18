@@ -15,6 +15,7 @@ exactt(
   studentize = TRUE,
   optimize = FALSE,
   seed = 31740,
+  Q.X1.temp = NULL,
   ...
 )
 }
@@ -41,6 +42,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
+
+\item{Q.X1.temp}{Optional argument used for power testing purposes.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

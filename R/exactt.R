@@ -24,6 +24,7 @@
 # @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
 #        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
+#' @param Q.X1.temp Optional argument used for power testing purposes.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -72,6 +73,7 @@ exactt <- function(model,
                    #GX1 = TRUE,
                    seed = 31740,
                    #new.method = FALSE,
+                   Q.X1.temp = NULL,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -284,8 +286,9 @@ exactt <- function(model,
     if(exacttIV){
       Q.Z.temp <- QGX2.temp %*% Z.temp
     } else{
-      Q.X1.temp <- QGX2.temp %*% X1.temp
-      #Q.X1.temp <- iterative_partial_out(X1.temp, GX2.temp)
+      if(is.null(Q.X1.temp)){
+        Q.X1.temp <- QGX2.temp %*% X1.temp
+      } 
     }
     
     if(studentize){
