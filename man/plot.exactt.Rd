@@ -4,12 +4,24 @@
 \alias{plot.exactt}
 \title{Plot P-values for 'exactt' Objects}
 \usage{
-\method{plot}{exactt}(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, ...)
+\method{plot}{exactt}(
+  x,
+  alpha = NULL,
+  variables = NULL,
+  pointEstimate = TRUE,
+  ciBounds = TRUE,
+  plot.args = list(),
+  legend.args = list(),
+  axis.args = list(),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class 'exactt', typically the output from \code{exactt} function,
 containing elements 'detailed' for plotting data, 'summary' for vertical lines at estimates,
 and 'call' from which the significance level 'alpha' is extracted.}
+
+\item{alpha}{The significance level used for the hypothesis tests; defaults to alpha used when calling the exactt function.}
 
 \item{variables}{A character vector specifying which variables to plot.
 If NULL, plots are generated for all variables contained in the 'exactt' object.}
@@ -18,7 +30,20 @@ If NULL, plots are generated for all variables contained in the 'exactt' object.
 
 \item{ciBounds}{a Boolean indicating whether to include confidence interval bounds in the plot.}
 
-\item{...}{Additional arguments passed to the plot function (not used currently, but included for consistency).}
+\item{plot.args}{A named list of additional arguments to pass to the \code{\link[graphics]{plot}} function.
+This allows customization of the main plot, such as setting titles (\code{main}), axis labels (\code{xlab},
+\code{ylab}), colors (\code{col}, \code{col.axis}), line types (\code{lty}), and other graphical parameters.
+Use this to adjust the appearance of the plot according to your preferences.}
+
+\item{legend.args}{A named list of additional arguments to pass to the \code{\link[graphics]{legend}} function.
+This enables customization of the legend, including position (\code{x}, \code{y}), background color (\code{bg}),
+border (\code{bty}), text size (\code{cex}), and more. Use this list to modify the legend's appearance and placement within the plot.}
+
+\item{axis.args}{A named list of additional arguments to pass to the \code{\link[graphics]{axis}} function when customizing the axes.
+This can include parameters such as axis label size (\code{cex.axis}), axis label color (\code{col.axis}), font style (\code{font.axis}),
+tick mark length (\code{tck}), and others. Utilize this list to fine-tune the appearance of the plot axes.}
+
+\item{...}{Additional arguments passed to the legend function (not currently used by included for consistency).}
 }
 \value{
 A list of ggplot objects, one for each variable specified. Each plot represents

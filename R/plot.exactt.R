@@ -7,14 +7,30 @@
 #' @param x An object of class 'exactt', typically the output from `exactt` function,
 #'   containing elements 'detailed' for plotting data, 'summary' for vertical lines at estimates,
 #'   and 'call' from which the significance level 'alpha' is extracted.
+#'   
+#' @param alpha The significance level used for the hypothesis tests; defaults to alpha used when calling the exactt function.
+#' 
 #' @param variables A character vector specifying which variables to plot.
 #'   If NULL, plots are generated for all variables contained in the 'exactt' object.
+#'   
 #' @param pointEstimate A Boolean indicating whether to include the point estimate in the plot.
+#' 
 #' @param ciBounds a Boolean indicating whether to include confidence interval bounds in the plot.
-#' @param ... Additional arguments passed to the legend function.
-#' - `legend_position`: A character indicating where to place the legend ("topright" by default).
-#' - `legend_inset`: A vector of length 2 indicating the inset distance(s) from the margins (c(0.025, 0.025) by default).
-#' - `legend_cex`: A double indicating the character expansion factor (0.9 by default).
+#' 
+#' @param plot.args A named list of additional arguments to pass to the \code{\link[graphics]{plot}} function. 
+#' This allows customization of the main plot, such as setting titles (\code{main}), axis labels (\code{xlab}, 
+#' \code{ylab}), colors (\code{col}, \code{col.axis}), line types (\code{lty}), and other graphical parameters. 
+#' Use this to adjust the appearance of the plot according to your preferences.
+#' 
+#' @param legend.args A named list of additional arguments to pass to the \code{\link[graphics]{legend}} function. 
+#' This enables customization of the legend, including position (\code{x}, \code{y}), background color (\code{bg}), 
+#' border (\code{bty}), text size (\code{cex}), and more. Use this list to modify the legend's appearance and placement within the plot.
+#' 
+#' @param axis.args A named list of additional arguments to pass to the \code{\link[graphics]{axis}} function when customizing the axes. 
+#' This can include parameters such as axis label size (\code{cex.axis}), axis label color (\code{col.axis}), font style (\code{font.axis}), 
+#' tick mark length (\code{tck}), and others. Utilize this list to fine-tune the appearance of the plot axes.
+#' 
+#' @param ... Additional arguments passed to the legend function (not currently used by included for consistency).
 #' 
 #' @return A list of ggplot objects, one for each variable specified. Each plot represents
 #'   the relationship between P-values and beta-null values for that variable,
@@ -22,18 +38,27 @@
 #'
 #' @importFrom graphics abline polygon lines points axis legend
 #' @importFrom grDevices rgb
+#' @importFrom utils modifyList
 #'
 #' @method plot exactt
 #' @export
-plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRUE, xlimits = NULL, ylimits = NULL, ...){
+plot.exactt = function(x, 
+                       alpha = NULL,
+                       variables = NULL, 
+                       pointEstimate = TRUE, 
+                       ciBounds = TRUE, 
+                       plot.args = list(),
+                       legend.args = list(), 
+                       axis.args = list(),
+                       ...){
   
   dots = list(...)
-  
-  if("alpha" %in% names(dots)){
-    alpha <- dots$alpha
-  } else{
-    alpha <- ifelse(is.null(x$call$alpha), yes = 0.05, no = x$call$alpha)
-  }
+
+  if(is.null(alpha) && is.null(x$call$alpha)) {
+    alpha <- 0.05
+  } else if(is.null(alpha)){
+    alpha <- x$call$alpha
+  } 
   
   if(is.null(variables)){
     variables <- 1:length(x$detailed)
@@ -63,8 +88,8 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
     x_limits_auto <- c(finite_range[1] - x_extension, finite_range[2] + x_extension)
     
     # Adjust x_limits if user provides xlimits
-    if(!is.null(xlimits)){
-      x_limits <- xlimits
+    if(!is.null(plot.args$xlim)){
+      x_limits <- plot.args$xlim
     } else {
       x_limits <- x_limits_auto
     }
@@ -76,26 +101,35 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
       x_extension <- 0.05 * diff(x_limits)
     }
     
+    if(!is.null(plot.args$ylim)){
+      y_limits <- plot.args$ylim
+    } else {
+      y_limits <- c(0,1)
+    }
+    
     # Replace -Inf and Inf with x_limits[1] and x_limits[2]
     data$beta0.start[!is.finite(data$beta0.start)] <- x_limits[1]
     data$beta0.end[!is.finite(data$beta0.end)] <- x_limits[2]
     
-    # Set y_limits
-    if(is.null(ylimits)){
-      y_limits <- c(0, 1)
-    } else {
-      y_limits <- ylimits
-    }
+    xlab_string <- paste0("expression(beta[\"", variable_name, "\"]^0)")
+    xlab_expr <- eval(parse(text = xlab_string))
     
+    plot_defaults <- list(x = 1, 
+                          type = "n",
+                          xlim = x_limits,
+                          ylim = y_limits,
+                          ylab = "P-value",
+                          xaxt = "n", 
+                          yaxt = "n",
+                          cex.axis = 1, 
+                          cex.lab = 1.4, 
+                          family = "Helvetica",
+                          xlab = xlab_expr)
+    
+    plot_params <- utils::modifyList(plot_defaults, plot.args)
+
     # Initialize the plot
-    graphics::plot(1, 
-                   type = "n",
-                   xlim = x_limits,
-                   ylim = y_limits,
-                   xlab = bquote(beta[.(variable_name)]^0),
-                   ylab = "P-value",
-                   xaxt = "n", yaxt = "n",
-                   cex.axis = 1, cex.lab = 1.4, family = "Helvetica")
+    do.call(graphics::plot, plot_params)
     
     # Add gridlines
     graphics::abline(h = seq(y_limits[1], y_limits[2], 0.1), col = "gray90", lty = "dotted", lwd = 0.75)
@@ -206,7 +240,7 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
         # Add text label for ci.lower (Lower Bound)
         if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2]){
           graphics::text(x = ci.lower - x_offset,
-                         y = 0.5 * (y_limits[1] + y_limits[2]),
+                         y = 0.5 * (0 + 1),
                          labels = paste0("Lower bound of ", 
                                          (1-alpha)*100, 
                                          "% CI (", 
@@ -222,7 +256,7 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
         # Add text label for ci.upper (Upper Bound)
         if(ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
           graphics::text(x = ci.upper + x_offset,
-                         y = 0.5 * (y_limits[1] + y_limits[2]),
+                         y = 0.5 * (0 + 1),
                          labels = paste0("Upper bound of ", 
                                          (1-alpha)*100, 
                                          "% CI (", 
@@ -242,34 +276,84 @@ plot.exactt = function(x, variables = NULL, pointEstimate = TRUE, ciBounds = TRU
     }
     
     # Customize the axes
-    graphics::axis(1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1, cex.axis = 1, family = "Helvetica")
+    axis_defaults <- list(cex.axis = 1, family = "Helvetica")
+    axis_params <- utils::modifyList(axis_defaults, axis.args)
     
-    # Add ticks at 0.1 intervals, but labels at 0.2 intervals
-    graphics::axis(2, at = seq(y_limits[1], y_limits[2], 0.1), labels = NA, tck = -0.02)
-    graphics::axis(2, at = seq(y_limits[1], y_limits[2], 0.2), labels = seq(y_limits[1], y_limits[2], 0.2), cex.axis = 1, family = "Helvetica")
+    # Axis 1 (x-axis)
+    axis_params_x <- c(list(side = 1, at = pretty(x_limits, n = 8), labels = TRUE, las = 1), axis_params)
+    do.call(graphics::axis, axis_params_x)
+    
+    # Axis 2 (y-axis ticks without labels)
+    axis_params_y_ticks <- c(list(side = 2, at = seq(y_limits[1], y_limits[2], 0.1), labels = NA, tck = -0.02), axis_params)
+    do.call(graphics::axis, axis_params_y_ticks)
+    
+    # Axis 2 (y-axis labels at 0.2 intervals)
+    axis_params_y_labels <- c(list(side = 2, at = seq(y_limits[1], y_limits[2], 0.2), labels = seq(y_limits[1], y_limits[2], 0.2)), axis_params)
+    do.call(graphics::axis, axis_params_y_labels)
     
     # Build legend
-    legend_position <- ifelse(is.null(dots$legend_position), 
-                              yes = "topright",
-                              no = dots$legend_position)
+    # Define midpoints of the x and y axes
+    x_mid <- mean(x_limits)
+    y_mid <- mean(y_limits)
     
-    if(is.null(dots$legend_inset)){ 
-      legend_inset <- c(0.025, 0.025)
-    } else{
-      legend_inset <- dots$legend_inset
+    # Define the regions for top left and top right
+    top_left_region <- list(
+      x_min = x_limits[1],
+      x_max = x_mid,
+      y_min = y_mid,
+      y_max = y_limits[2]
+    )
+    
+    top_right_region <- list(
+      x_min = x_mid,
+      x_max = x_limits[2],
+      y_min = y_mid,
+      y_max = y_limits[2]
+    )
+    
+    # Function to count overlaps in a given region
+    count_overlaps <- function(region, data) {
+      overlaps <- 0
+      for (i in seq_len(nrow(data))) {
+        # Get the segment start and end
+        x_start <- data$beta0.start[i]
+        x_end <- data$beta0.end[i]
+        y_value <- data$pvals[i]
+        # Check if the segment overlaps with the region
+        if (y_value >= region$y_min && y_value <= region$y_max &&
+            ((x_start >= region$x_min && x_start <= region$x_max) ||
+             (x_end >= region$x_min && x_end <= region$x_max) ||
+             (x_start <= region$x_min && x_end >= region$x_max))) {
+          overlaps <- overlaps + 1
+        }
+      }
+      return(overlaps)
     }
     
-    legend_cex <- ifelse(is.null(dots$legend_cex), 
-                         yes = 0.9,
-                         no = dots$legend_cex)
+    # Count overlaps in each region
+    overlaps_left <- count_overlaps(top_left_region, data)
+    overlaps_right <- count_overlaps(top_right_region, data)
     
-    graphics::legend(legend_position, 
-                     inset = legend_inset,
-                     legend = legendText,
-                     col = legendCol, 
-                     lty = legendLty,
-                     cex = legend_cex, 
-                     bty = "o")
+    # Decide on legend position
+    if (overlaps_left <= overlaps_right) {
+      legend_position <- "topleft"
+    } else {
+      legend_position <- "topright"
+    }
+    
+    # Build legend with the chosen position
+    legend_defaults <- list(
+      x = legend_position,
+      inset = c(0.025, 0.025),
+      legend = legendText,
+      col = legendCol,
+      lty = legendLty,
+      cex = 0.9,
+      bty = "o"
+    )
+    
+    legend_params <- modifyList(legend_defaults, legend.args)
+    do.call(graphics::legend, legend_params)
   }
 }
 
