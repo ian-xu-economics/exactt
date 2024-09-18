@@ -337,6 +337,12 @@ exactt <- function(model,
     result$gaResults <- gaResultsList
   } 
   
+  if(exacttIV){
+    result$Q.Z <- Q.Z.temp
+  } else{
+    result$Q.X1 <- Q.X1.temp
+  }
+  
   return(result) 
 }
 
