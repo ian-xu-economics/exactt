@@ -30,8 +30,8 @@ summary.exactt <- function(object, ...){
     for(i in 1:length(object$detailed)){
       pvals.df <- object$detailed[[i]]
       
-      ci.lower.index <- min(which(pvals.df$pvals >= alpha))
-      ci.upper.index <- max(which(pvals.df$pvals >= alpha))
+      ci.lower.index <- min(which(pvals.df$pvals > alpha))
+      ci.upper.index <- max(which(pvals.df$pvals > alpha))
       
       summaryTableList[[i]] <- matrix(data = c(pvals.df$beta0.start[ci.lower.index], 
                                                pvals.df$beta0.end[ci.upper.index]),

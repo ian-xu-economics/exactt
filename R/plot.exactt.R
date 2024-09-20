@@ -223,8 +223,8 @@ plot.exactt = function(x,
     }
     
     if(ciBounds){
-      ci.lower.index <- min(which(data$pvals >= alpha))
-      ci.upper.index <- max(which(data$pvals >= alpha))
+      ci.lower.index <- min(which(data$pvals > alpha))
+      ci.upper.index <- max(which(data$pvals > alpha))
       ci.lower <- data$beta0.start[ci.lower.index]
       ci.upper <- data$beta0.end[ci.upper.index]
       

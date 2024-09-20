@@ -309,8 +309,8 @@ exactt <- function(model,
       
       pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
       
-      ci.lower.index <- min(which(pvals.df$pvals >= alpha))
-      ci.upper.index <- max(which(pvals.df$pvals >= alpha))
+      ci.lower.index <- min(which(pvals.df$pvals > alpha))
+      ci.upper.index <- max(which(pvals.df$pvals > alpha))
       
       summaryTableList[[i]] <- matrix(data = c(beta_hat,
                                                pvals.df$pvals[pvalBeta0.index],
