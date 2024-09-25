@@ -290,7 +290,9 @@ exactt <- function(model,
     } else{
       if(is.null(Q.X1)){
         Q.X1.temp <- QGX2.temp %*% X1.temp
-      } 
+      } else{
+        Q.X1.temp <- Q.X1
+      }
     }
     
     if(studentize){
