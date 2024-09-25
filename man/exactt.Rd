@@ -7,6 +7,7 @@
 exactt(
   model,
   data,
+  side = "both",
   alpha = 0.05,
   variables = NULL,
   beta0 = NULL,
@@ -15,7 +16,7 @@ exactt(
   studentize = TRUE,
   optimize = FALSE,
   seed = 31740,
-  Q.X1.temp = NULL,
+  Q.X1 = NULL,
   ...
 )
 }
@@ -23,6 +24,8 @@ exactt(
 \item{model}{A formula specifying the model..}
 
 \item{data}{A data frame or matrix containing the variables used in the model.}
+
+\item{side}{A character to indicate the side of the test.}
 
 \item{alpha}{The significance level used for the hypothesis tests; defaults to 0.05.}
 
@@ -43,7 +46,7 @@ If NULL or greater than the number of possible permutations, all permutations ar
 
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
 
-\item{Q.X1.temp}{Optional argument used for power testing purposes.}
+\item{Q.X1}{Optional argument used for power testing purposes.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

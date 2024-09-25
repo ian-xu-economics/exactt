@@ -8,7 +8,7 @@ message: 'To cite package "exactt" in publications use:'
 type: software
 license: GPL-3.0-only
 title: 'exactt: Implement the Exact t-Test'
-version: 2.2.1
+version: 2.3.0
 abstract: A paragraph providing a full description of the project (on several lines...)
 authors:
 - family-names: Pouliot

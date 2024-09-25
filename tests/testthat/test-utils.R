@@ -76,7 +76,8 @@ test_that("exactt_pval_new_reg() works correctly", {
                                   X1.temp = X1,
                                   permIndices,
                                   Q.X1.temp,
-                                  QGX1GX2.temp)
+                                  QGX1GX2.temp,
+                                  side = "both")
   # saveRDS(result.1, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_new_reg_studentized.rds")
   expect_equal(result.1, readRDS(test_path("expected_values_exactt_pval_new_reg_studentized.rds")))
 
@@ -85,7 +86,8 @@ test_that("exactt_pval_new_reg() works correctly", {
                                   X1.temp = X1,
                                   permIndices,
                                   Q.X1.temp,
-                                  QGX1GX2.temp = NULL)
+                                  QGX1GX2.temp = NULL,
+                                  side = "both")
   
   # saveRDS(result.2, "/Users/ianxu/Library/Mobile Documents/com~apple~CloudDocs/Documents/_BFI Predoc/Pouliot/exactt/tests/testthat/expected_values_exactt_pval_new_reg_unstudentized.rds")
   expect_equal(result.2, readRDS(test_path("expected_values_exactt_pval_new_reg_unstudentized.rds")))

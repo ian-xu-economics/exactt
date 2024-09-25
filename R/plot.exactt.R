@@ -61,7 +61,10 @@ plot.exactt = function(x,
   } 
   
   if(is.null(variables)){
-    variables <- 1:length(x$detailed)
+    variables <- sapply(x$detailed,
+                        function(detailed){
+                          attr(detailed, "assign")
+                        })
   }
   
   for(var.num in 1:length(x$detailed)){
@@ -223,22 +226,28 @@ plot.exactt = function(x,
     }
     
     if(ciBounds){
-      ci.lower.index <- min(which(data$pvals > alpha))
-      ci.upper.index <- max(which(data$pvals > alpha))
-      ci.lower <- data$beta0.start[ci.lower.index]
-      ci.upper <- data$beta0.end[ci.upper.index]
+      ci.lower.index <- min(which(data$pvals >= alpha))
+      ci.upper.index <- max(which(data$pvals >= alpha))
+      ci.lower <- ifelse(data$pvals[ci.lower.index] > alpha,
+                         yes = -Inf,
+                         no = data$beta0.end[ci.lower.index])
+        
+      ci.upper <- ifelse(data$pvals[ci.upper.index] > alpha,
+                         yes = Inf,
+                         no = data$beta0.start[ci.upper.index])
       
       # Only plot if CI bounds are within x_limits
-      ci_bounds_within_limits <- (ci.lower >= x_limits[1] && ci.lower <= x_limits[2]) ||
-        (ci.upper >= x_limits[1] && ci.upper <= x_limits[2])
-      if(ci_bounds_within_limits){
-        graphics::abline(v = c(ci.lower, ci.upper), col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+      if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2] || 
+         ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
         
         # Calculate offset for text positioning (2% of the x-axis range)
         x_offset <- 0.02 * diff(x_limits)
         
         # Add text label for ci.lower (Lower Bound)
         if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2]){
+          
+          graphics::abline(v = ci.lower, col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+          
           graphics::text(x = ci.lower - x_offset,
                          y = 0.5 * (0 + 1),
                          labels = paste0("Lower bound of ", 
@@ -255,6 +264,9 @@ plot.exactt = function(x,
         
         # Add text label for ci.upper (Upper Bound)
         if(ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
+          
+          graphics::abline(v =  ci.upper, col = "cornflowerblue", lty = "dashed", lwd = 0.75)
+          
           graphics::text(x = ci.upper + x_offset,
                          y = 0.5 * (0 + 1),
                          labels = paste0("Upper bound of ", 

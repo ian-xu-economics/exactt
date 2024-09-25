@@ -8,6 +8,7 @@
 #'
 #' @param model A formula specifying the model..
 #' @param data A data frame or matrix containing the variables used in the model.
+#' @param side A character to indicate the side of the test.
 #' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
 #' @param variables Optional; a character vector of predictor names to test.
 #'        If NULL, all predictors in the model are tested.
@@ -24,7 +25,7 @@
 # @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
 #        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
-#' @param Q.X1.temp Optional argument used for power testing purposes.
+#' @param Q.X1 Optional argument used for power testing purposes.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -61,6 +62,7 @@
 #' @export
 exactt <- function(model,
                    data,
+                   side = "both",
                    alpha = 0.05,
                    variables = NULL,
                    beta0 = NULL,
@@ -73,7 +75,7 @@ exactt <- function(model,
                    #GX1 = TRUE,
                    seed = 31740,
                    #new.method = FALSE,
-                   Q.X1.temp = NULL,
+                   Q.X1 = NULL,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -286,7 +288,7 @@ exactt <- function(model,
     if(exacttIV){
       Q.Z.temp <- QGX2.temp %*% Z.temp
     } else{
-      if(is.null(Q.X1.temp)){
+      if(is.null(Q.X1)){
         Q.X1.temp <- QGX2.temp %*% X1.temp
       } 
     }
@@ -301,7 +303,7 @@ exactt <- function(model,
       if(exacttIV){
         pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp)
       } else{
-        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, permIndices, Q.X1.temp, QGX1GX2.temp)
+        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, permIndices, Q.X1.temp, QGX1GX2.temp, side = side)
       }
       
       attr(pvals.df, "assign") = assign[i]
@@ -309,8 +311,16 @@ exactt <- function(model,
       
       pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
       
-      ci.lower.index <- min(which(pvals.df$pvals > alpha))
-      ci.upper.index <- max(which(pvals.df$pvals > alpha))
+      if(side == "both"){
+        ci.lower.index <- min(which(pvals.df$pvals > alpha))
+        ci.upper.index <- max(which(pvals.df$pvals > alpha))
+      } else if (side == "left"){
+        ci.lower.index <- 1
+        ci.upper.index <- max(which(pvals.df$pvals > alpha))
+      } else{
+        ci.lower.index <- min(which(pvals.df$pvals > alpha))
+        ci.upper.index <- ncol(permIndices)
+      }
       
       summaryTableList[[i]] <- matrix(data = c(beta_hat,
                                                pvals.df$pvals[pvalBeta0.index],
@@ -320,9 +330,11 @@ exactt <- function(model,
                                       ncol = 4, 
                                       dimnames = list(colnames(X)[i], 
                                                       c("Estimate", 
-                                                        "Pr(>|t|)", 
-                                                        paste0(alpha*100/2, "%"), 
-                                                        paste0(100-alpha*100/2, "%"))))
+                                                        "P-value", #"Pr(>|t|)", 
+                                                        "Lower Bound", #paste0(alpha*100/2, "%"), 
+                                                        "Upper Bound" #paste0(100-alpha*100/2, "%")
+                                                       )
+                                                      ))
     } 
   }
 
