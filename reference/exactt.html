@@ -21,7 +21,7 @@ parameters for the test."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.0</span>
       </span>
     </div>
 
@@ -64,6 +64,7 @@ parameters for the test.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">exactt</span><span class="op">(</span></span>
 <span>  <span class="va">model</span>,</span>
 <span>  <span class="va">data</span>,</span>
+<span>  side <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  beta0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -72,7 +73,7 @@ parameters for the test.</p>
 <span>  studentize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  optimize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">31740</span>,</span>
-<span>  Q.X1.temp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Q.X1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -87,6 +88,10 @@ parameters for the test.</p>
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame or matrix containing the variables used in the model.</p></dd>
+
+
+<dt id="arg-side">side<a class="anchor" aria-label="anchor" href="#arg-side"></a></dt>
+<dd><p>A character to indicate the side of the test.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
@@ -124,7 +129,7 @@ If NULL or greater than the number of possible permutations, all permutations ar
 <dd><p>Seed used when optimizing using <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code>. Default is 31740.</p></dd>
 
 
-<dt id="arg-q-x-temp">Q.X1.temp<a class="anchor" aria-label="anchor" href="#arg-q-x-temp"></a></dt>
+<dt id="arg-q-x-">Q.X1<a class="anchor" aria-label="anchor" href="#arg-q-x-"></a></dt>
 <dd><p>Optional argument used for power testing purposes.</p></dd>
 
 
