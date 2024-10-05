@@ -8,8 +8,8 @@
   x,
   alpha = NULL,
   variables = NULL,
-  pointEstimate = TRUE,
-  ciBounds = TRUE,
+  point.estimate = TRUE,
+  ci.bounds = TRUE,
   plot.args = list(),
   legend.args = list(),
   axis.args = list(),
@@ -26,9 +26,9 @@ and 'call' from which the significance level 'alpha' is extracted.}
 \item{variables}{A character vector specifying which variables to plot.
 If NULL, plots are generated for all variables contained in the 'exactt' object.}
 
-\item{pointEstimate}{A Boolean indicating whether to include the point estimate in the plot.}
+\item{point.estimate}{A Boolean indicating whether to include the point estimate in the plot.}
 
-\item{ciBounds}{a Boolean indicating whether to include confidence interval bounds in the plot.}
+\item{ci.bounds}{a Boolean indicating whether to include confidence interval bounds in the plot.}
 
 \item{plot.args}{A named list of additional arguments to pass to the \code{\link[graphics]{plot}} function.
 This allows customization of the main plot, such as setting titles (\code{main}), axis labels (\code{xlab},

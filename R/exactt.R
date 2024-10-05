@@ -69,16 +69,16 @@ exactt <- function(model,
                    nBlocks = 5,
                    nPerms = NULL,
                    studentize = TRUE,
-                   #precisionToUse = NULL,
-                   #randomizationDist = FALSE,
                    optimize = FALSE,
                    #GX1 = TRUE,
                    seed = 31740,
-                   #new.method = FALSE,
                    Q.X1 = NULL,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
+  
+  # Evaluate the arguments
+  call$alpha <- eval(call$alpha, envir = parent.frame())
   
   ####### Do checks #######
   
@@ -181,7 +181,7 @@ exactt <- function(model,
     }
     
     gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, blockPermutations, GX.indices) }
+    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, permIndices, GX.indices, blockPermutations) }
     gaArgs$lower <- rep(1, n)
     gaArgs$upper <- rep(n, n)
     gaArgs$crossover = "gaperm_oxCrossover_R"
@@ -237,8 +237,9 @@ exactt <- function(model,
                                                   "X2.temp", 
                                                   "Z.temp", 
                                                   "blockIndexMatrix", 
-                                                  "blockPermutations", 
+                                                  "permIndices", 
                                                   "GX.indices", 
+                                                  "blockPermutations",
                                                   "fitness_function", 
                                                   "build_GX2", 
                                                   "build_GX", 
@@ -332,10 +333,9 @@ exactt <- function(model,
                                       ncol = 4, 
                                       dimnames = list(colnames(X)[i], 
                                                       c("Estimate", 
-                                                        "P-value", #"Pr(>|t|)", 
-                                                        "Lower Bound", #paste0(alpha*100/2, "%"), 
-                                                        "Upper Bound" #paste0(100-alpha*100/2, "%")
-                                                       )
+                                                        "P-value",
+                                                        "Lower Bound",
+                                                        "Upper Bound")
                                                       ))
     } 
   }
@@ -359,90 +359,3 @@ exactt <- function(model,
   
   return(result) 
 }
-
-# Previous code:
-# else{
-#   if(!is.null(beta0) && !is.null(beta0[[as.character(attr(X, "assign")[i])]])){
-#     beta0.df <- data.frame(beta0 = beta0[[as.character(attr(X, "assign")[i])]],
-#                            beta0.pval = NA)
-#   }  else{
-#     # Find LB and UB roots
-#     if(exacttIV){                
-#       beta0.df <- getBetaNull(Y.temp, 
-#                               X1.temp, 
-#                               X2.temp, 
-#                               Z.temp, 
-#                               alpha, 
-#                               nBlocks, 
-#                               permIndices, 
-#                               beta_hat, 
-#                               se, 
-#                               precisionToUse, 
-#                               Q.X1.temp = NULL, 
-#                               Q.Z.temp, 
-#                               QGX1GX2.temp, 
-#                               GX1)
-#     } else{
-#       beta0.df <- getBetaNull(Y.temp, 
-#                               X1.temp, 
-#                               X2.temp, 
-#                               Z.temp = NULL, 
-#                               alpha, 
-#                               nBlocks, 
-#                               permIndices, 
-#                               beta_hat, 
-#                               se, 
-#                               precisionToUse, 
-#                               Q.X1.temp, 
-#                               Q.Z.temp = NULL, 
-#                               QGX1GX2.temp, 
-#                               GX1)
-#     }
-#   }
-#   
-#   if(exacttIV){
-#     exacttResults <- exactt_pval_IV(beta0.df, 
-#                                     Y.temp, 
-#                                     X1.temp,
-#                                     X2.temp, 
-#                                     Z.temp,
-#                                     nBlocks, 
-#                                     permIndices,
-#                                     Q.Z.temp,
-#                                     QGX1GX2.temp,
-#                                     GX1)
-#     
-#   } else{
-#     exacttResults <- exactt_pval(beta0.df, 
-#                                  Y.temp,
-#                                  X1.temp,
-#                                  X2.temp, 
-#                                  nBlocks, 
-#                                  permIndices,
-#                                  Q.X1.temp,
-#                                  QGX1GX2.temp,
-#                                  GX1)
-#   }
-#   
-#   detailedList[[colnames(X)[i]]] <- exacttResults$beta0.df
-#   
-#   if(randomizationDist){
-#     randomizationDistList <- asplit(exacttResults$randomizationDist, MARGIN = 1)
-#     t_numList <- asplit(exacttResults$t_num, MARGIN = 1)
-#     
-#     detailedList[[colnames(X)[i]]] <- cbind(detailedList[[colnames(X)[i]]],
-#                                             data.frame("randomizationDist" = randomizationDistList),
-#                                             data.frame("t_num" = t_numList))
-#   }
-#   
-#   pvalBetaNull0 <- ifelse(length(subset(exacttResults$beta0.df, beta0 == 0)) == 0, 
-#                           yes = NA,
-#                           no = subset(exacttResults$beta0.df, beta0 == 0)$beta0.pval)
-#   
-#   summaryTable.out[rowCounter,] <- c(beta_hat,
-#                                      pvalBetaNull0,
-#                                      ciByInversion(exacttResults$beta0.df, alpha, weighted = TRUE),
-#                                      ciByInversion(exacttResults$beta0.df, alpha, weighted = FALSE))
-#   
-#   rowCounter <- rowCounter + 1
-# }

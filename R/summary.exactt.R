@@ -40,8 +40,7 @@ summary.exactt <- function(object, ...){
     }
     
     object$summary[,3:4] <- do.call('rbind', summaryTableList)
-    colnames(object$summary)[3:4] <- c(paste0(alpha*100/2, "%"), 
-                                  paste0(100-alpha*100/2, "%"))
+    
     return(object)
   }
 }

@@ -13,9 +13,9 @@
 #' @param variables A character vector specifying which variables to plot.
 #'   If NULL, plots are generated for all variables contained in the 'exactt' object.
 #'   
-#' @param pointEstimate A Boolean indicating whether to include the point estimate in the plot.
+#' @param point.estimate A Boolean indicating whether to include the point estimate in the plot.
 #' 
-#' @param ciBounds a Boolean indicating whether to include confidence interval bounds in the plot.
+#' @param ci.bounds a Boolean indicating whether to include confidence interval bounds in the plot.
 #' 
 #' @param plot.args A named list of additional arguments to pass to the \code{\link[graphics]{plot}} function. 
 #' This allows customization of the main plot, such as setting titles (\code{main}), axis labels (\code{xlab}, 
@@ -45,8 +45,8 @@
 plot.exactt = function(x, 
                        alpha = NULL,
                        variables = NULL, 
-                       pointEstimate = TRUE, 
-                       ciBounds = TRUE, 
+                       point.estimate = TRUE, 
+                       ci.bounds = TRUE, 
                        plot.args = list(),
                        legend.args = list(), 
                        axis.args = list(),
@@ -214,7 +214,7 @@ plot.exactt = function(x,
     legendCol <- c(legendCol, "orange")
     legendLty <- c(legendLty, "dashed")
     
-    if(pointEstimate){
+    if(point.estimate){
       # Only plot if point estimate is within x_limits
       if(x$summary[var.num, 1] >= x_limits[1] && x$summary[var.num, 1] <= x_limits[2]){
         graphics::abline(v = x$summary[var.num, 1], col = "red", lty = "dashed", lwd = 0.75)
@@ -225,7 +225,7 @@ plot.exactt = function(x,
       }
     }
     
-    if(ciBounds){
+    if(ci.bounds){
       ci.lower.index <- min(which(data$pvals >= alpha))
       ci.upper.index <- max(which(data$pvals >= alpha))
       ci.lower <- ifelse(data$pvals[ci.lower.index] > alpha,
@@ -251,7 +251,7 @@ plot.exactt = function(x,
           graphics::text(x = ci.lower - x_offset,
                          y = 0.5 * (0 + 1),
                          labels = paste0("Lower bound of ", 
-                                         (1-alpha)*100, 
+                                         round((1-alpha)*100, 3),
                                          "% CI (", 
                                          round(ci.lower, 3), 
                                          ")"),
@@ -270,7 +270,7 @@ plot.exactt = function(x,
           graphics::text(x = ci.upper + x_offset,
                          y = 0.5 * (0 + 1),
                          labels = paste0("Upper bound of ", 
-                                         (1-alpha)*100, 
+                                         round((1-alpha)*100, 3),
                                          "% CI (", 
                                          round(ci.upper, 3), 
                                          ")"),

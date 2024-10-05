@@ -117,8 +117,7 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.t
     Sigma.hat.inverse <- apply(eps_hat.permuted,
                                MARGIN = 2,
                                function(x){
-                                 t(Q.Z.temp) %*% (Q.Z.temp*x^2/nrow(Y.temp)) |> 
-                                   solve()
+                                 solve(1/nrow(Y.temp) * crossprod(Q.Z.temp * x))
                                },
                                simplify = FALSE) |>
       simplify2array()
