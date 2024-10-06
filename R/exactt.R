@@ -26,6 +26,7 @@
 #        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param Q.X1 Optional argument used for power testing purposes.
+#' @param denominator Character argument indicating how to calculate epsilon hat.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -70,9 +71,9 @@ exactt <- function(model,
                    nPerms = NULL,
                    studentize = TRUE,
                    optimize = FALSE,
-                   #GX1 = TRUE,
                    seed = 31740,
                    Q.X1 = NULL,
+                   denominator = "GX1",
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -200,8 +201,6 @@ exactt <- function(model,
     exacttIV <- !colnames(X)[i] %in% exogenous.var
     
     beta_hat <- summaryTableIvreg[i, 1]
-    #se <- summaryTableIvreg[i, 2]
-    #precisionToUse <- ifelse(se > 0, yes = floor(log(se, base = 10)) - 1, no = -5)
     
     Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
@@ -297,7 +296,7 @@ exactt <- function(model,
     }
     
     if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, GX1 = TRUE)
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
     } else{
       QGX1GX2.temp <- NULL
     }
@@ -306,7 +305,7 @@ exactt <- function(model,
       if(exacttIV){
         pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp)
       } else{
-        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, permIndices, Q.X1.temp, QGX1GX2.temp, side = side)
+        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, QGX2.temp, QGX1GX2.temp, side = side, denominator)
       }
       
       attr(pvals.df, "assign") = assign[i]

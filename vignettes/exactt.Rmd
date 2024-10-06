@@ -109,25 +109,24 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 
 print(exactt.4, digits = 5)
 
-
 #> ✔ Optimizing ordering for `as.factor(dose)1`.
-#> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
-#> GA | iter = 2 | Mean = 3.134706 | Best = 4.942080
-#> GA | iter = 3 | Mean = 3.144138 | Best = 5.381865
-#> GA | iter = 4 | Mean = 3.069222 | Best = 5.381865
-#> GA | iter = 5 | Mean = 2.897159 | Best = 5.381865
+#> GA | iter = 1 | Mean = 2.439650 | Best = 4.523468
+#> GA | iter = 2 | Mean = 2.404227 | Best = 4.523468
+#> GA | iter = 3 | Mean = 2.568654 | Best = 4.523468
+#> GA | iter = 4 | Mean = 2.579704 | Best = 5.544125
+#> GA | iter = 5 | Mean = 2.589963 | Best = 5.544125
 #> ✔ Optimizing ordering for `as.factor(dose)2`.
-#> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
-#> GA | iter = 2 | Mean = 3.107845 | Best = 5.244658
-#> GA | iter = 3 | Mean = 3.469066 | Best = 5.244658
-#> GA | iter = 4 | Mean = 3.356677 | Best = 5.244658
-#> GA | iter = 5 | Mean = 3.129926 | Best = 5.244658
+#> GA | iter = 1 | Mean = 2.290940 | Best = 4.117077
+#> GA | iter = 2 | Mean = 2.289477 | Best = 4.117077
+#> GA | iter = 3 | Mean = 2.426128 | Best = 4.117077
+#> GA | iter = 4 | Mean = 2.453633 | Best = 4.214286
+#> GA | iter = 5 | Mean = 2.323158 | Best = 4.214286
 #> ✔ Optimizing ordering for `suppVC`.
-#> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
-#> GA | iter = 2 | Mean = 4.608127 | Best = 7.120173
-#> GA | iter = 3 | Mean = 4.861197 | Best = 7.120173
-#> GA | iter = 4 | Mean = 4.465345 | Best = 7.791005
-#> GA | iter = 5 | Mean = 4.438026 | Best = 7.791005
+#> GA | iter = 1 | Mean = 3.465399 | Best = 6.102312
+#> GA | iter = 2 | Mean = 3.596178 | Best = 6.582031
+#> GA | iter = 3 | Mean = 3.728488 | Best = 6.582031
+#> GA | iter = 4 | Mean = 3.906102 | Best = 7.115483
+#> GA | iter = 5 | Mean = 3.964279 | Best = 7.563539
 #> 
 #> 
 #> Call:
@@ -137,22 +136,22 @@ print(exactt.4, digits = 5)
 #> 
 #> 
 #> Summary:
-#>                   Estimate   Pr(>|t|)     5% W    95% W       5%      95%
-#> as.factor(dose)1     9.130  0.0083333   5.1197  14.6030   5.1197  14.6030
-#> as.factor(dose)2    15.495  0.0083333  12.6780  19.7530  12.6780  19.7530
-#> suppVC              -3.700  0.0583330  -7.0441  -1.0846  -7.0441  -1.0846
+#>                   Estimate    P-value  Lower Bound  Upper Bound
+#> as.factor(dose)1     9.130  0.0083333       4.0858     12.05100
+#> as.factor(dose)2    15.495  0.0083333      12.1440     20.22200
+#> suppVC              -3.700  0.0833330      -4.6138     -0.36911
 ```
 
 Note that by optimizing the data ordering, `exactt()` is now able to construct informative 90% confidence intervals for each category of `dose` and `supp` when they equal "2" and "VC" respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm's configurations and outcomes for each variable, are stored in the `exactt.4$gaResults`. For instance, to review a summary of the genetic algorithm's performance for the `suppVC` variable, use:
 ```{r, eval = FALSE}
 exactt.4$gaResults$suppVC@summary
 
-#>           max     mean       q3   median       q1      min
-#> [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845
-#> [2,] 7.120173 4.608127 5.445378 4.569416 3.743193 1.569542
-#> [3,] 7.120173 4.861197 5.918520 5.205500 3.757399 1.944108
-#> [4,] 7.791005 4.465345 5.342829 4.491921 3.364883 1.883697
-#> [5,] 7.791005 4.438026 5.267938 4.423997 3.567307 1.555700
+#>           max     mean       q3   median       q1       min
+#> [1,] 6.102312 3.465399 4.330409 3.159612 2.645395 1.8642578
+#> [2,] 6.582031 3.596178 3.997619 3.329062 2.872088 0.8809701
+#> [3,] 6.582031 3.728488 4.584375 3.624147 2.885155 1.3035235
+#> [4,] 7.115483 3.906102 4.374548 3.681029 3.041893 2.2290616
+#> [5,] 7.563539 3.964279 4.654790 3.763504 2.857293 1.7389535
 ```
 
 ### Note on Optimization Effects
@@ -196,6 +195,6 @@ exactt.iv
 #> 
 #> 
 #> Summary:
-#>       Estimate  Pr(>|t|)    2.5% W  97.5% W      2.5%   97.5%
-#> educ    0.0614     0.375  -0.06454   0.1689  -0.06454  0.1689
+#>       Estimate  P-value  Lower Bound  Upper Bound
+#> educ    0.0614    0.375     -0.06401       0.1585
 ```
