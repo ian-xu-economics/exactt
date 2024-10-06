@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -87,10 +87,10 @@ confidence interval.</p>
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be
-installed using the <code>remotes::install_github()</code> function:</p>
+installed using the <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
@@ -108,7 +108,7 @@ and the BibTeX entry for referencing:</p>
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 2.3.2</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 2.3.3</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -265,25 +265,24 @@ with <code>seed</code> for reproducibility:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.4</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)1`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.992124 | Best = 4.942080</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.134706 | Best = 4.942080</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.144138 | Best = 5.381865</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.069222 | Best = 5.381865</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.897159 | Best = 5.381865</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.439650 | Best = 4.523468</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2.404227 | Best = 4.523468</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2.568654 | Best = 4.523468</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2.579704 | Best = 5.544125</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.589963 | Best = 5.544125</span></span>
 <span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)2`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.799936 | Best = 5.007930</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.107845 | Best = 5.244658</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.469066 | Best = 5.244658</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.356677 | Best = 5.244658</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.129926 | Best = 5.244658</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.290940 | Best = 4.117077</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2.289477 | Best = 4.117077</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2.426128 | Best = 4.117077</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2.453633 | Best = 4.214286</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.323158 | Best = 4.214286</span></span>
 <span><span class="co">#&gt; ✔ Optimizing ordering for `suppVC`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 4.164565 | Best = 6.068181</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 4.608127 | Best = 7.120173</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 4.861197 | Best = 7.120173</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 4.465345 | Best = 7.791005</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 4.438026 | Best = 7.791005</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 3.465399 | Best = 6.102312</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.596178 | Best = 6.582031</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.728488 | Best = 6.582031</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.906102 | Best = 7.115483</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.964279 | Best = 7.563539</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
@@ -293,10 +292,10 @@ with <code>seed</code> for reproducibility:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate   Pr(&gt;|t|)     5% W    95% W       5%      95%</span></span>
-<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333   5.1197  14.6030   5.1197  14.6030</span></span>
-<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333  12.6780  19.7530  12.6780  19.7530</span></span>
-<span><span class="co">#&gt; suppVC              -3.700  0.0583330  -7.0441  -1.0846  -7.0441  -1.0846</span></span></code></pre></div>
+<span><span class="co">#&gt;                   Estimate    P-value  Lower Bound  Upper Bound</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333       4.0858     12.05100</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333      12.1440     20.22200</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.0833330      -4.6138     -0.36911</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="../reference/exactt.html">exactt()</a></code> is
 now able to construct informative 90% confidence intervals for each
 category of <code>dose</code> and <code>supp</code> when they equal “2”
@@ -309,12 +308,12 @@ variable, use:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
 <span></span>
-<span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
-<span><span class="co">#&gt; [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845</span></span>
-<span><span class="co">#&gt; [2,] 7.120173 4.608127 5.445378 4.569416 3.743193 1.569542</span></span>
-<span><span class="co">#&gt; [3,] 7.120173 4.861197 5.918520 5.205500 3.757399 1.944108</span></span>
-<span><span class="co">#&gt; [4,] 7.791005 4.465345 5.342829 4.491921 3.364883 1.883697</span></span>
-<span><span class="co">#&gt; [5,] 7.791005 4.438026 5.267938 4.423997 3.567307 1.555700</span></span></code></pre></div>
+<span><span class="co">#&gt;           max     mean       q3   median       q1       min</span></span>
+<span><span class="co">#&gt; [1,] 6.102312 3.465399 4.330409 3.159612 2.645395 1.8642578</span></span>
+<span><span class="co">#&gt; [2,] 6.582031 3.596178 3.997619 3.329062 2.872088 0.8809701</span></span>
+<span><span class="co">#&gt; [3,] 6.582031 3.728488 4.584375 3.624147 2.885155 1.3035235</span></span>
+<span><span class="co">#&gt; [4,] 7.115483 3.906102 4.374548 3.681029 3.041893 2.2290616</span></span>
+<span><span class="co">#&gt; [5,] 7.563539 3.964279 4.654790 3.763504 2.857293 1.7389535</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
 </h3>
@@ -370,8 +369,8 @@ to enhance statistical power.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  Pr(&gt;|t|)    2.5% W  97.5% W      2.5%   97.5%</span></span>
-<span><span class="co">#&gt; educ    0.0614     0.375  -0.06454   0.1689  -0.06454  0.1689</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  P-value  Lower Bound  Upper Bound</span></span>
+<span><span class="co">#&gt; educ    0.0614    0.375     -0.06401       0.1585</span></span></code></pre></div>
 </div>
   </div>
 
