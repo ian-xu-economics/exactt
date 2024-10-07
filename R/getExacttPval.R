@@ -6,20 +6,21 @@
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param GX.indices A matrix of permutation indices to create GX matrices.
 #' @param Q.X1.temp A numeric column vector of the primary variable annihilated by GX2.
+#' @param studentize A boolean indicating whether to studentize the randomization statistics
 #' @param QGX2.temp The projection matrix that annihilates GX2.
-#' @param QGX1GX2.temp The projection matrix that annihilates the mean, GX1, and GX2.
 #' @param side A character to indicate the side of the test.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
 #'
 #' @importFrom polynom polynomial
 #' @importFrom stats predict coefficients
-exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, QGX2.temp, QGX1GX2.temp, side, denominator){
+exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, studentize, QGX2.temp, side, denominator){
   
-  if(denominator == "GX1"){
+  if(denominator == "GX1" || studentize == FALSE){
     Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices))
     X1.temp.permuted <- matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
     
-    if(!is.null(QGX1GX2.temp)){
+    if(studentize == TRUE){
+      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
       eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
       # nBlocks! x 1 matrix
       sigma.hat <- sqrt(t(Q.X1.temp^2) %*% eps_hat.permuted^2/nrow(Y.temp))
@@ -115,7 +116,8 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
                         MARGIN = 2,
                         function(x){
                           sort(Re(x)[!abs(Im(x)) > 1e-5])
-                        })
+                        },
+                        simplify = FALSE)
     
     # Need to check if the roots are valid in the original problem. Especially if we are dealing with multiple sides.
     # Issue is that we don't multiply by both sides by least common multiple of the denominators.
@@ -123,44 +125,40 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
   
     # This code focuses on the two sided case.
     
-    valid.real.roots <- sapply(1:ncol(real.roots),
-                               function(x){
-                                 real.roots.temp <- real.roots[,x]
-                                
-                                 values.rationalA <- stats::predict(t.sq.polynomials[[1]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1]], real.roots.temp)
-                                 values.rationalB <- stats::predict(t.sq.polynomials[[1+x]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1+x]], real.roots.temp)
-            
-                                 return(real.roots.temp[abs(values.rationalA - values.rationalB) < 1e-8])
-                               })
+    intersect.data.list <- sapply(1:length(real.roots),
+                                  function(x){
+                                    real.roots.temp <- real.roots[[x]]
+                                   
+                                    values.at.roots.test <- stats::predict(t.sq.polynomials[[1]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1]], real.roots.temp)
+                                    values.at.roots.rand <- stats::predict(t.sq.polynomials[[1+x]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1+x]], real.roots.temp)
+              
+                                    valid.real.roots <- real.roots.temp[abs(values.at.roots.test - values.at.roots.rand) < 1e-8]
+                                    
+                                    test.values <- c(valid.real.roots[1] - 1,
+                                                     (valid.real.roots[-1] + valid.real.roots[-length(valid.real.roots)])/2,
+                                                     valid.real.roots[length(valid.real.roots)] + 1)
+                                    
+                                    values.at.test.vals.test <- stats::predict(t.sq.polynomials[[1]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1]], test.values)
+                                    values.at.test.vals.rand <- stats::predict(t.sq.polynomials[[1+x]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.values)
+                                    
+                                    return(data.frame(beta0.start = c(-Inf, valid.real.roots),
+                                                      beta0.end = c(valid.real.roots, Inf),
+                                                      test.stat.smaller = values.at.test.vals.test < values.at.test.vals.rand))
+                                  },
+                                  simplify = FALSE)
     
-    if(nrow(valid.real.roots) != 2){
-      stop("There are not exactly 2 real roots.")
-    }
+    intersect.data <- do.call('rbind', intersect.data.list)
     
-    intersect.data <- data.frame(intersectLeft = valid.real.roots[1,],
-                                 intersectRight = valid.real.roots[2,])
+    beta0 <- c(intersect.data$beta0.start, intersect.data$beta0.end) |>
+      unique() |>
+      sort()
     
-    region.data <- sapply(1:nrow(intersect.data),
-                          function(x){
-                            intersect1 <- intersect.data$intersectLeft[x]
-                            intersect2 <- intersect.data$intersectRight[x]
-                            
-                            test.point1 <- intersect1 - 1
-                            test.point2 <- mean(c(intersect1, intersect2))
-                            test.point3 <- intersect2 + 2
-                            
-                            region1 <- stats::predict(t.sq.polynomials[[1]], test.point1) / stats::predict(sigma.hat.sq.polynomials[[1]], test.point1) > stats::predict(t.sq.polynomials[[1+x]], test.point1) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.point1)
-                            region2 <- stats::predict(t.sq.polynomials[[1]], test.point2) / stats::predict(sigma.hat.sq.polynomials[[1]], test.point2) > stats::predict(t.sq.polynomials[[1+x]], test.point2) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.point2)
-                            region3 <- stats::predict(t.sq.polynomials[[1]], test.point3) / stats::predict(sigma.hat.sq.polynomials[[1]], test.point3) > stats::predict(t.sq.polynomials[[1+x]], test.point3) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.point3)
-                            
-                            data.frame(region1, region2, region3)
-                          }) |>
-      t() |>
-      data.frame()
-
-    intersect.data <- cbind(intersect.data, region.data)
+    intersect.data.final <- data.frame(beta0.start = beta0[-length(beta0)],
+                                       beta0.end = beta0[-1])
     
-    pvals.df = pvalCalculator.V2(intersect.data, unlist(intersect.data$region2))
+    pvals.df <- pvalCalculator.V2(intersect.data.final, 
+                                  intersect.data, 
+                                  nPerms = ncol(permIndices))
 
   }
   
@@ -319,28 +317,26 @@ pvalCalculator <- function(intersect.data, check.identity, iv, side){
   return(pvals.df)
 }
 
-pvalCalculator.V2 <- function(intersect.data, growth_condition){
+pvalCalculator.V2 <- function(intersect.data.final, intersect.data, nPerms){
   
-  nPerms <- nrow(intersect.data) + 1
+  pvals <- apply(intersect.data.final,
+                 MARGIN = 1,
+                 function(x){
+                   x <- unlist(x)
+                   if(x[1] == -Inf){
+                     x[1] <- x[2] - 1
+                   } else if(x[2] == Inf){
+                     x[2] <- x[1] + 1 
+                   }
+                   
+                   count <- sum(subset(intersect.data, 
+                                       beta0.start < mean(x) & 
+                                         beta0.end > mean(x))$test.stat.smaller)
+                   pvals <- (count+1)/nPerms
+                 })
   
-  intersectLeft <- intersect.data$intersectLeft
-  intersectRight <- intersect.data$intersectRight
-  
-  beta0 <- c(intersectLeft, intersectRight) |>
-    sort()
-  
-  count_matrix <- outer(beta0, intersectLeft, `>=`) & outer(beta0, intersectRight, `<=`)
-
-  count_matrix[, growth_condition] <- !count_matrix[, growth_condition]
-  
-  pvals <- (apply(count_matrix, MARGIN = 1, sum) + 1)/nPerms
-  
-  pvals.df <- data.frame(beta0.start = c(-Inf, beta0),
-                         beta0.end = c(beta0, Inf),
-                         pvals = c(sum(growth_condition, 1)/nPerms, 
-                                   pvals[-length(pvals)/2], 
-                                   sum(growth_condition, 1)/nPerms))
+  intersect.data.final$pvals <- pvals
  
-  return(pvals.df)
+  return(intersect.data.final)
 }
 

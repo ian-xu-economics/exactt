@@ -295,17 +295,11 @@ exactt <- function(model,
       }
     }
     
-    if(studentize){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
-    } else{
-      QGX1GX2.temp <- NULL
-    }
-    
     if(TRUE){
       if(exacttIV){
-        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp)
+        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, studentize)
       } else{
-        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, QGX2.temp, QGX1GX2.temp, side = side, denominator)
+        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, studentize, QGX2.temp, side = side, denominator)
       }
       
       attr(pvals.df, "assign") = assign[i]
