@@ -11,8 +11,8 @@ exactt.pval.new.reg(
   permIndices,
   GX.indices,
   Q.X1.temp,
+  studentize,
   QGX2.temp,
-  QGX1GX2.temp,
   side,
   denominator
 )
@@ -30,9 +30,9 @@ exactt.pval.new.reg(
 
 \item{Q.X1.temp}{A numeric column vector of the primary variable annihilated by GX2.}
 
-\item{QGX2.temp}{The projection matrix that annihilates GX2.}
+\item{studentize}{A boolean indicating whether to studentize the randomization statistics}
 
-\item{QGX1GX2.temp}{The projection matrix that annihilates the mean, GX1, and GX2.}
+\item{QGX2.temp}{The projection matrix that annihilates GX2.}
 
 \item{side}{A character to indicate the side of the test.}
 

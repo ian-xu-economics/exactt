@@ -79,7 +79,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
                                            Q.for.eps %*%
                                            diag(c(Q.X1.temp^2)) %*%
                                            Q.for.eps %*%
-                                           X1.temp[x,]) |>
+                                           X1.temp[x,])/nrow(Y.temp) |>
                                          polynom::polynomial()
                                       },
                                       simplify = FALSE)
@@ -329,7 +329,7 @@ pvalCalculator.V2 <- function(intersect.data.final, intersect.data, nPerms){
                      x[2] <- x[1] + 1 
                    }
                    
-                   count <- sum(subset(intersect.data, 
+                   count <- sum(with(intersect.data, 
                                        beta0.start < mean(x) & 
                                          beta0.end > mean(x))$test.stat.smaller)
                    pvals <- (count+1)/nPerms
