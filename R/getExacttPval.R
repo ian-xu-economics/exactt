@@ -134,7 +134,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
                                     values.at.roots.test <- stats::predict(t.sq.polynomials[[1]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1]], real.roots.temp)
                                     values.at.roots.rand <- stats::predict(t.sq.polynomials[[1+x]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1+x]], real.roots.temp)
               
-                                    valid.real.roots <- real.roots.temp[abs(values.at.roots.test - values.at.roots.rand) < 1e-8]
+                                    valid.real.roots <- real.roots.temp[abs(values.at.roots.test - values.at.roots.rand) < 1e-5]
                                     
                                     test.values <- c(valid.real.roots[1] - 1,
                                                      (valid.real.roots[-1] + valid.real.roots[-length(valid.real.roots)])/2,
@@ -338,8 +338,8 @@ pvalCalculator.V2 <- function(intersect.data.final, intersect.data, nPerms){
                        intersect.data$beta0.end > mean(x)
                      ])
                    
-                   pvals <- (count+1)/nPerms
-                   return(pvals)
+                   pvalues <- (count+1)/nPerms
+                   return(pvalues)
                  })
   
   intersect.data.final$pvals <- pvals
