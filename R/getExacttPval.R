@@ -15,6 +15,8 @@
 #' @importFrom stats predict coefficients
 exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, studentize, QGX2.temp, side, denominator){
   
+  n <- nrow(Y.temp)
+  
   if(denominator == "GX1" || studentize == FALSE){
     Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices))
     X1.temp.permuted <- matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
@@ -23,7 +25,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
       QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
       eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
       # nBlocks! x 1 matrix
-      sigma.hat <- sqrt(t(Q.X1.temp^2) %*% eps_hat.permuted^2/nrow(Y.temp))
+      sigma.hat <- sqrt(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
     } else{
       sigma.hat <- 1
     }
@@ -79,7 +81,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
                                            Q.for.eps %*%
                                            diag(c(Q.X1.temp^2)) %*%
                                            Q.for.eps %*%
-                                           X1.temp[x,])/nrow(Y.temp) |>
+                                           X1.temp[x,])/n |>
                                          polynom::polynomial()
                                       },
                                       simplify = FALSE)
@@ -178,7 +180,7 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.t
     Sigma.hat.inverse <- apply(eps_hat.permuted,
                                MARGIN = 2,
                                function(x){
-                                 solve(1/nrow(Y.temp) * crossprod(Q.Z.temp * x))
+                                 solve(1/n * crossprod(Q.Z.temp * x))
                                },
                                simplify = FALSE) |>
       simplify2array()

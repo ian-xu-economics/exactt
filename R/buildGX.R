@@ -130,8 +130,7 @@ build_QGX1GX2 <- function(X1.temp, GX2.temp, GX.indices, denominator){
     GX1.temp <- apply(X1.temp,
                       MARGIN = 2,
                       function(x){
-                        matrix(x[GX.indices], 
-                               nrow = nrow(GX.indices)) |>
+                        matrix(x[GX.indices], nrow = nrow(GX.indices)) |>
                           remove_dependent_columns()
                       },
                       simplify = FALSE)
