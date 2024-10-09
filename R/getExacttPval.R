@@ -169,6 +169,8 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
 
 exactt.pval.new.iv <- function(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp){
   
+  n <- nrow(Y.temp)
+  
   Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices))
   X1.temp.permuted <- matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
   Q.Z.temp.dot.X1.temp <- t(Q.Z.temp) %*% X1.temp.permuted
@@ -331,10 +333,13 @@ pvalCalculator.V2 <- function(intersect.data.final, intersect.data, nPerms){
                      x[2] <- x[1] + 1 
                    }
                    
-                   count <- sum(with(intersect.data, 
-                                       beta0.start < mean(x) & 
-                                         beta0.end > mean(x))$test.stat.smaller)
+                   count <- sum(intersect.data$test.stat.smaller[
+                     intersect.data$beta0.start < mean(x) & 
+                       intersect.data$beta0.end > mean(x)
+                     ])
+                   
                    pvals <- (count+1)/nPerms
+                   return(pvals)
                  })
   
   intersect.data.final$pvals <- pvals
