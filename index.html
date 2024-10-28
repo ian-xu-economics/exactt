@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.5</span>
       </span>
     </div>
 
@@ -78,10 +78,10 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be installed using the <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> function:</p>
+<p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be installed using the <code>remotes::install_github()</code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
@@ -97,7 +97,7 @@
 <p>After installing <code>exactt</code>, we can attach the package to our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 2.3.2</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 2.4.5</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -136,8 +136,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
 <span><span class="co">#&gt;         Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; dose      9.7636    0.075       3.3177      16.0120</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000    0.250     -10.9840       7.6065</span></span></code></pre></div>
+<span><span class="co">#&gt; dose      9.7636  0.07500       3.3177      16.0120</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000  0.26667     -10.9840       7.6065</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -169,7 +169,14 @@
 <code class="sourceCode R"><span><span class="va">exactt.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dose</span><span class="op">)</span> <span class="op">+</span> <span class="va">supp</span>,</span>
 <span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co">#&gt; Warning in matrix(data = c(beta_hat, pvals.df$pvals[pvalBeta0.index],</span></span>
+<span><span class="co">#&gt; pvals.df$beta0.start[ci.lower.index], : data length differs from size of</span></span>
+<span><span class="co">#&gt; matrix: [8 != 1 x 4]</span></span>
+<span><span class="co">#&gt; Warning in matrix(data = c(beta_hat, pvals.df$pvals[pvalBeta0.index],</span></span>
+<span><span class="co">#&gt; pvals.df$beta0.start[ci.lower.index], : data length differs from size of</span></span>
+<span><span class="co">#&gt; matrix: [8 != 1 x 4]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">exactt.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
@@ -179,9 +186,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
 <span><span class="co">#&gt;                   Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13  0.04167        5.644        19.12</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.49  0.95830         -Inf          Inf</span></span>
-<span><span class="co">#&gt; suppVC               -3.70  0.11670         -Inf          Inf</span></span></code></pre></div>
+<span><span class="co">#&gt; as.factor(dose)1      9.13   0.0500        5.644       19.120</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.49   0.6583        0.625        0.625</span></span>
+<span><span class="co">#&gt; suppVC               -3.70       NA           NA           NA</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and <code>supp</code> equals “VC” is not informative due to suboptimal data ordering, which can diminish the statistical power of the test. This issue can be addressed by optimizing the data ordering.</p>
 </div>
 <div class="section level2">
@@ -194,7 +201,7 @@
 <h2 id="enabling-optimization">Enabling Optimization<a class="anchor" aria-label="anchor" href="#enabling-optimization"></a>
 </h2>
 <p>To activate the optimization feature, set <code>optimize = TRUE</code>. Additionally, <code><a href="reference/exactt.html">exactt()</a></code> allows for the specification of various parameters of the <code><a href="https://github.com/luca-scr/GA/reference/ga.html" class="external-link">GA::ga()</a></code> function to tailor the optimization process. For instance, you can limit the number of iterations with <code>maxiter</code> or specify the seed with <code>seed</code> for reproducibility:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">len</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dose</span><span class="op">)</span> <span class="op">+</span> <span class="va">supp</span>,</span>
 <span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -224,7 +231,6 @@
 <span><span class="co">#&gt; GA | iter = 4 | Mean = 3.906102 | Best = 7.115483</span></span>
 <span><span class="co">#&gt; GA | iter = 5 | Mean = 3.964279 | Best = 7.563539</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, </span></span>
@@ -237,7 +243,7 @@
 <span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333      12.1440     20.22200</span></span>
 <span><span class="co">#&gt; suppVC              -3.700  0.0833330      -4.6138     -0.36911</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="reference/exactt.html">exactt()</a></code> is now able to construct informative 90% confidence intervals for each category of <code>dose</code> and <code>supp</code> when they equal “2” and “VC” respectively. Furthermore, the detailed results of the optimization process, including the genetic algorithm’s configurations and outcomes for each variable, are stored in the <code>exactt.4$gaResults</code>. For instance, to review a summary of the genetic algorithm’s performance for the <code>suppVC</code> variable, use:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
 <span></span>
 <span><span class="co">#&gt;           max     mean       q3   median       q1       min</span></span>
@@ -256,7 +262,7 @@
 <h2 id="example-usage-iv-case">Example Usage: IV Case<a class="anchor" aria-label="anchor" href="#example-usage-iv-case"></a>
 </h2>
 <p>The <code><a href="reference/exactt.html">exactt()</a></code> function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (<code>educ</code>) on <code>log(wage)</code>, using parental education levels—mother’s education (<code>motheduc</code>) and father’s education (<code>fatheduc</code>)—as instruments. The model controls for experience (<code>exper</code>) and its square (<code>expersq</code>), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.iv</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exactt.html">exactt</a></span><span class="op">(</span><span class="va">lwage</span> <span class="op">~</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">|</span> <span class="va">exper</span> <span class="op">+</span> <span class="va">expersq</span> <span class="op">+</span> <span class="va">motheduc</span> <span class="op">+</span> <span class="va">fatheduc</span>,</span>
 <span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va"><a href="https://justinmshea.github.io/wooldridge/reference/mroz.html" class="external-link">mroz</a></span>,</span>
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -269,17 +275,16 @@
 <span><span class="va">exactt.iv</span></span>
 <span></span>
 <span><span class="co">#&gt; ✔ Optimizing ordering for `educ`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2717657 | Best = 3138106</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2805246 | Best = 3138106</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2786866 | Best = 3161103</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2802297 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2704045 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 6 | Mean = 2766136 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 7 | Mean = 2773401 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 8 | Mean = 2752249 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 9 | Mean = 2766553 | Best = 3184349</span></span>
-<span><span class="co">#&gt; GA | iter = 10 | Mean = 2733912 | Best = 3184349</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2380333 | Best = 2854912</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2447598 | Best = 2854912</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2484977 | Best = 2932978</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2481931 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2485812 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 6 | Mean = 2490438 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 7 | Mean = 2507991 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 8 | Mean = 2506913 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 9 | Mean = 2464898 | Best = 2999457</span></span>
+<span><span class="co">#&gt; GA | iter = 10 | Mean = 2483957 | Best = 2999457</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
@@ -290,7 +295,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary:</span></span>
 <span><span class="co">#&gt;       Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; educ    0.0614    0.375     -0.06401       0.1585</span></span></code></pre></div>
+<span><span class="co">#&gt; educ    0.0614    0.075    -0.006346       0.1504</span></span></code></pre></div>
 </div>
 </div>
   </div>
