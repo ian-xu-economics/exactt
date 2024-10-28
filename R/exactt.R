@@ -53,12 +53,13 @@
 #' The function allows for a high degree of customization through its parameters and can
 #' handle large datasets and complex model structures efficiently.
 #'
-#' @importFrom stats median formula model.matrix
+#' @importFrom stats median formula model.matrix lm
 #' @importFrom Formula Formula
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom doRNG registerDoRNG
 #' @importFrom GA gaControl
 #' @importFrom combinat permn
+#' @importFrom utils tail
 #' 
 #' @export
 exactt <- function(model,
@@ -107,6 +108,7 @@ exactt <- function(model,
   
   data.n <- nrow(data)
   n <- floor(data.n/nBlocks)*nBlocks
+  n.remainder.indices <- utils::tail(1:data.n, data.n - n)
   
   # Construct matrix of block indices
   blockSize <- n/nBlocks
@@ -129,15 +131,15 @@ exactt <- function(model,
   Y <- matrix(ivregObject$y)
   X <- ivregObject$x$regressors
   
-  Y.use <- Y[1:n,, drop = FALSE]
-  X.use <- X[1:n,, drop = FALSE]
+  Y.use <- Y#[1:n,, drop = FALSE]
+  X.use <- X#[1:n,, drop = FALSE]
   
   Z.var <- names(ivregObject$instruments)
   
   if(!is.null(Z.var)){
     IV <- TRUE
     Z <- ivregObject$x$instruments[,Z.var]
-    Z.use <- Z[1:n,, drop = FALSE]
+    Z.use <- Z#[1:n,, drop = FALSE]
   } else{
     IV <- FALSE
   }
@@ -156,12 +158,16 @@ exactt <- function(model,
   # When number of possible permutations is bigger than MG, then we need to randomly sample.
   if(is.null(nPerms) || nPerms >= factorial(nBlocks)){
     blockPermutations <- do.call(rbind, combinat::permn(1:nBlocks))
-    permIndices <- apply(blockPermutations, MARGIN = 1, function (x) c(blockIndexMatrix[, x]))
+    permIndices <- apply(blockPermutations, 
+                         MARGIN = 1, 
+                         function(x){
+                           c(blockIndexMatrix[, x], n.remainder.indices)
+                         })
   } else{
     permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
   }
   
-  GX.indices <- build_GX(blockIndexMatrix)
+  GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
   
   if(optimize){ # Case 1: don't optimize
     if("type" %in% names(gaArgs)){
@@ -183,8 +189,8 @@ exactt <- function(model,
     
     gaArgs$type <- "permutation"
     gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, permIndices, GX.indices, blockPermutations) }
-    gaArgs$lower <- rep(1, n)
-    gaArgs$upper <- rep(n, n)
+    gaArgs$lower <- rep(1, data.n)
+    gaArgs$upper <- rep(data.n, data.n)
     gaArgs$crossover = "gaperm_oxCrossover_R"
   }
   
@@ -239,11 +245,11 @@ exactt <- function(model,
                                                   "permIndices", 
                                                   "GX.indices", 
                                                   "blockPermutations",
+                                                  "n",
                                                   "fitness_function", 
-                                                  "build_GX2", 
                                                   "build_GX", 
-                                                  "block_permute", 
-                                                  "build_QGX2"), 
+                                                  "build_GX.indices", 
+                                                  "block_permute"), 
                                   envir = environment())
           parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
           parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
@@ -282,14 +288,15 @@ exactt <- function(model,
       gaResultsList[[colnames(X)[i]]] <- gaResults
     }
     
-    GX2.temp <- build_GX2(X2.temp, GX.indices)
-    #GX2.reduced.temp <- remove_dependent_columns(GX2.temp)
-    QGX2.temp <- build_QGX2(GX2.temp)
     if(exacttIV){
-      Q.Z.temp <- QGX2.temp %*% Z.temp
+      Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices),
+                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+        matrix(nrow = nrow(Z.temp))
     } else{
       if(is.null(Q.X1)){
-        Q.X1.temp <- QGX2.temp %*% X1.temp
+        Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices),
+                               model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+          matrix(ncol = ncol(X1.temp))
       } else{
         Q.X1.temp <- Q.X1
       }
@@ -297,9 +304,9 @@ exactt <- function(model,
     
     if(TRUE){
       if(exacttIV){
-        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, permIndices, Q.Z.temp, studentize)
+        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize)
       } else{
-        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, studentize, QGX2.temp, side = side, denominator)
+        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
       }
       
       attr(pvals.df, "assign") = assign[i]

@@ -14,34 +14,39 @@
 #' @param blockPermutations A matrix of indices plugged into blockIndexMatrix resulting in block permutations.
 #'
 #' @return Returns a numeric value representing the fitness of the permutation.
+#' 
+#' @importFrom stats median formula model.matrix lm
+#' 
 #' @noRd
 fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, blockIndexMatrix, GX.indices, permIndices, blockPermutations){
   
-  n <- nrow(X1.temp)
+  n <- max(blockIndexMatrix)
   
-  GX2 <- build_GX2(X2.temp[permutation,, drop = FALSE], GX.indices)
-  Q.GX2 <- build_QGX2(GX2)
-  
-  X1.temp.permuted <- X1.temp[permutation,, drop = FALSE]
+  GX.indices <- GX.indices[1:n,, drop = FALSE]
+  permIndices <- permIndices[1:n,, drop = FALSE]
+
+  X1.temp.permuted <- X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
+  X2.temp.permuted <- X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
   
   if(is.null(Z.temp)){
     gFF <- t(X1.temp.permuted) %*% 
-      Q.GX2 %*% 
-      matrix(X1.temp.permuted[permIndices,], nrow = n) |>
+      matrix(stats::lm(matrix(X1.temp.permuted[permIndices,], nrow = n) ~ 
+                         0 + build_GX(X2.temp.permuted, GX.indices),
+                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+             nrow = n) |>
       as.numeric()
   } else{
-    Z.temp.permuted = Z.temp[permutation,, drop = FALSE]
+    Z.temp.permuted <- Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
     
-    gFF <- apply(blockPermutations,
-                 MARGIN = 1,
-                 function(x) {
-                     t(Z.temp.permuted) %*% 
-                     Q.GX2 %*% 
-                     X1.temp.permuted[c(blockIndexMatrix[,x]), drop = FALSE] |>
-                     as.numeric() |>
-                     (\(y) y^2)() |>
-                     sum()
-                 })
+    gFF <- t(Z.temp.permuted) %*% 
+      matrix(stats::lm(matrix(X1.temp.permuted[permIndices], nrow = n) ~ 
+                         0 + build_GX(X2.temp.permuted, GX.indices),
+                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+             nrow = n) |>
+      apply(MARGIN = 2,
+            function(x){
+              sum(x^2)
+            })
   }
   
   return(gFF[1] - mean(gFF[-1]))

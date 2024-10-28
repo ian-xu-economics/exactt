@@ -1,4 +1,4 @@
-#' Construct a GX Matrix with Attempted Maximum Rank
+#' Construct Indices of GX Matrix with Attempted Maximum Rank
 #'
 #' This function attempts to construct a GX matrix from the input matrix X,
 #' using permutations of block indices provided in blockIndexMatrix to achieve
@@ -8,24 +8,25 @@
 #' of size 9 or less, it uses all permutations; for larger blocks, it iterates
 #' over a set number of random permutations.
 #'
-#' @param X Numeric matrix, the original data from which GX is constructed.
 #' @param blockIndexMatrix Integer matrix indicating block indices, where each
 #'        column represents a block and each element is an index in X.
+#' @param n.remainder.indices Vector indicating the indices of the extra indices.
 #'
 #' @return Numeric matrix GX, potentially augmented from X with additional columns
 #'         derived from permuting blocks to increase its rank.
 #'
 #' @importFrom Matrix rankMatrix
 #' @noRd
-build_GX <- function(blockIndexMatrix){
+build_GX.indices <- function(blockIndexMatrix, n.remainder.indices){
   
-  nBlocks <- ncol(blockIndexMatrix)
-  
-  GX <- generate_block_permutations(nBlocks)
+  GX <- ncol(blockIndexMatrix) |>
+    generate_block_permutations()
   
   GX.indices <- apply(GX,
                       MARGIN = 2,
-                      function(x) blockIndexMatrix[,x])
+                      function(x) {
+                        c(blockIndexMatrix[,x], n.remainder.indices)
+                      })
   
   return(GX.indices)
 }
@@ -76,29 +77,28 @@ remove_dependent_columns <- function(X) {
   return(X_independent)
 }
 
-#' Construct G Matrix for X2 Using Block Permutations
+#' Construct G Matrix for X Using Block Permutations
 #'
-#' This function constructs a matrix `GX2` where each column represents a block permutation 
-#' of the columns of `X2`, which contains secondary regressors. Each column of `X2` is permuted 
+#' This function constructs a matrix `GX` where each column represents a block permutation 
+#' of the columns of `X`, which contains secondary regressors. Each column of `X` is permuted 
 #' within the block structure defined by `blocks`, including the identity permutation.
 #'
-#' @param X2 Matrix of secondary regressors.
-#' @param blocks Vector or factor indicating the block structure for each observation in `X2`.
+#' @param X.temp Matrix of secondary regressors.
+#' @param GX.indices Vector or factor indicating the block structure for each observation in `X.temp`.
 #'
-#' @return A matrix where each column is a block permutation of a column in `X2`.
+#' @return A matrix where each column is a block permutation of a column in `X.temp`.
 #' @noRd
-build_GX2 <- function(X2.temp, GX.indices){
+build_GX <- function(X.temp, GX.indices){
   
-  n <- nrow(X2.temp)
+  GX.list <- apply(X.temp,
+                   MARGIN = 2,
+                   function(x){
+                     matrix(x[GX.indices], nrow = nrow(X.temp)) |>
+                       remove_dependent_columns()
+                   },
+                   simplify = FALSE)
   
-  GX2.list <- apply(X2.temp,
-                    MARGIN = 2,
-                    function(x){
-                      remove_dependent_columns(matrix(x[GX.indices], nrow = n))
-                    },
-                    simplify = FALSE)
-  
-  return(do.call('cbind', GX2.list))
+  return(do.call('cbind', GX.list))
 }
 
 #' Build Combined Q Matrix from GX1 and GX2 (Internal Function)

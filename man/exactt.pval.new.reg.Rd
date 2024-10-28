@@ -7,12 +7,11 @@
 exactt.pval.new.reg(
   Y.temp,
   X1.temp,
-  GX2.temp,
+  X2.temp,
   permIndices,
   GX.indices,
   Q.X1.temp,
   studentize,
-  QGX2.temp,
   side,
   denominator
 )
@@ -22,7 +21,7 @@ exactt.pval.new.reg(
 
 \item{X1.temp}{A numeric column vector of the primary variable.}
 
-\item{GX2.temp}{A matrix of permuted versions of secondary variables.}
+\item{X2.temp}{A numeric matrix of the secondary variables.}
 
 \item{permIndices}{A matrix of permutation indices used in the test.}
 
@@ -31,8 +30,6 @@ exactt.pval.new.reg(
 \item{Q.X1.temp}{A numeric column vector of the primary variable annihilated by GX2.}
 
 \item{studentize}{A boolean indicating whether to studentize the randomization statistics}
-
-\item{QGX2.temp}{The projection matrix that annihilates GX2.}
 
 \item{side}{A character to indicate the side of the test.}
 

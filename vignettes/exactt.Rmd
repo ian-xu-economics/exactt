@@ -59,7 +59,9 @@ Suppose our model is $len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp
 ```{r}
 exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
-                   alpha = 0.1)
+                   alpha = 0.1,
+                   optimize = TRUE,
+                   maxiter = 5)
 
 print(exactt.1, digits = 5)
 ```
@@ -71,7 +73,9 @@ To focus on specific coefficients, set the `variables` parameter. The number ent
 exactt.2 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1,
-                   variables = 1)
+                   variables = 1,
+                   optimize = TRUE,
+                   maxiter = 5)
 
 print(exactt.2, digits = 5)
 ```
@@ -82,7 +86,9 @@ The `exactt()` function is designed to allow for easy modification of your model
 ```{r}
 exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
                    data = datasets::ToothGrowth,
-                   alpha = 0.1)
+                   alpha = 0.1,
+                   optimize = TRUE,
+                   maxiter = 5)
 
 exactt.3
 ```
@@ -128,7 +134,6 @@ print(exactt.4, digits = 5)
 #> GA | iter = 4 | Mean = 3.906102 | Best = 7.115483
 #> GA | iter = 5 | Mean = 3.964279 | Best = 7.563539
 #> 
-#> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
 #>     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, 
@@ -163,7 +168,7 @@ While optimization generally improves statistical power, it is essential to reme
 The `exactt()` function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (`educ`) on `log(wage)`, using parental education levels—mother's education (`motheduc`) and father's education (`fatheduc`)—as instruments. The model controls for experience (`exper`) and its square (`expersq`), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.
 
 ```{r, eval = FALSE}
-exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+exactt.iv <- exactt(model = lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
                     data = wooldridge::mroz,
                     variables = 1,
                     optimize = TRUE,
@@ -175,17 +180,16 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
 exactt.iv
 
 #> ✔ Optimizing ordering for `educ`.
-#> GA | iter = 1 | Mean = 2717657 | Best = 3138106
-#> GA | iter = 2 | Mean = 2805246 | Best = 3138106
-#> GA | iter = 3 | Mean = 2786866 | Best = 3161103
-#> GA | iter = 4 | Mean = 2802297 | Best = 3184349
-#> GA | iter = 5 | Mean = 2704045 | Best = 3184349
-#> GA | iter = 6 | Mean = 2766136 | Best = 3184349
-#> GA | iter = 7 | Mean = 2773401 | Best = 3184349
-#> GA | iter = 8 | Mean = 2752249 | Best = 3184349
-#> GA | iter = 9 | Mean = 2766553 | Best = 3184349
-#> GA | iter = 10 | Mean = 2733912 | Best = 3184349
-#> 
+#> GA | iter = 1 | Mean = 2380333 | Best = 2854912
+#> GA | iter = 2 | Mean = 2447598 | Best = 2854912
+#> GA | iter = 3 | Mean = 2484977 | Best = 2932978
+#> GA | iter = 4 | Mean = 2481931 | Best = 2999457
+#> GA | iter = 5 | Mean = 2485812 | Best = 2999457
+#> GA | iter = 6 | Mean = 2490438 | Best = 2999457
+#> GA | iter = 7 | Mean = 2507991 | Best = 2999457
+#> GA | iter = 8 | Mean = 2506913 | Best = 2999457
+#> GA | iter = 9 | Mean = 2464898 | Best = 2999457
+#> GA | iter = 10 | Mean = 2483957 | Best = 2999457
 #> 
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
@@ -196,5 +200,5 @@ exactt.iv
 #> 
 #> Summary:
 #>       Estimate  P-value  Lower Bound  Upper Bound
-#> educ    0.0614    0.375     -0.06401       0.1585
+#> educ    0.0614    0.075    -0.006346       0.1504
 ```

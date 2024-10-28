@@ -2,36 +2,36 @@
 #'
 #' @param Y.temp The response vector for which the test is being performed.
 #' @param X1.temp A numeric column vector of the primary variable.
-#' @param GX2.temp A matrix of permuted versions of secondary variables.
+#' @param X2.temp A numeric matrix of the secondary variables.
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param GX.indices A matrix of permutation indices to create GX matrices.
 #' @param Q.X1.temp A numeric column vector of the primary variable annihilated by GX2.
 #' @param studentize A boolean indicating whether to studentize the randomization statistics
-#' @param QGX2.temp The projection matrix that annihilates GX2.
 #' @param side A character to indicate the side of the test.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
 #'
 #' @importFrom polynom polynomial
-#' @importFrom stats predict coefficients
-exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indices, Q.X1.temp, studentize, QGX2.temp, side, denominator){
+#' @importFrom stats predict coefficients lm
+#' @importFrom cli cli_abort
+exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side, denominator){
   
   n <- nrow(Y.temp)
   
   if(denominator == "GX1" || studentize == FALSE){
-    Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices))
-    X1.temp.permuted <- matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
-    
+    # We no longer store X1.temp.permuted, Y.temp.permuted, or eps_hat.permuted; it is a RAM nightmare. 
     if(studentize == TRUE){
-      QGX1GX2.temp <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
-      eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
-      # nBlocks! x 1 matrix
-      sigma.hat <- sqrt(t(Q.X1.temp^2) %*% eps_hat.permuted^2/n)
+      # 1 x nPerms matrix
+      sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
+                          matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices),
+                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                 ncol = ncol(permIndices))^2)
     } else{
       sigma.hat <- 1
     }
   
-    Q.X1.temp.dot.X1.temp <- t(Q.X1.temp) %*% X1.temp.permuted
-    Q.X1.temp.dot.Y.temp <- t(Q.X1.temp) %*% Y.temp.permuted
+    Q.X1.temp.dot.X1.temp <- t(Q.X1.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
+    Q.X1.temp.dot.Y.temp <- t(Q.X1.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices))
     
     lineParams <- data.frame(m = -c(Q.X1.temp.dot.X1.temp/sigma.hat), 
                              b = c(Q.X1.temp.dot.Y.temp/sigma.hat))
@@ -39,10 +39,14 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
     m.identity <- lineParams$m[1]
     b.identity <- lineParams$b[1]
     
+    if(any(abs(b.identity - lineParams$b[-1]) < 1e-11)){
+      cli::cli_abort("The program is running into numerical precision issues; we suggest optimizing.")
+    }
+    
     if(side == "both"){
       intersect.data <- cbind((lineParams$b[-1] - b.identity)/(m.identity - lineParams$m[-1]), 
                               (-b.identity - lineParams$b[-1])/(m.identity + lineParams$m[-1])) |> 
-        apply(MARGIN = 1, sort) |> 
+        apply(MARGIN = 1, function(x){ sort(x, na.last = TRUE) }) |> 
         t() |>
         data.frame()
       
@@ -53,38 +57,36 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
       pvals.df <- pvalCalculator(intersect.data, m.identity, iv = FALSE, side = side)
     } else{
       intersect.data <- data.frame(slope = lineParams$m[-1],
+                                   yintercept = lineParams$b[-1],
                                    intersections = (lineParams$b[-1] - b.identity)/(m.identity - lineParams$m[-1]))
       
       pvals.df <- pvalCalculator(intersect.data, m.identity, iv = FALSE, side = side)
     }
-  } else{
+  } else{ # Denominator = X1
     
-    if(denominator == "X1"){
-      Q.for.eps <- build_QGX1GX2(X1.temp, GX2.temp, GX.indices, denominator)
-    } else{
-      Q.for.eps <- QGX2.temp
-    }
-    sigma.hat.sq.polynomials <- apply(permIndices,
-                                      MARGIN = 2,
-                                      function(x){
-                                       c(t(Y.temp[x,]) %*%
-                                           Q.for.eps %*%
-                                           diag(c(Q.X1.temp^2)) %*%
-                                           Q.for.eps %*%
-                                           Y.temp[x,],
-                                         -2*t(X1.temp[x,]) %*%
-                                           Q.for.eps %*%
-                                           diag(c(Q.X1.temp^2)) %*%
-                                           Q.for.eps %*%
-                                           Y.temp[x,],
-                                         t(X1.temp[x,]) %*%
-                                           Q.for.eps %*%
-                                           diag(c(Q.X1.temp^2)) %*%
-                                           Q.for.eps %*%
-                                           X1.temp[x,])/n |>
-                                         polynom::polynomial()
-                                      },
-                                      simplify = FALSE)
+    Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                       X1.temp + build_GX(X2.temp, GX.indices),
+                                                     model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                           ncol = ncol(permIndices))
+    
+    Q.X1.GX2.dot.X1.temp.permuted <- matrix(stats::lm(matrix(X1.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                        X1.temp + build_GX(X2.temp, GX.indices),
+                                                      model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                            ncol = ncol(permIndices))
+    
+    sigma.hat.sq.polynomials <- lapply(1:ncol(permIndices),
+                                       function(x){
+                                         c(t(Q.X1.GX2.dot.Y.temp.permuted[,x]) %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.Y.temp.permuted[,x],
+                                           -2*Q.X1.GX2.dot.X1.temp.permuted[,x] %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.Y.temp.permuted[,x],
+                                           t(Q.X1.GX2.dot.X1.temp.permuted[,x]) %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.X1.temp.permuted[,x]) |>
+                                           polynom::polynomial()
+                                       })
 
     t.sq.polynomials <- apply(permIndices,
                               MARGIN = 2,
@@ -167,22 +169,25 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, GX2.temp, permIndices, GX.indic
   return(pvals.df)
 }
 
-exactt.pval.new.iv <- function(Y.temp, X1.temp, permIndices, Q.Z.temp, QGX1GX2.temp){
+exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize){
   
   n <- nrow(Y.temp)
   
-  Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices))
-  X1.temp.permuted <- matrix(X1.temp[permIndices,], ncol = ncol(permIndices))
-  Q.Z.temp.dot.X1.temp <- t(Q.Z.temp) %*% X1.temp.permuted
-  Q.Z.temp.dot.Y.temp <- t(Q.Z.temp) %*% Y.temp.permuted
+  Q.Z.temp.dot.X1.temp <- t(Q.Z.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices)) # X1.temp.permuted
+  Q.Z.temp.dot.Y.temp <- t(Q.Z.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices)) # Y.temp.permuted
   
-  if(!is.null(QGX1GX2.temp)){
-    eps_hat.permuted <- QGX1GX2.temp %*% Y.temp.permuted
+  if(studentize == TRUE){
+    eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices),
+                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                               ncol = ncol(permIndices))
+    
     # nBlocks! x 1 matrix
     Sigma.hat.inverse <- apply(eps_hat.permuted,
                                MARGIN = 2,
                                function(x){
-                                 solve(1/n * crossprod(Q.Z.temp * x))
+                                 # We don't divide by n here for numerical precision reasons
+                                 solve(crossprod(Q.Z.temp * x)) 
                                },
                                simplify = FALSE) |>
       simplify2array()
