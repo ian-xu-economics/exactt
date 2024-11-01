@@ -6,8 +6,8 @@
 #' and is not exported from the package.
 #'
 #' @param permutation A numeric vector representing the permutation of indices.
-#' @param X2.temp The matrix of secondary variables, affected by permutation.
 #' @param X1.temp The matrix of the primary variable.
+#' @param X2.temp The matrix of non-fixed effect secondary variables.
 #' @param blockIndexMatrix A matrix of indices specifying the blocks.
 #' @param GX.indices A matrix specifying the indices to construct a GX Matrix with attempted maximum rank.
 #' @param permIndices A matrix of permutation indices.
