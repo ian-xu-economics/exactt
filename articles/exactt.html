@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.6</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@ and the BibTeX entry for referencing:</p>
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 2.4.5</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 2.4.6</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -169,8 +169,8 @@ parameters, then by default:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate    P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; dose      9.7636  0.0083333       8.4702    11.876000</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000  0.0916670      -5.0183    -0.063695</span></span></code></pre></div>
+<span><span class="co">#&gt; dose      9.7636  0.0083333       7.9314      11.3240</span></span>
+<span><span class="co">#&gt; suppVC   -3.7000  0.0166670      -6.0283      -1.6929</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -198,7 +198,7 @@ set <code>variables = 1</code> for <code>dose</code>, and set
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate    P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; dose    9.7636  0.0083333       8.4702       11.876</span></span></code></pre></div>
+<span><span class="co">#&gt; dose    9.7636  0.0083333       7.9314       11.324</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It
 is equivalent to the case where <code>variables = NULL</code> (all
 variables are of interest) because these confidence intervals are
@@ -233,9 +233,9 @@ categorical variable to explore its discrete impact on tooth length:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate   P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333        5.523       10.350</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.50  0.008333       13.840       22.070</span></span>
-<span><span class="co">#&gt; suppVC               -3.70  0.016670       -6.527       -2.849</span></span></code></pre></div>
+<span><span class="co">#&gt; as.factor(dose)1      9.13  0.008333        6.719      12.4200</span></span>
+<span><span class="co">#&gt; as.factor(dose)2     15.50  0.008333       13.060      18.3100</span></span>
+<span><span class="co">#&gt; suppVC               -3.70  0.083330       -5.844      -0.6569</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and
 <code>supp</code> equals “VC” is not informative due to suboptimal data
 ordering, which can diminish the statistical power of the test. This
