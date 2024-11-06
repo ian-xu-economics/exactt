@@ -188,7 +188,13 @@ exactt <- function(model,
     }
     
     gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ fitness_function(permutation, X1.temp, X2.temp, Z.temp, blockIndexMatrix, permIndices, GX.indices, blockPermutations) }
+    gaArgs$fitness <- function(permutation){ fitness_function(permutation = permutation, 
+                                                              X1.temp = X1.temp, 
+                                                              X2.temp = X2.temp, 
+                                                              Z.temp = Z.temp, 
+                                                              blockIndexMatrix = blockIndexMatrix, 
+                                                              GX.indices = GX.indices, 
+                                                              permIndices = permIndices) }
     gaArgs$lower <- rep(1, data.n)
     gaArgs$upper <- rep(data.n, data.n)
     gaArgs$crossover = "gaperm_oxCrossover_R"
