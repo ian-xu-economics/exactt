@@ -39,10 +39,6 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indice
     m.identity <- lineParams$m[1]
     b.identity <- lineParams$b[1]
     
-    if(any(abs(b.identity - lineParams$b[-1]) < 1e-11)){
-      cli::cli_abort("The program is running into numerical precision issues; we suggest optimizing.")
-    }
-    
     if(side == "both"){
       intersect.data <- cbind((lineParams$b[-1] - b.identity)/(m.identity - lineParams$m[-1]), 
                               (-b.identity - lineParams$b[-1])/(m.identity + lineParams$m[-1])) |> 
@@ -52,16 +48,16 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indice
       
       names(intersect.data) <- c("intersectLeft", "intersectRight")
       
-      intersect.data <- cbind(slope = lineParams$m[-1], intersect.data)
-      
-      pvals.df <- pvalCalculator(intersect.data, m.identity, iv = FALSE, side = side)
+      intersect.data <- cbind(slope = lineParams$m[-1], 
+                              intersect = lineParams$b[-1], 
+                              intersect.data)
     } else{
       intersect.data <- data.frame(slope = lineParams$m[-1],
                                    yintercept = lineParams$b[-1],
                                    intersections = (lineParams$b[-1] - b.identity)/(m.identity - lineParams$m[-1]))
-      
-      pvals.df <- pvalCalculator(intersect.data, m.identity, iv = FALSE, side = side)
     }
+    
+    pvals.df <- pvalCalculator(intersect.data, check.identity = m.identity, intercept = b.identity, iv = FALSE, side = side)
   } else{ # Denominator = X1
     
     Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
@@ -247,12 +243,12 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices
   
   intersect.data[discriminant > 0, c("intersectLeft", "intersectRight")] <- intersections
   
-  pvals.df <- pvalCalculator(intersect.data, a.identity, iv = TRUE)
+  pvals.df <- pvalCalculator(intersect.data, check.identity = a.identity, intercept = NULL, iv = TRUE, side = "both")
   
   return(pvals.df)
 }
 
-pvalCalculator <- function(intersect.data, check.identity, iv, side){
+pvalCalculator <- function(intersect.data, check.identity, intercept, iv, side){
   
   nPerms <- nrow(intersect.data) + 1
   
@@ -278,49 +274,103 @@ pvalCalculator <- function(intersect.data, check.identity, iv, side){
                                      sum(growth_condition, 1)/nPerms))
   } else{
     if(side == "both"){
-      beta0 <- sort(c(intersect.data$intersectLeft, intersect.data$intersectRight))
+      NaN.index <- which(is.nan(intersect.data$intersectLeft) | 
+                           is.nan(intersect.data$intersectRight))
       
-      count_matrix <- outer(beta0, intersect.data$intersectLeft, `>=`) &
-        outer(beta0, intersect.data$intersectRight, `<=`)
-      
-      slope_condition <- !check.identity < intersect.data$slope
-      
-      count_matrix[, slope_condition] <- !count_matrix[, slope_condition]
-    } else{
-      beta0 <- sort(intersect.data$intersections)
-      
-      if(side == "right"){
-        count_matrix <- outer(beta0, intersect.data$intersections, `>=`)
+      if(length(NaN.index) > 0){
+        filtered.intersect.data <- intersect.data[-NaN.index,]
       } else{
-        count_matrix <- outer(beta0, intersect.data$intersections, `<=`)
+        filtered.intersect.data <- intersect.data
       }
       
-      slope_condition <- !check.identity < intersect.data$slope
+      # Identify rows where either intersectLeft or intersectRight is infinite
+      left_inf <- is.infinite(filtered.intersect.data$intersectLeft)
+      right_inf <- is.infinite(filtered.intersect.data$intersectRight)
+      
+      # Swap and multiply Inf by -1 for rows where intersectLeft is Inf
+      temp <- filtered.intersect.data$intersectLeft[left_inf]
+      filtered.intersect.data$intersectLeft[left_inf] <- filtered.intersect.data$intersectRight[left_inf]
+      filtered.intersect.data$intersectRight[left_inf] <- -temp
+      
+      # Swap and multiply Inf by -1 for rows where intersectRight is Inf
+      temp <- filtered.intersect.data$intersectRight[right_inf]
+      filtered.intersect.data$intersectRight[right_inf] <- filtered.intersect.data$intersectLeft[right_inf]
+      filtered.intersect.data$intersectLeft[right_inf] <- -temp
+      
+      beta0 <- c(filtered.intersect.data$intersectLeft, filtered.intersect.data$intersectRight)
+      beta0 <- beta0[is.finite(beta0)] |>
+        sort() |>
+        unique()
+      
+      pvals.df <- data.frame(beta0.start = c(-Inf, beta0),
+                             beta0.end = c(beta0, Inf))
+      
+      pvals.df$pvals <- (apply(pvals.df,
+                               MARGIN = 1,
+                               function(x){
+                                 if(all(is.finite(x))){
+                                   test.point = mean(x)
+                                 } else if(x[1] == -Inf && x[2] == Inf){
+                                   test.point = 0
+                                 } else if(x[1] == -Inf){
+                                   test.point = x[2] - 1
+                                 } else if(x[2] == Inf){
+                                   test.point = x[1] + 1
+                                 }
+                                 sum(test.point >= filtered.intersect.data$intersectLeft & 
+                                       test.point <= filtered.intersect.data$intersectRight)
+                               }) + 1 + length(NaN.index))/nPerms
+    } else{
+      not.real.intersects.index <- which(!is.finite(intersect.data$intersections) | 
+                                           is.nan(intersect.data$intersections))
+      
+      # Create the count_matrix without explicit conditional check for index length
+      if(length(not.real.intersects.index) > 0) {
+        filtered.intersections <- intersect.data$intersections[-not.real.intersects.index]
+        filtered.slopes <- intersect.data$slope[-not.real.intersects.index]
+        
+        ## Check non-real intersects
+        if(side == "right"){
+          # check always greater
+          extra <- sum(intercept <= intersect.data$yintercept[not.real.intersects.index])
+        } else{
+          # check always smaller
+          extra <- sum(intercept >= intersect.data$yintercept[not.real.intersects.index])
+        }
+      } else {
+        filtered.intersections <- intersect.data$intersections
+        filtered.slopes <- intersect.data$slope
+      }
+      
+      beta0 <- sort(filtered.intersections)
+      
+      count_matrix <- outer(beta0, 
+                            filtered.intersections, 
+                            ifelse(side == "right", 
+                                   yes = `<=`, 
+                                   no = `>=`)
+                            )
+      
+      slope_condition <- !check.identity < filtered.slopes
       
       count_matrix[, slope_condition] <- !count_matrix[, slope_condition]
-    }
   
-    pvals <- (apply(count_matrix, MARGIN = 1, sum) + 1)/nPerms
-    
-    if(side == "both"){
-      pval.left <- sum(check.identity > intersect.data$slope, 1)/nPerms
-      pval.right <- pval.left
+      pvals <- (apply(count_matrix, MARGIN = 1, sum) + 1 + extra)/nPerms
       
-      pvals.complete <- c(pval.left, pvals[-length(pvals)/2], pval.right)
-    } else if(side == "right"){
-      pval.left <- sum(check.identity > intersect.data$slope, 1)/nPerms
-      
-      pvals.complete <- c(pval.left, pvals)
-    } else{
-      pval.right <- sum(check.identity > intersect.data$slope, 1)/nPerms
-      
-      pvals.complete <- c(pvals, pval.right)
+      if(side == "right"){
+        pval.left <- sum(check.identity < filtered.slopes, 1, extra)/nPerms
+        
+        pvals.complete <- c(pval.left, pvals)
+      } else{
+        pval.right <- sum(check.identity > filtered.slopes, 1, extra)/nPerms
+        
+        pvals.complete <- c(pvals, pval.right)
+      }
+        
+      pvals.df <- data.frame(beta0.start = c(-Inf, beta0),
+                             beta0.end = c(beta0, Inf),
+                             pvals = pvals.complete)
     }
-      
-    pvals.df <- data.frame(beta0.start = c(-Inf, beta0),
-                           beta0.end = c(beta0, Inf),
-                           pvals = pvals.complete)
-    
   }
   
   return(pvals.df)

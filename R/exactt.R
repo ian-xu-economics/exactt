@@ -308,42 +308,41 @@ exactt <- function(model,
       }
     }
     
-    if(TRUE){
-      if(exacttIV){
-        pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize)
-      } else{
-        pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
-      }
-      
-      attr(pvals.df, "assign") = assign[i]
-      detailedList[[colnames(X)[i]]] <- pvals.df
-      
-      pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
-      
-      if(side == "both"){
-        ci.lower.index <- min(which(pvals.df$pvals > alpha))
-        ci.upper.index <- max(which(pvals.df$pvals > alpha))
-      } else if (side == "left"){
-        ci.lower.index <- 1
-        ci.upper.index <- max(which(pvals.df$pvals > alpha))
-      } else{
-        ci.lower.index <- min(which(pvals.df$pvals > alpha))
-        ci.upper.index <- ncol(permIndices)
-      }
-      
-      summaryTableList[[i]] <- matrix(data = c(beta_hat,
-                                               pvals.df$pvals[pvalBeta0.index],
-                                               pvals.df$beta0.start[ci.lower.index], 
-                                               pvals.df$beta0.end[ci.upper.index]),
-                                      nrow = 1, 
-                                      ncol = 4, 
-                                      dimnames = list(colnames(X)[i], 
-                                                      c("Estimate", 
-                                                        "P-value",
-                                                        "Lower Bound",
-                                                        "Upper Bound")
-                                                      ))
-    } 
+    if(exacttIV){
+      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize)
+    } else{
+      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
+    }
+    
+    attr(pvals.df, "assign") = assign[i]
+    detailedList[[colnames(X)[i]]] <- pvals.df
+    
+    pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
+    
+    if(side == "both"){
+      ci.lower.index <- min(which(pvals.df$pvals > alpha))
+      ci.upper.index <- max(which(pvals.df$pvals > alpha))
+    } else if (side == "left"){
+      ci.lower.index <- 1
+      ci.upper.index <- max(which(pvals.df$pvals > alpha))
+    } else{
+      ci.lower.index <- min(which(pvals.df$pvals > alpha))
+      ci.upper.index <- ncol(permIndices)
+    }
+    
+    summaryTableList[[i]] <- matrix(data = c(beta_hat,
+                                             max(pvals.df$pvals[pvalBeta0.index]),
+                                             pvals.df$beta0.start[ci.lower.index], 
+                                             pvals.df$beta0.end[ci.upper.index]),
+                                    nrow = 1, 
+                                    ncol = 4, 
+                                    dimnames = list(colnames(X)[i], 
+                                                    c("Estimate", 
+                                                      "P-value",
+                                                      "Lower Bound",
+                                                      "Upper Bound")
+                                                    )
+                                    )
   }
 
   result <- structure(list(call = call,
