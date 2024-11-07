@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.7</span>
       </span>
     </div>
 
@@ -87,10 +87,10 @@ confidence interval.</p>
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be
-installed using the <code>remotes::install_github()</code> function:</p>
+installed using the <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
@@ -108,7 +108,7 @@ and the BibTeX entry for referencing:</p>
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 2.4.6</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 2.4.7</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -271,42 +271,26 @@ with <code>seed</code> for reproducibility:</p>
 <span>                   data <span class="op">=</span> <span class="fu">datasets</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/datasets/ToothGrowth.html" class="external-link">ToothGrowth</a></span>,</span>
 <span>                   alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                   optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                   parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   maxiter <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                   seed <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Optimizing ordering for `as.factor(dose)1`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Optimizing ordering for `as.factor(dose)2`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Optimizing ordering for `suppVC`.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.4</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)1`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.439650 | Best = 4.523468</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2.404227 | Best = 4.523468</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2.568654 | Best = 4.523468</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2.579704 | Best = 5.544125</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.589963 | Best = 5.544125</span></span>
-<span><span class="co">#&gt; ✔ Optimizing ordering for `as.factor(dose)2`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2.290940 | Best = 4.117077</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2.289477 | Best = 4.117077</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2.426128 | Best = 4.117077</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2.453633 | Best = 4.214286</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2.323158 | Best = 4.214286</span></span>
-<span><span class="co">#&gt; ✔ Optimizing ordering for `suppVC`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 3.465399 | Best = 6.102312</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 3.596178 | Best = 6.582031</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 3.728488 | Best = 6.582031</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 3.906102 | Best = 7.115483</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 3.964279 | Best = 7.563539</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
-<span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = TRUE, </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
+<span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = FALSE, </span></span>
 <span><span class="co">#&gt;     maxiter = 5)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;                   Estimate    P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333       4.0858     12.05100</span></span>
-<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333      12.1440     20.22200</span></span>
-<span><span class="co">#&gt; suppVC              -3.700  0.0833330      -4.6138     -0.36911</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate    P-value  Lower Bound  Upper Bound</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333       4.4410      12.0620</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333      14.3080      16.9730</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.0166670      -6.6167      -3.5955</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="../reference/exactt.html">exactt()</a></code> is
 now able to construct informative 90% confidence intervals for each
 category of <code>dose</code> and <code>supp</code> when they equal “2”
@@ -318,13 +302,12 @@ the genetic algorithm’s performance for the <code>suppVC</code>
 variable, use:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exactt.4</span><span class="op">$</span><span class="va">gaResults</span><span class="op">$</span><span class="va">suppVC</span><span class="op">@</span><span class="va">summary</span></span>
-<span></span>
-<span><span class="co">#&gt;           max     mean       q3   median       q1       min</span></span>
-<span><span class="co">#&gt; [1,] 6.102312 3.465399 4.330409 3.159612 2.645395 1.8642578</span></span>
-<span><span class="co">#&gt; [2,] 6.582031 3.596178 3.997619 3.329062 2.872088 0.8809701</span></span>
-<span><span class="co">#&gt; [3,] 6.582031 3.728488 4.584375 3.624147 2.885155 1.3035235</span></span>
-<span><span class="co">#&gt; [4,] 7.115483 3.906102 4.374548 3.681029 3.041893 2.2290616</span></span>
-<span><span class="co">#&gt; [5,] 7.563539 3.964279 4.654790 3.763504 2.857293 1.7389535</span></span></code></pre></div>
+<span><span class="co">#&gt;           max     mean       q3   median       q1      min</span></span>
+<span><span class="co">#&gt; [1,] 6.068181 4.164565 5.062314 4.052930 3.469694 2.298845</span></span>
+<span><span class="co">#&gt; [2,] 7.411765 4.346684 5.408912 4.393609 3.322604 2.151261</span></span>
+<span><span class="co">#&gt; [3,] 7.411765 4.343094 5.290857 4.175537 3.463937 1.098294</span></span>
+<span><span class="co">#&gt; [4,] 7.411765 4.590258 5.369748 4.549311 3.632077 1.740592</span></span>
+<span><span class="co">#&gt; [5,] 7.411765 4.449291 5.265123 4.493028 3.824316 1.774685</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="note-on-optimization-effects">Note on Optimization Effects<a class="anchor" aria-label="anchor" href="#note-on-optimization-effects"></a>
 </h3>
@@ -352,35 +335,34 @@ to enhance statistical power.</p>
 <span>                    data <span class="op">=</span> <span class="fu">wooldridge</span><span class="fu">::</span><span class="va"><a href="https://justinmshea.github.io/wooldridge/reference/mroz.html" class="external-link">mroz</a></span>,</span>
 <span>                    variables <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                    optimize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                    parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                    maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                    monitor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    seed <span class="op">=</span> <span class="fl">31740</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Optimizing ordering for `educ`.</span></span>
+<span><span class="co">#&gt; GA | iter = 1 | Mean = 2653027 | Best = 3095490</span></span>
+<span><span class="co">#&gt; GA | iter = 2 | Mean = 2700054 | Best = 3095490</span></span>
+<span><span class="co">#&gt; GA | iter = 3 | Mean = 2734650 | Best = 3095490</span></span>
+<span><span class="co">#&gt; GA | iter = 4 | Mean = 2729035 | Best = 3095490</span></span>
+<span><span class="co">#&gt; GA | iter = 5 | Mean = 2745544 | Best = 3167506</span></span>
+<span><span class="co">#&gt; GA | iter = 6 | Mean = 2768499 | Best = 3167506</span></span>
+<span><span class="co">#&gt; GA | iter = 7 | Mean = 2704935 | Best = 3167506</span></span>
+<span><span class="co">#&gt; GA | iter = 8 | Mean = 2722396 | Best = 3167506</span></span>
+<span><span class="co">#&gt; GA | iter = 9 | Mean = 2742183 | Best = 3167506</span></span>
+<span><span class="co">#&gt; GA | iter = 10 | Mean = 2693768 | Best = 3167506</span></span>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
-<span></span>
-<span><span class="co">#&gt; ✔ Optimizing ordering for `educ`.</span></span>
-<span><span class="co">#&gt; GA | iter = 1 | Mean = 2380333 | Best = 2854912</span></span>
-<span><span class="co">#&gt; GA | iter = 2 | Mean = 2447598 | Best = 2854912</span></span>
-<span><span class="co">#&gt; GA | iter = 3 | Mean = 2484977 | Best = 2932978</span></span>
-<span><span class="co">#&gt; GA | iter = 4 | Mean = 2481931 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 5 | Mean = 2485812 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 6 | Mean = 2490438 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 7 | Mean = 2507991 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 8 | Mean = 2506913 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 9 | Mean = 2464898 | Best = 2999457</span></span>
-<span><span class="co">#&gt; GA | iter = 10 | Mean = 2483957 | Best = 2999457</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
-<span><span class="co">#&gt;     optimize = TRUE, seed = 31740, parallel = TRUE, maxiter = 10, </span></span>
+<span><span class="co">#&gt;     optimize = TRUE, seed = 31740, parallel = FALSE, maxiter = 10, </span></span>
 <span><span class="co">#&gt;     monitor = TRUE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary:</span></span>
-<span><span class="co">#&gt;       Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; educ    0.0614    0.075    -0.006346       0.1504</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  P-value  Lower Bound  Upper Bound</span></span>
+<span><span class="co">#&gt; educ    0.0614   0.1833     -0.04061       0.1368</span></span></code></pre></div>
 </div>
   </div>
 
