@@ -143,7 +143,7 @@ exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc 
                     variables = 1,
                     optimize = TRUE,
                     parallel = TRUE,
-                    maxiter = 10,
+                    maxiter = 1000,
                     monitor = TRUE,
                     seed = 31740)
 

@@ -283,12 +283,12 @@ exactt <- function(model,
         gaArgs$parallel <- ogParArg
       }
       
-      Y.temp <- Y.temp[gaResults@solution,, drop = FALSE]
-      X1.temp <- X1.temp[gaResults@solution,, drop = FALSE]
-      X2.temp <- X2.temp[gaResults@solution,, drop = FALSE]
+      Y.temp <- Y.temp[gaResults@solution[1,],, drop = FALSE]
+      X1.temp <- X1.temp[gaResults@solution[1,],, drop = FALSE]
+      X2.temp <- X2.temp[gaResults@solution[1,],, drop = FALSE]
       
       if(exacttIV){
-        Z.temp <- Z.temp[gaResults@solution,, drop = FALSE]
+        Z.temp <- Z.temp[gaResults@solution[1,],, drop = FALSE]
       }
       
       gaResultsList[[colnames(X)[i]]] <- gaResults
