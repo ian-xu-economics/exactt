@@ -345,8 +345,6 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
       pvals.df <- data.frame(beta0.start = c(-Inf, filtered.line.data.long$beta0),
                              beta0.end = c(filtered.line.data.long$beta0, Inf),
                              pvals = cumsum(c(starter.count, slope.intersect.booleans))/nPerms)
-      
-      pvals.df <- pvals.df[pvals.df$beta0.start != pvals.df$beta0.end, ]
     } else{
       not.real.intersects.index <- which(!is.finite(line.data$intersections) | 
                                            is.nan(line.data$intersections))
@@ -357,8 +355,8 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
         
         ## Check non-real intersects
         same.slope.unusual <- ifelse(side == "right",
-                                     yes = sum(intercept <= line.data$yintercept[not.real.intersects.index]), # check always greater
-                                     no = sum(intercept >= line.data$yintercept[not.real.intersects.index])) # check always smaller
+                                     yes = sum(intercept <= line.data$b[not.real.intersects.index]), # check always greater
+                                     no = sum(intercept >= line.data$b[not.real.intersects.index])) # check always smaller
         
       } else {
         filtered.line.data <- line.data[order(line.data$intersections),]
@@ -366,7 +364,7 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
         same.slope.unusual <- 0
       }
       
-      slope.booleans <- check.identity < filtered.line.data$slope
+      slope.booleans <- check.identity < filtered.line.data$m
       count.unusual <- nPerms - sum(slope.booleans) + same.slope.unusual
       slope.booleans.converted <- ifelse(slope.booleans, yes = 1L, no = -1L)
       
@@ -384,11 +382,12 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
       pvals.df <- data.frame(beta0.start = c(-Inf, filtered.line.data$intersections),
                              beta0.end = c(filtered.line.data$intersections, Inf),
                              pvals = counts/nPerms) 
-      
-      pvals.df <- pvals.df[pvals.df$beta0.start != pvals.df$beta0.end, ]
     }
   }
   
+  
+  pvals.df <- pvals.df[pvals.df$beta0.start != pvals.df$beta0.end, ]
+  rownames(pvals.df) = NULL
   return(pvals.df)
 }
 
