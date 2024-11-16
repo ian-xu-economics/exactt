@@ -351,7 +351,8 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
       
       # Create the count_matrix without explicit conditional check for index length
       if(length(not.real.intersects.index) > 0){
-        filtered.line.data <- line.data[-not.real.intersects.index][order(line.data$intersections),]
+        filtered.line.data <- line.data[-not.real.intersects.index,]
+        filtered.line.data <- filtered.line.data[order(filtered.line.data$intersections),]
         
         ## Check non-real intersects
         same.slope.unusual <- ifelse(side == "right",
