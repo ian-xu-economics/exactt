@@ -138,12 +138,12 @@ While optimization generally improves statistical power, it is essential to reme
 The `exactt()` function is capable of handling models with instrumental variables (IV). In Example 15.5 of Wooldridge (2020), Wooldridge reanalyzes Mroz (1987). This example explores the impact of education (`educ`) on `log(wage)`, using parental education levels—mother's education (`motheduc`) and father's education (`fatheduc`)—as instruments. The model controls for experience (`exper`) and its square (`expersq`), with education being the primary variable of interest, hence we set variables = 1. Optionally, as before, we can optimize the data ordering to enhance statistical power.
 
 ```{r}
-exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+exactt.iv <- exactt(model = lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
                     data = wooldridge::mroz,
                     variables = 1,
                     optimize = TRUE,
-                    parallel = TRUE,
-                    maxiter = 1000,
+                    parallel = FALSE,
+                    maxiter = 10,
                     monitor = TRUE,
                     seed = 31740)
 

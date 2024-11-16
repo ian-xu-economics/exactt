@@ -226,25 +226,20 @@ plot.exactt = function(x,
     }
     
     if(ci.bounds){
-      ci.lower.index <- min(which(data$pvals >= alpha))
-      ci.upper.index <- max(which(data$pvals >= alpha))
-      ci.lower <- ifelse(data$pvals[ci.lower.index] > alpha,
-                         yes = -Inf,
-                         no = data$beta0.end[ci.lower.index])
-        
-      ci.upper <- ifelse(data$pvals[ci.upper.index] > alpha,
-                         yes = Inf,
-                         no = data$beta0.start[ci.upper.index])
+      ci.lower.index <- min(which(data$pvals > alpha))
+      ci.upper.index <- max(which(data$pvals > alpha))
+      
+      ci.lower <- data$beta0.start[ci.lower.index]
+      ci.upper <- data$beta0.end[ci.upper.index]
       
       # Only plot if CI bounds are within x_limits
-      if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2] || 
-         ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
+      if(ci.lower.index != 1 || ci.upper.index != nrow(data)){
         
         # Calculate offset for text positioning (2% of the x-axis range)
         x_offset <- 0.02 * diff(x_limits)
         
         # Add text label for ci.lower (Lower Bound)
-        if(ci.lower >= x_limits[1] && ci.lower <= x_limits[2]){
+        if(ci.lower.index != 1){
           
           graphics::abline(v = ci.lower, col = "cornflowerblue", lty = "dashed", lwd = 0.75)
           
@@ -263,7 +258,7 @@ plot.exactt = function(x,
         }
         
         # Add text label for ci.upper (Upper Bound)
-        if(ci.upper >= x_limits[1] && ci.upper <= x_limits[2]){
+        if(ci.upper.index != nrow(data)){
           
           graphics::abline(v =  ci.upper, col = "cornflowerblue", lty = "dashed", lwd = 0.75)
           

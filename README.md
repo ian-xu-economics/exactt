@@ -50,6 +50,7 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
+#> Package 'exactt' | Version 3.0.0
 ```
 
 ## Example Usage: Regular Case
@@ -102,9 +103,9 @@ print(exactt.1, digits = 5)
 #> 
 #> 
 #> Summary:
-#>         Estimate   P-value  Lower Bound  Upper Bound
-#> dose      9.7636  0.058333       3.6026      16.5980
-#> suppVC   -3.7000  0.241670     -10.9840       7.6065
+#>         Estimate  P-value  Lower Bound  Upper Bound
+#> dose      9.7636  0.07500       3.3177      16.0120
+#> suppVC   -3.7000  0.26667     -10.9840       7.6065
 ```
 
 ## Focusing on Specific Variables
@@ -128,8 +129,8 @@ print(exactt.2, digits = 5)
 #> 
 #> 
 #> Summary:
-#>       Estimate   P-value  Lower Bound  Upper Bound
-#> dose    9.7636  0.058333       3.6026       16.598
+#>       Estimate  P-value  Lower Bound  Upper Bound
+#> dose    9.7636    0.075       3.3177       16.012
 ```
 
 This creates a 90% confidence interval for `dose` only. It is equivalent
@@ -160,9 +161,9 @@ exactt.3
 #> 
 #> Summary:
 #>                   Estimate  P-value  Lower Bound  Upper Bound
-#> as.factor(dose)1      9.13  0.05833        5.438        13.36
-#> as.factor(dose)2     15.49  0.28330      -40.000        40.00
-#> suppVC               -3.70  0.54170      -61.330        34.67
+#> as.factor(dose)1      9.13   0.0500        5.644        19.12
+#> as.factor(dose)2     15.49   0.6583         -Inf          Inf
+#> suppVC               -3.70   0.4333         -Inf          Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals
@@ -260,25 +261,25 @@ hence we set variables = 1. Optionally, as before, we can optimize the
 data ordering to enhance statistical power.
 
 ``` r
-exactt.iv <- exactt(lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
+exactt.iv <- exactt(model = lwage ~ educ + exper + expersq | exper + expersq + motheduc + fatheduc,
                     data = wooldridge::mroz,
                     variables = 1,
                     optimize = TRUE,
-                    parallel = TRUE,
+                    parallel = FALSE,
                     maxiter = 10,
                     monitor = TRUE,
                     seed = 31740)
 #> ✔ Optimizing ordering for `educ`.
 #> GA | iter = 1 | Mean = 2653027 | Best = 3095490
-#> GA | iter = 2 | Mean = 2686309 | Best = 3197288
-#> GA | iter = 3 | Mean = 2711106 | Best = 3197288
-#> GA | iter = 4 | Mean = 2674478 | Best = 3197288
-#> GA | iter = 5 | Mean = 2692347 | Best = 3197288
-#> GA | iter = 6 | Mean = 2680591 | Best = 3200289
-#> GA | iter = 7 | Mean = 2681812 | Best = 3200289
-#> GA | iter = 8 | Mean = 2744896 | Best = 3200289
-#> GA | iter = 9 | Mean = 2758654 | Best = 3200289
-#> GA | iter = 10 | Mean = 2765439 | Best = 3200289
+#> GA | iter = 2 | Mean = 2700054 | Best = 3095490
+#> GA | iter = 3 | Mean = 2734650 | Best = 3095490
+#> GA | iter = 4 | Mean = 2729035 | Best = 3095490
+#> GA | iter = 5 | Mean = 2745544 | Best = 3167506
+#> GA | iter = 6 | Mean = 2768499 | Best = 3167506
+#> GA | iter = 7 | Mean = 2704935 | Best = 3167506
+#> GA | iter = 8 | Mean = 2722396 | Best = 3167506
+#> GA | iter = 9 | Mean = 2742183 | Best = 3167506
+#> GA | iter = 10 | Mean = 2693768 | Best = 3167506
 ```
 
 ``` r
@@ -288,11 +289,11 @@ exactt.iv
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
 #>     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, 
-#>     optimize = TRUE, seed = 31740, parallel = TRUE, maxiter = 10, 
+#>     optimize = TRUE, seed = 31740, parallel = FALSE, maxiter = 10, 
 #>     monitor = TRUE)
 #> 
 #> 
 #> Summary:
 #>       Estimate  P-value  Lower Bound  Upper Bound
-#> educ    0.0614   0.1917     -0.02195       0.1578
+#> educ    0.0614   0.1833     -0.04061       0.1368
 ```

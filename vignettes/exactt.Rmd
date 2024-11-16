@@ -59,9 +59,7 @@ Suppose our model is $len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp
 ```{r}
 exactt.1 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
-                   alpha = 0.1,
-                   optimize = TRUE,
-                   maxiter = 5)
+                   alpha = 0.1)
 
 print(exactt.1, digits = 5)
 ```
@@ -73,9 +71,7 @@ To focus on specific coefficients, set the `variables` parameter. The number ent
 exactt.2 <- exactt(model = len ~ dose + supp,
                    data = datasets::ToothGrowth,
                    alpha = 0.1,
-                   variables = 1,
-                   optimize = TRUE,
-                   maxiter = 5)
+                   variables = 1)
 
 print(exactt.2, digits = 5)
 ```
@@ -86,9 +82,7 @@ The `exactt()` function is designed to allow for easy modification of your model
 ```{r}
 exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
                    data = datasets::ToothGrowth,
-                   alpha = 0.1,
-                   optimize = TRUE,
-                   maxiter = 5)
+                   alpha = 0.1)
 
 exactt.3
 ```

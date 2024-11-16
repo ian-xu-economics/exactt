@@ -16,7 +16,6 @@ exactt(
   studentize = TRUE,
   optimize = FALSE,
   seed = 31740,
-  Q.X1 = NULL,
   denominator = "GX1",
   ...
 )
@@ -46,8 +45,6 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
-
-\item{Q.X1}{Optional argument used for power testing purposes.}
 
 \item{denominator}{Character argument indicating how to calculate epsilon hat.}
 

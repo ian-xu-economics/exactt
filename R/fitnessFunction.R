@@ -25,27 +25,71 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, block
   permIndices.use <- permIndices[1:n,, drop = FALSE]
 
   X1.temp.permuted <- X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
-  X2.temp.permuted <- X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
+  # Don't want to store X2.temp.permuted for RAM
+  # X2.temp.permuted <- X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
   
-  if(is.null(Z.temp)){
-    gFF <- stats::lm(X1.temp.permuted ~ 0 + build_GX(X2.temp.permuted, GX.indices.use),
+  if(is.null(Z.temp) && ncol(X1.temp) == 1){
+    gFF <- stats::lm(X1.temp.permuted ~ 
+                       0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+                                    GX.indices.use),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
       matrix(nrow = 1) %*%
       matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
       as.numeric()
 
   } else{
-    Z.temp.permuted <- Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
+    #if(!is.null(Z.temp)){
+      # Don't want to store Z.temp.permuted for RAM
+      # Z.temp.permuted <- Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
+      
+      gFF <- lm(Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
+                  0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+                               GX.indices.use),
+                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+        matrix(ncol = ncol(Z.temp)) |>
+        t() %*%
+        matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
+        apply(MARGIN = 2,
+              function(x){
+                sum(x^2)
+              })
+    #} else{
+      #gFF <- lm(X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
+      #            0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+      #                         GX.indices.use),
+      #          model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+      #  matrix(ncol = ncol(X1.temp)) |>
+      #  t() %*%
+      #  matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
+      #  apply(MARGIN = 2,
+      #        function(x){
+      #          sum(x^2)
+      #        })
+      
+      
+      # conics <- lm(X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
+      #      0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+      #                   GX.indices.use),
+      #    model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+      #   matrix(ncol = ncol(X1.temp)) |>
+      #   t() %*%
+      #   matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
+      #   array(dim = c(ncol(X1.temp), ncol(X1.temp), 120)) |>
+      #   apply(MARGIN = 3,
+      #         function(x){
+      #           t(x) %*% x
+      #         },
+      #         simplify = FALSE) |>
+      #   simplify2array()
+      # 
+      # return(apply(conics[,,-1],
+      #              MARGIN = 3,
+      #              function(x){
+      #                eigen(conics[,,1] - x)$values > 0
+      #              }) |>
+      #          sum())
     
-    gFF <- lm(Z.temp.permuted ~ 0 + build_GX(X2.temp.permuted, GX.indices.use),
-              model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-      matrix(ncol = ncol(Z.temp.permuted)) |>
-      t() %*%
-      matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
-      apply(MARGIN = 2,
-            function(x){
-              sum(x^2)
-            })
+    #}
   }
   
   return(gFF[1] - mean(gFF[-1]))
