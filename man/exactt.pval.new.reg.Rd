@@ -24,6 +24,8 @@ exactt.pval.new.reg(
 
 \item{X2.temp}{A numeric matrix of the secondary variables.}
 
+\item{indep.X2.index}{The indices of variables in X2 that are independent to X1.}
+
 \item{permIndices}{A matrix of permutation indices used in the test.}
 
 \item{GX.indices}{A matrix of permutation indices to create GX matrices.}

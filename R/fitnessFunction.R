@@ -9,7 +9,7 @@
 #' @param X1.temp The matrix of the primary variable.
 #' @param X2.temp The matrix of non-fixed effect secondary variables.
 #' @param Z.temp The matrix of instrumental variables.
-#' @param indep.X2.index The indices of variables in X2.temp that are independent to X1.
+#' @param indep.X2.index The indices of variables in X2 that are independent to X1.
 #' @param blockIndexMatrix A matrix of indices specifying the blocks.
 #' @param GX.indices A matrix specifying the indices to construct a GX Matrix with attempted maximum rank.
 #' @param permIndices A matrix of permutation indices.

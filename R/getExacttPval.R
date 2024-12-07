@@ -3,6 +3,7 @@
 #' @param Y.temp The response vector for which the test is being performed.
 #' @param X1.temp A numeric column vector of the primary variable.
 #' @param X2.temp A numeric matrix of the secondary variables.
+#' @param indep.X2.index The indices of variables in X2 that are independent to X1.
 #' @param permIndices A matrix of permutation indices used in the test.
 #' @param GX.indices A matrix of permutation indices to create GX matrices.
 #' @param Q.X1.temp A numeric column vector of the primary variable annihilated by GX2.
