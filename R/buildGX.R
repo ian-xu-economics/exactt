@@ -41,10 +41,7 @@ build_GX.indices <- function(blockIndexMatrix, n.remainder.indices){
 generate_block_permutations <- function(nBlocks){
   
   if(nBlocks == 2){
-    s1.2 <- matrix(1:2)
-    s2.2 <- matrix(2:1)
-    
-    return(cbind(s1.2, s2.2))
+    return(matrix(c(1,2,2,1), nrow = 2))
   }
   
   # Create s1
@@ -88,17 +85,32 @@ remove_dependent_columns <- function(X) {
 #'
 #' @return A matrix where each column is a block permutation of a column in `X.temp`.
 #' @noRd
-build_GX <- function(X.temp, GX.indices){
+build_GX <- function(X.temp, GX.indices, independent = NULL){
   
-  GX.list <- apply(X.temp,
-                   MARGIN = 2,
-                   function(x){
-                     matrix(x[GX.indices], nrow = nrow(X.temp)) |>
-                       remove_dependent_columns()
-                   },
-                   simplify = FALSE)
+  if(!is.null(attr(X.temp, "assign")) && !is.null(independent)){
+    GX.list <- apply(X.temp[,-which(attr(X.temp, "assign") %in% independent), drop = FALSE],
+                     MARGIN = 2,
+                     function(x){
+                       matrix(x[GX.indices], nrow = nrow(X.temp)) |>
+                         remove_dependent_columns()
+                     },
+                     simplify = FALSE)
+    
+    return(cbind(do.call('cbind', GX.list),
+                 X.temp[,which(attr(X.temp, "assign") %in% independent), drop = FALSE]))
+  } else{
+    GX.list <- apply(X.temp,
+                     MARGIN = 2,
+                     function(x){
+                       matrix(x[GX.indices], nrow = nrow(X.temp)) |>
+                         remove_dependent_columns()
+                     },
+                     simplify = FALSE)
+    
+    return(do.call('cbind', GX.list))
+  }
   
-  return(do.call('cbind', GX.list))
+
 }
 
 #' Build Combined Q Matrix from GX1 and GX2 (Internal Function)

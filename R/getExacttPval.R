@@ -13,7 +13,7 @@
 #' @importFrom polynom polynomial
 #' @importFrom stats predict coefficients lm
 #' @importFrom cli cli_abort
-exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side, denominator){
+exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side, denominator){
   
   n <- nrow(Y.temp)
   
@@ -23,7 +23,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indice
       # 1 x nPerms matrix
       sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
                           matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices),
+                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
                                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                  ncol = ncol(permIndices))^2)
     } else{
@@ -72,12 +72,12 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indice
   } else{ # Denominator = X1
     
     Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                                       X1.temp + build_GX(X2.temp, GX.indices),
+                                                       X1.temp + build_GX(X2.temp, GX.indices, indep.X2.index),
                                                      model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                            ncol = ncol(permIndices))
     
     Q.X1.GX2.dot.X1.temp.permuted <- matrix(stats::lm(matrix(X1.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                                        X1.temp + build_GX(X2.temp, GX.indices),
+                                                        X1.temp + build_GX(X2.temp, GX.indices, indep.X2.index),
                                                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                             ncol = ncol(permIndices))
     
@@ -176,7 +176,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indice
   return(pvals.df)
 }
 
-exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize){
+exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize){
   
   n <- nrow(Y.temp)
   
@@ -185,7 +185,7 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices
   
   if(studentize == TRUE){
     eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices),
+                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
                                          model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                ncol = ncol(permIndices))
     

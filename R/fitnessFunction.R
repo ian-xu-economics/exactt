@@ -8,6 +8,8 @@
 #' @param permutation A numeric vector representing the permutation of indices.
 #' @param X1.temp The matrix of the primary variable.
 #' @param X2.temp The matrix of non-fixed effect secondary variables.
+#' @param Z.temp The matrix of instrumental variables.
+#' @param indep.X2.index The indices of variables in X2.temp that are independent to X1.
 #' @param blockIndexMatrix A matrix of indices specifying the blocks.
 #' @param GX.indices A matrix specifying the indices to construct a GX Matrix with attempted maximum rank.
 #' @param permIndices A matrix of permutation indices.
@@ -17,7 +19,7 @@
 #' @importFrom stats median formula model.matrix lm
 #' 
 #' @noRd
-fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, blockIndexMatrix, GX.indices, permIndices){
+fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep.X2.index, blockIndexMatrix, GX.indices, permIndices){
   
   n <- max(blockIndexMatrix)
   
@@ -31,7 +33,8 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, block
   if(is.null(Z.temp) && ncol(X1.temp) == 1){
     gFF <- stats::lm(X1.temp.permuted ~ 
                        0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
-                                    GX.indices.use),
+                                    GX.indices.use,
+                                    indep.X2.index),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
       matrix(nrow = 1) %*%
       matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>

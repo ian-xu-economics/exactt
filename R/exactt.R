@@ -143,14 +143,19 @@ exactt <- function(model,
     IV <- FALSE
   }
   
-  assign <- attr(X, "assign")
+  X.assign <- attr(X, "assign")
   
   summaryTableIvreg <- summary(ivregObject)$coefficients
   
   gaArgs <- list(seed = seed, ...)
   
   if(is.null(variables)){
-    variables <- 1:length(X.var)
+    variables.construct <- 1:length(X.var)
+  } else if(is.list(variables)){
+    variables.construct <- sapply(variables, 
+                                  FUN = function(x) x[[2]][[2]])
+  } else{
+    variables.construct <- variables
   }
   
   # If `nPerms` is unspecified or greater than the number of possible permutations, then use all possible permutations. 
@@ -191,6 +196,7 @@ exactt <- function(model,
                                                               X1.temp = X1.temp, 
                                                               X2.temp = X2.temp, 
                                                               Z.temp = Z.temp, 
+                                                              indep.X2.index = indep.X2.index,
                                                               blockIndexMatrix = blockIndexMatrix, 
                                                               GX.indices = GX.indices, 
                                                               permIndices = permIndices) }
@@ -203,9 +209,9 @@ exactt <- function(model,
   detailedList <- vector("list")
   gaResultsList <- vector("list")
   
-  for(i in seq_along(attr(X, "assign"))){
+  for(i in seq_along(X.assign)){
     
-    if(assign[i] == 0 | !assign[i] %in% variables){
+    if(X.assign[i] == 0 | !X.assign[i] %in% variables.construct){
       next
     } 
     
@@ -216,6 +222,19 @@ exactt <- function(model,
     Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
     X2.temp <- X.use[,-i, drop = FALSE]
+    attr(X2.temp, "assign") <- attr(X.use, "assign")[-i]
+    
+    if(is.list(variables)){
+      variables.index <- which(variables.construct == X.assign[i])
+      
+      split_formula <- strsplit(as.character(variables[[variables.index]])[[2]], "\\|")[[1]]
+      
+      indep.X2.index <- strsplit(split_formula[2], "\\+")[[1]] |>
+        trimws() |>
+        as.numeric()
+    } else{
+      indep.X2.index <- NULL
+    }
     
     if(exacttIV){
       Z.temp <- Z.use
@@ -246,6 +265,7 @@ exactt <- function(model,
           parallel::clusterExport(cl, varlist = c("X1.temp", 
                                                   "X2.temp", 
                                                   "Z.temp", 
+                                                  "indep.X2.index",
                                                   "blockIndexMatrix", 
                                                   "permIndices", 
                                                   "GX.indices", 
@@ -294,12 +314,12 @@ exactt <- function(model,
     }
     
     if(exacttIV){
-      Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices),
+      Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(nrow = nrow(Z.temp))
     } else{
       #if(is.null(Q.X1)){
-        Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices),
+        Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
           matrix(ncol = ncol(X1.temp))
       #} else{
@@ -308,12 +328,12 @@ exactt <- function(model,
     }
     
     if(exacttIV){
-      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize)
+      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize)
     } else{
-      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
+      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
     }
     
-    attr(pvals.df, "assign") = assign[i]
+    attr(pvals.df, "assign") = X.assign[i]
     detailedList[[colnames(X)[i]]] <- pvals.df
     
     pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
@@ -437,7 +457,7 @@ exactt <- function(model,
 #     IV <- FALSE
 #   }
 #   
-#   assign <- attr(X, "assign")
+#   X.assign <- attr(X, "assign")
 #   
 #   summaryTableIvreg <- summary(ivregObject)$coefficients
 #   
@@ -602,7 +622,7 @@ exactt <- function(model,
 #       pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
 #     }
 #     
-#     attr(pvals.df, "assign") <- assign[i]
+#     attr(pvals.df, "assign") <- X.assign[i]
 #     detailedList[[colnames(X)[i]]] <- pvals.df
 #     
 #     pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
