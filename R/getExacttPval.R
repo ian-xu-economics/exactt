@@ -31,7 +31,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
       sigma.hat <- 1
     }
   
-    m <- c(t(Q.X1.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices))/sigma.hat)
+    m <- -c(t(Q.X1.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices))/sigma.hat)
     b <- c(t(Q.X1.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices))/sigma.hat)
     
     if(side == "both"){
@@ -48,8 +48,8 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
     
     if(side == "both"){
       line.data <- line.data |> 
-        cbind(cbind((line.data$a*line.data$h - a.identity*h.identity)/(line.data$a - a.identity), 
-                    (a.identity*h.identity + line.data$a*line.data$h)/(a.identity + line.data$a)) |> 
+        cbind(cbind(-(line.data$a*line.data$h - a.identity*h.identity)/(line.data$a - a.identity), 
+                    -(a.identity*h.identity + line.data$a*line.data$h)/(a.identity + line.data$a)) |> 
                 apply(MARGIN = 1, \(x){ sort(x, na.last = TRUE) }) |> 
                 t() |> 
                 data.frame() |> 
