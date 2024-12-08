@@ -26,6 +26,7 @@
 #        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
+#' @param Q.X1 Use custom QX1 value.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -72,8 +73,8 @@ exactt <- function(model,
                    studentize = TRUE,
                    optimize = FALSE,
                    seed = 31740,
-                   #Q.X1 = NULL,
                    denominator = "GX1",
+                   Q.X1 = NULL,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -318,13 +319,13 @@ exactt <- function(model,
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(nrow = nrow(Z.temp))
     } else{
-      #if(is.null(Q.X1)){
+      if(is.null(Q.X1)){
         Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
           matrix(ncol = ncol(X1.temp))
-      #} else{
-      #  Q.X1.temp <- Q.X1
-      #}
+      } else{
+        Q.X1.temp <- Q.X1
+      }
     }
     
     if(exacttIV){

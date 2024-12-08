@@ -17,6 +17,7 @@ exactt(
   optimize = FALSE,
   seed = 31740,
   denominator = "GX1",
+  Q.X1 = NULL,
   ...
 )
 }
@@ -47,6 +48,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
 
 \item{denominator}{Character argument indicating how to calculate epsilon hat.}
+
+\item{Q.X1}{Use custom QX1 value.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,
