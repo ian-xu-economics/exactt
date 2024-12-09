@@ -6,7 +6,7 @@
 #' non-studentized test statistics, and allows the user to specify various
 #' parameters for the test.
 #'
-#' @param model A formula specifying the model..
+#' @param model A formula specifying the model.
 #' @param data A data frame or matrix containing the variables used in the model.
 #' @param side A character to indicate the side of the test.
 #' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
@@ -43,7 +43,7 @@
 #'
 #' @details
 #' The function divides the data into blocks specified by `nBlocks` and performs permutations
-#' within these blocks to generate the null distribution of the test statistic. The user can
+#' within across blocks to generate the null distribution of the test statistic. The user can
 #' specify a set number of permutations with `nPerms`, or allow the function to calculate all
 #' possible permutations if `nPerms` is unspecified or too large.
 #'
@@ -209,6 +209,7 @@ exactt <- function(model,
   summaryTableList <- vector("list")
   detailedList <- vector("list")
   gaResultsList <- vector("list")
+  Q.X1.Z.List <- vector("list")
   
   for(i in seq_along(X.assign)){
     
@@ -318,6 +319,8 @@ exactt <- function(model,
       Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(nrow = nrow(Z.temp))
+      
+      Q.X1.Z.List[[colnames(X)[i]]] <- Q.Z.temp
     } else{
       if(is.null(Q.X1)){
         Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
@@ -326,6 +329,8 @@ exactt <- function(model,
       } else{
         Q.X1.temp <- Q.X1
       }
+      
+      Q.X1.Z.List[[colnames(X)[i]]] <- Q.X1.temp
     }
     
     if(exacttIV){
@@ -369,9 +374,9 @@ exactt <- function(model,
   } 
   
   if(exacttIV){
-    result$Q.Z <- Q.Z.temp
+    result$Q.Z <- Q.X1.Z.List
   } else{
-    result$Q.X1 <- Q.X1.temp
+    result$Q.X1 <- Q.X1.Z.List
   }
   
   return(result) 

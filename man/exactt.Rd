@@ -22,7 +22,7 @@ exactt(
 )
 }
 \arguments{
-\item{model}{A formula specifying the model..}
+\item{model}{A formula specifying the model.}
 
 \item{data}{A data frame or matrix containing the variables used in the model.}
 
@@ -77,7 +77,7 @@ parameters for the test.
 }
 \details{
 The function divides the data into blocks specified by \code{nBlocks} and performs permutations
-within these blocks to generate the null distribution of the test statistic. The user can
+within across blocks to generate the null distribution of the test statistic. The user can
 specify a set number of permutations with \code{nPerms}, or allow the function to calculate all
 possible permutations if \code{nPerms} is unspecified or too large.
 
