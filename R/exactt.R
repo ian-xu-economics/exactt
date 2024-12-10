@@ -18,12 +18,7 @@
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
-# @param precisionToUse The precision level for rounding off the beta values in the
-#        resulting sequence.
-# @param randomizationDist Logical indicating whether to return randomization distribution for each null hypothesis value.
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
-# @param GX1 Logical indicating whether to use GX1 or X1 when constructing eps_hat. 
-#        Using X1 has slightly more power at slightly more computational expense.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
 #' @param Q.X1 Use custom QX1 value.
@@ -32,14 +27,7 @@
 #' that are used to configure the genetic algorithm. Note that when sample size is large
 #' optimizing is computationally expensive and has little effect.
 #'
-#' @return An object of class 'exactt', which includes:
-#'   - `summary`: A matrix summarizing the test results for each variable.
-#'   - `detailed`: A list containing detailed test results for each variable.
-#'   - `gaResults`: Optional; a list of results from the `GA::ga()` function, included only when
-#'     power optimization is performed via genetic algorithm parameters. Each element of the list
-#'     corresponds to results for one of the tested variables, containing details like the best
-#'     permutations found, fitness scores, and other GA diagnostics.
-#'   - `call`: The matched call.
+#' @return The p-value of the test that the null values of beta are 0.
 #'
 #' @details
 #' The function divides the data into blocks specified by `nBlocks` and performs permutations
@@ -382,7 +370,49 @@ exactt <- function(model,
   return(result) 
 }
 
-
+#' Exact Wald-test
+#'
+#' @param model A formula specifying the model.
+#' @param data A data frame or matrix containing the variables used in the model.
+#' @param variables Optional; a character vector of predictor names to test.
+#'        If NULL, all predictors in the model are tested.
+#' @param nBlocks The number of blocks to use for block permutations.
+#' @param nPerms Optional; the number of permutations to perform.
+#'        If NULL or greater than the number of possible permutations, all permutations are used.
+#' @param studentize Logical indicating whether to use studentized residuals for the test.
+#' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
+#' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
+#' that are used to configure the genetic algorithm. Note that when sample size is large
+#' optimizing is computationally expensive and has little effect.
+#'
+#' @return An object of class 'exactt', which includes:
+#'   - `summary`: A matrix summarizing the test results for each variable.
+#'   - `detailed`: A list containing detailed test results for each variable.
+#'   - `gaResults`: Optional; a list of results from the `GA::ga()` function, included only when
+#'     power optimization is performed via genetic algorithm parameters. Each element of the list
+#'     corresponds to results for one of the tested variables, containing details like the best
+#'     permutations found, fitness scores, and other GA diagnostics.
+#'   - `call`: The matched call.
+#'
+#' @details
+#' The function divides the data into blocks specified by `nBlocks` and performs permutations
+#' within across blocks to generate the null distribution of the test statistic. The user can
+#' specify a set number of permutations with `nPerms`, or allow the function to calculate all
+#' possible permutations if `nPerms` is unspecified or too large.
+#'
+#' If `studentize` is TRUE, studentized residuals are used to adjust the test statistics,
+#' potentially leading to more robust inference under model misspecification.
+#'
+#' The function allows for a high degree of customization through its parameters and can
+#' handle large datasets and complex model structures efficiently.
+#'
+#' @importFrom stats median formula model.matrix lm
+#' @importFrom Formula Formula
+#' @importFrom cli cli_abort cli_alert_info
+#' @importFrom combinat permn
+#' @importFrom utils tail
+#' 
+#' @export
 exactt.wald <- function(model,
                         data,
                         variables = NULL,
