@@ -304,7 +304,7 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
                                MARGIN = 2,
                                function(x){
                                  # We don't divide by n here for numerical precision reasons
-                                 solve(crossprod(Q.Z.temp * x)) 
+                                 solve(crossprod(Q.Z.temp * x))
                                },
                                simplify = FALSE) |>
       simplify2array()
@@ -367,6 +367,60 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
   pvals.df <- pvalCalculator(intersect.data, check.identity = a.identity, intercept = NULL, iv = TRUE, side = "both")
   
   return(pvals.df)
+}
+
+exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize){
+  
+  n <- nrow(Y.temp)
+  
+  Q.Z.temp.dot.Y.temp <- apply(permIndices,
+                               MARGIN = 2,
+                               FUN = function(x){
+                                 t(Q.Z.temp) %*% Y.temp[x, drop = FALSE]
+                               },
+                               simplify = FALSE) |>
+    simplify2array() |>
+    array(dim = c(ncol(Q.Z.temp), ncol(Y.temp), ncol(permIndices)))
+  
+ if(studentize == TRUE){
+    eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                               ncol = ncol(permIndices))
+    
+    # nBlocks! x 1 matrix
+    Sigma.hat.inverse <- apply(eps_hat.permuted,
+                               MARGIN = 2,
+                               function(x){
+                                 # We don't divide by n here for numerical precision reasons
+                                 solve(crossprod(Q.Z.temp * x)) 
+                               },
+                               simplify = FALSE) |>
+      simplify2array()
+    
+    dim(Sigma.hat.inverse) <- c(ncol(Q.Z.temp), ncol(Q.Z.temp), ncol(permIndices))
+  } else{
+    identity.matrix <- diag(ncol(Q.Z.temp))
+    Sigma.hat.inverse <- array(identity.matrix, 
+                               dim = c(nrow(identity.matrix),
+                                       ncol(identity.matrix),
+                                       ncol(permIndices)))
+  }
+  
+  randomization.stats <- sapply(1:ncol(permIndices),
+                                FUN = function(i) {
+                                  t(matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+                                           nrow = ncol(Q.Z.temp),
+                                           ncol = ncol(Y.temp))) %*% 
+                                    Sigma.hat.inverse[,,i] %*%
+                                    matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+                                           nrow = ncol(Q.Z.temp),
+                                           ncol = ncol(Y.temp))
+                                })
+  
+  pval <- mean(randomization.stats[1] <= randomization.stats)
+  
+  return(pval)
 }
 
 
