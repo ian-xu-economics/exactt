@@ -41,7 +41,7 @@
 #' The function allows for a high degree of customization through its parameters and can
 #' handle large datasets and complex model structures efficiently.
 #'
-#' @importFrom stats median formula model.matrix lm
+#' @importFrom stats median formula model.matrix lm coef
 #' @importFrom Formula Formula
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom doRNG registerDoRNG
@@ -134,7 +134,7 @@ exactt <- function(model,
   
   X.assign <- attr(X, "assign")
   
-  summaryTableIvreg <- summary(ivregObject)$coefficients
+  summaryTableIvreg <- coef(ivregObject)
   
   gaArgs <- list(seed = seed, ...)
   
@@ -207,7 +207,7 @@ exactt <- function(model,
     
     exacttIV <- !colnames(X)[i] %in% exogenous.var
     
-    beta_hat <- summaryTableIvreg[i, 1]
+    beta_hat <- summaryTableIvreg[i]
     
     Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
@@ -491,7 +491,7 @@ exactt.wald <- function(model,
 
   X.assign <- attr(X, "assign")
 
-  summaryTableIvreg <- summary(ivregObject)$coefficients
+  summaryTableIvreg <- coef(ivregObject)
 
   #gaArgs <- list(seed = seed, ...)
 
@@ -564,7 +564,7 @@ exactt.wald <- function(model,
     # Change this to be based on the formula, if they include another |
     exacttIV <- any(!colnames(X)[i] %in% exogenous.var)
   
-    beta_hat <- summaryTableIvreg[i, 1]
+    beta_hat <- summaryTableIvreg[i]
 
     Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
