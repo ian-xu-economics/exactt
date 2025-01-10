@@ -7,10 +7,14 @@
 exactt.wald(
   model,
   data,
+  alpha = 0.05,
   variables = NULL,
+  beta0 = c(0, NULL),
   nBlocks = 5,
   nPerms = NULL,
   studentize = TRUE,
+  optimize = FALSE,
+  seed = 31740,
   ...
 )
 }
@@ -19,8 +23,13 @@ exactt.wald(
 
 \item{data}{A data frame or matrix containing the variables used in the model.}
 
+\item{alpha}{The significance level used for the hypothesis tests; defaults to 0.05.}
+
 \item{variables}{Optional; a character vector of predictor names to test.
 If NULL, all predictors in the model are tested.}
+
+\item{beta0}{If 0, test whether the variables of interest are equal to the zero vector.
+If NULL, creates a grid of beta0 values (for confidence intervals) and tests the variables of interest.}
 
 \item{nBlocks}{The number of blocks to use for block permutations.}
 
@@ -28,6 +37,10 @@ If NULL, all predictors in the model are tested.}
 If NULL or greater than the number of possible permutations, all permutations are used.}
 
 \item{studentize}{Logical indicating whether to use studentized residuals for the test.}
+
+\item{optimize}{Logical indicating whether to optimize the ordering of the data.}
+
+\item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

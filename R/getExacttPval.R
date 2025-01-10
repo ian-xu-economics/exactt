@@ -21,12 +21,20 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
   if(denominator == "GX1" || studentize == FALSE){
     # We no longer store X1.temp.permuted, Y.temp.permuted, or eps_hat.permuted; it is a RAM nightmare. 
     if(studentize == TRUE){
-      # 1 x nPerms matrix
-      sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
-                          matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
-                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
-                                 ncol = ncol(permIndices))^2)
+      if(ncol(X2.temp) == 0){
+        sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
+                            matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                               build_GX(X1.temp, GX.indices),
+                                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                   ncol = ncol(permIndices))^2)
+      } else{
+        # 1 x nPerms matrix
+        sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
+                            matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                               build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                   ncol = ncol(permIndices))^2)
+      }
     } else{
       sigma.hat <- 1
     }
@@ -71,7 +79,18 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
     }
     
   } else if(denominator == "X1"){ # Denominator = X1
-    if(side == "both"){
+    
+    if(ncol(X2.temp) == 0){
+      Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                         X1.temp,
+                                                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                             ncol = ncol(permIndices))
+      
+      Q.X1.GX2.dot.X1.temp.permuted <- matrix(stats::lm(matrix(X1.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                          X1.temp,
+                                                        model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                              ncol = ncol(permIndices))
+    } else{
       Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
                                                          X1.temp + build_GX(X2.temp, GX.indices, indep.X2.index),
                                                        model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
@@ -81,112 +100,147 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                                           X1.temp + build_GX(X2.temp, GX.indices, indep.X2.index),
                                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                               ncol = ncol(permIndices))
-      
-      sigma.hat.sq.polynomials <- lapply(1:ncol(permIndices),
-                                         function(x){
-                                           c(t(Q.X1.GX2.dot.Y.temp.permuted[,x]) %*%
-                                               diag(c(Q.X1.temp^2)) %*%
-                                               Q.X1.GX2.dot.Y.temp.permuted[,x],
-                                             -2*Q.X1.GX2.dot.X1.temp.permuted[,x] %*%
-                                               diag(c(Q.X1.temp^2)) %*%
-                                               Q.X1.GX2.dot.Y.temp.permuted[,x],
-                                             t(Q.X1.GX2.dot.X1.temp.permuted[,x]) %*%
-                                               diag(c(Q.X1.temp^2)) %*%
-                                               Q.X1.GX2.dot.X1.temp.permuted[,x]) |>
-                                             polynom::polynomial()
-                                         })
-  
-      t.sq.polynomials <- apply(permIndices,
-                                MARGIN = 2,
-                                function(x){
-                                  c(t(Y.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      Y.temp[x,],
-                                    -2*t(X1.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      Y.temp[x,],
-                                    t(X1.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      X1.temp[x,]
-                                  ) |>
-                                    polynom::polynomial()
-                                },
-                                simplify = FALSE)
-  
-      roots <- sapply(2:ncol(permIndices),
-                      function(x){
-                        polyroot(stats::coefficients(t.sq.polynomials[[1]] *
-                                                     sigma.hat.sq.polynomials[[x]] -
-                                                     t.sq.polynomials[[x]] *
-                                                     sigma.hat.sq.polynomials[[1]]))
-                      })
-  
-      real.roots <- apply(roots,
-                          MARGIN = 2,
-                          function(x){
-                            sort(Re(x)[!abs(Im(x)) > 1e-5])
-                          },
-                          simplify = FALSE)
-      
-      # Need to check if the roots are valid in the original problem. Especially if we are dealing with multiple sides.
-      # Issue is that we don't multiply by both sides by least common multiple of the denominators.
-      # Doing this would be tricky because we don't know what the new polynomial after dividing LCM by sigma.hat.sq.polynomials[[x]]
-    
-      # This code focuses on the two sided case.
-      
-      intersect.data.list <- sapply(1:length(real.roots),
-                                    function(x){
-                                      real.roots.temp <- real.roots[[x]]
-                                     
-                                      values.at.roots.test <- stats::predict(t.sq.polynomials[[1]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1]], real.roots.temp)
-                                      values.at.roots.rand <- stats::predict(t.sq.polynomials[[1+x]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1+x]], real.roots.temp)
-                
-                                      valid.real.roots <- real.roots.temp[abs(values.at.roots.test - values.at.roots.rand) < 1e-5]
-                                      
-                                      test.values <- c(valid.real.roots[1] - 1,
-                                                       (valid.real.roots[-1] + valid.real.roots[-length(valid.real.roots)])/2,
-                                                       valid.real.roots[length(valid.real.roots)] + 1)
-                                      
-                                      values.at.test.vals.test <- stats::predict(t.sq.polynomials[[1]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1]], test.values)
-                                      values.at.test.vals.rand <- stats::predict(t.sq.polynomials[[1+x]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.values)
-                                      
-                                      return(data.frame(beta0.start = c(-Inf, valid.real.roots),
-                                                        beta0.end = c(valid.real.roots, Inf),
-                                                        test.stat.smaller = values.at.test.vals.test < values.at.test.vals.rand))
-                                    },
-                                    simplify = FALSE)
-      
-      intersect.data <- do.call('rbind', intersect.data.list)
-      
-      beta0 <- c(intersect.data$beta0.start, intersect.data$beta0.end) |>
-        unique() |>
-        sort()
-      
-      intersect.data.final <- data.frame(beta0.start = beta0[-length(beta0)],
-                                         beta0.end = beta0[-1])
-      
-      pvals.df <- pvalCalculator.V2(intersect.data.final, 
-                                    intersect.data, 
-                                    nPerms = ncol(permIndices))
-    } else{
-      cli::cli_abort('Currently, only `side = "both"` is supported when `denominator = "X1".')
     }
-
-  } else if(denominator == "noX1"){
-    if(side == "both"){
-      Q.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                                      build_GX(X2.temp, GX.indices, indep.X2.index),
-                                                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
-                                             ncol = ncol(permIndices))
+    
+    sigma.hat.sq.polynomials <- lapply(1:ncol(permIndices),
+                                       function(x){
+                                         c(t(Q.X1.GX2.dot.Y.temp.permuted[,x]) %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.Y.temp.permuted[,x],
+                                           -2*Q.X1.GX2.dot.X1.temp.permuted[,x] %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.Y.temp.permuted[,x],
+                                           t(Q.X1.GX2.dot.X1.temp.permuted[,x]) %*%
+                                             diag(c(Q.X1.temp^2)) %*%
+                                             Q.X1.GX2.dot.X1.temp.permuted[,x]) |>
+                                           polynom::polynomial()
+                                       })
+    
+    t.num.polynomials <- apply(permIndices,
+                               MARGIN = 2,
+                               function(x){
+                                 c(t(Q.X1.temp) %*%
+                                     Y.temp[x,],
+                                   -t(Q.X1.temp) %*%
+                                     X1.temp[x,]
+                                 ) |>
+                                   polynom::polynomial()
+                               }, 
+                               simplify = FALSE)
+    
+    check.polynomials <- lapply(2:ncol(permIndices),
+                                function(x){
+                                  t.num.polynomials[[1]]^2 *
+                                    sigma.hat.sq.polynomials[[x]] -
+                                    t.num.polynomials[[x]]^2 *
+                                    sigma.hat.sq.polynomials[[1]]
+                                })
+    
+    real.root.count <- sapply(check.polynomials,
+                              function(p){
+                                
+                                sturm.sequence <- sturm_sequence(p)
+                                
+                                cauchy.bound <- cauchy_bound(p)
+                                
+                                real_roots_in_interval(sturm.sequence, 
+                                                       -cauchy.bound, 
+                                                       cauchy.bound)
+                              })
+    
+    possible.real.roots <- lapply(1:length(check.polynomials),
+                                  function(x){
+                                 
+                                    isolate.real.roots(check.polynomials[[x]], 
+                                                       real.root.count[x]) |>
+                                      Re()
+                                 
+                                  })
       
-      Q.GX2.dot.X1.temp.permuted <- matrix(stats::lm(matrix(X1.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                                       build_GX(X2.temp, GX.indices, indep.X2.index),
-                                                        model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
-                                              ncol = ncol(permIndices))
+    real.roots <- lapply(1:length(possible.real.roots),
+                         function(x){
+                           
+                           roots <- possible.real.roots[[x]]
+                           check.roots.1 <- roots[stats::predict(sigma.hat.sq.polynomials[[1]], roots) > 0 & 
+                                                    stats::predict(sigma.hat.sq.polynomials[[1+x]], roots) > 0]
+                           
+                           if(side == "both"){
+                             return(check.roots.1)
+                           } else{
+                             check.roots.2 <- check.roots.1[abs(stats::predict(t.num.polynomials[[1]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], check.roots.1)) -
+                                                                   stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-10]
+                           
+                             return(check.roots.2)
+                           }
+                           
+                         })
+    # Need to check if the roots are valid in the original problem. Especially if we are dealing with multiple sides.
+    # Issue is that we don't multiply by both sides by least common multiple of the denominators.
+    # Doing this would be tricky because we don't know what the new polynomial after dividing LCM by sigma.hat.sq.polynomials[[x]]
+    
+    # This code focuses on the two sided case.
+    # Check if the denominator is non-zero.
+    intersect.data.list <- lapply(1:length(real.roots),
+                                  function(x){
+                                    
+                                    valid.roots <- real.roots[[x]]
+                                    
+                                    first <- valid.roots[1] - 999
+                                    middle <- (valid.roots[-1] + valid.roots[-length(valid.roots)])/2
+                                    last <- valid.roots[length(valid.roots)] + 999
+                                    
+                                    test.values <- c(first, middle, last)
+                                    
+                                    values.at.test.vals.test <- stats::predict(t.num.polynomials[[1]], test.values) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], test.values))
+                                    values.at.test.vals.rand <- stats::predict(t.num.polynomials[[1+x]], test.values) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], test.values))
+                                    
+                                    if(side == "both"){
+                                      return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                        beta0.end = c(valid.roots, Inf),
+                                                        test.stat.smaller = abs(values.at.test.vals.test) < abs(values.at.test.vals.rand)))
+                                    } else if(side == "left"){
+                                      return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                        beta0.end = c(valid.roots, Inf),
+                                                        test.stat.smaller = values.at.test.vals.test < values.at.test.vals.rand))
+                                    } else{
+                                      return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                        beta0.end = c(valid.roots, Inf),
+                                                        test.stat.smaller = values.at.test.vals.test > values.at.test.vals.rand))
+                                    }
+                                    
+                                  })
       
+    intersect.data <- do.call('rbind', intersect.data.list)
+    
+    beta0 <- c(intersect.data$beta0.start, 
+               intersect.data$beta0.end) |>
+      unique() |>
+      sort()
+    
+    intersect.data.final <- data.frame(beta0.start = beta0[-length(beta0)],
+                                       beta0.end = beta0[-1])
+    
+    pvals.df <- pvalCalculator.V2(intersect.data.final, 
+                                  intersect.data, 
+                                  nPerms = ncol(permIndices))
+    } else if(denominator == "noX1"){
+      
+      if(ncol(X2.temp) == 0){
+        Q.GX2.dot.Y.temp.permuted <- matrix(Y.temp[permIndices], ncol = ncol(permIndices)) - mean(Y.temp)
+        
+        Q.GX2.dot.X1.temp.permuted <- matrix(X1.temp[permIndices], ncol = ncol(permIndices)) - mean(X1.temp)
+      } else{
+        Q.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                        build_GX(X2.temp, GX.indices, indep.X2.index),
+                                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                               ncol = ncol(permIndices))
+        
+        Q.GX2.dot.X1.temp.permuted <- matrix(stats::lm(matrix(X1.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                                         build_GX(X2.temp, GX.indices, indep.X2.index),
+                                                          model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                                ncol = ncol(permIndices))
+      }
+        
       sigma.hat.sq.polynomials <- lapply(1:ncol(permIndices),
                                          function(x){
                                            c(t(Q.GX2.dot.Y.temp.permuted[,x]) %*%
@@ -201,72 +255,104 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                              polynom::polynomial()
                                          })
       
-      t.sq.polynomials <- apply(permIndices,
-                                MARGIN = 2,
-                                function(x){
-                                  c(t(Y.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      Y.temp[x,],
-                                    -2*t(X1.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      Y.temp[x,],
-                                    t(X1.temp[x,]) %*%
-                                      Q.X1.temp %*%
-                                      t(Q.X1.temp) %*%
-                                      X1.temp[x,]
-                                  ) |>
-                                    polynom::polynomial()
-                                },
-                                simplify = FALSE)
+      t.num.polynomials <- apply(permIndices,
+                                 MARGIN = 2,
+                                 function(x){
+                                   c(t(Q.X1.temp) %*%
+                                       Y.temp[x,],
+                                     -t(Q.X1.temp) %*%
+                                       X1.temp[x,]
+                                   ) |>
+                                     polynom::polynomial()
+                                 }, 
+                                 simplify = FALSE)
       
-      roots <- sapply(2:ncol(permIndices),
-                      function(x){
-                        polyroot(stats::coefficients(t.sq.polynomials[[1]] *
-                                                       sigma.hat.sq.polynomials[[x]] -
-                                                       t.sq.polynomials[[x]] *
-                                                       sigma.hat.sq.polynomials[[1]]))
-                      })
+      check.polynomials <- lapply(2:ncol(permIndices),
+                                  function(x){
+                                    t.num.polynomials[[1]]^2 *
+                                      sigma.hat.sq.polynomials[[x]] -
+                                      t.num.polynomials[[x]]^2 *
+                                      sigma.hat.sq.polynomials[[1]]
+                                  })
       
-      real.roots <- apply(roots,
-                          MARGIN = 2,
-                          function(x){
-                            sort(Re(x)[!abs(Im(x)) > 1e-5])
-                          },
-                          simplify = FALSE)
+      real.root.count <- sapply(check.polynomials,
+                                function(p){
+                                  
+                                  sturm.sequence <- sturm_sequence(p)
+                                  
+                                  cauchy.bound <- cauchy_bound(p)
+                                  
+                                  real_roots_in_interval(sturm.sequence, 
+                                                         -cauchy.bound, 
+                                                         cauchy.bound)
+                                })
       
+      possible.real.roots <- lapply(1:length(check.polynomials),
+                                    function(x){
+                                      
+                                      isolate.real.roots(check.polynomials[[x]], 
+                                                         real.root.count[x]) |>
+                                        Re()
+                                      
+                                    })
+      
+      real.roots <- lapply(1:length(possible.real.roots),
+                           function(x){
+                             
+                             roots <- possible.real.roots[[x]]
+                             check.roots.1 <- roots[stats::predict(sigma.hat.sq.polynomials[[1]], roots) > 0 & 
+                                                      stats::predict(sigma.hat.sq.polynomials[[1+x]], roots) > 0]
+                             
+                             if(side == "both"){
+                               return(check.roots.1)
+                             } else{
+                               check.roots.2 <- check.roots.1[abs(stats::predict(t.num.polynomials[[1]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], check.roots.1)) -
+                                                                    stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-10]
+                               
+                               return(check.roots.2)
+                             }
+                             
+                           })
       # Need to check if the roots are valid in the original problem. Especially if we are dealing with multiple sides.
       # Issue is that we don't multiply by both sides by least common multiple of the denominators.
       # Doing this would be tricky because we don't know what the new polynomial after dividing LCM by sigma.hat.sq.polynomials[[x]]
       
       # This code focuses on the two sided case.
-      
-      intersect.data.list <- sapply(1:length(real.roots),
+      # Check if the denominator is non-zero.
+      intersect.data.list <- lapply(1:length(real.roots),
                                     function(x){
-                                      real.roots.temp <- real.roots[[x]]
                                       
-                                      values.at.roots.test <- stats::predict(t.sq.polynomials[[1]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1]], real.roots.temp)
-                                      values.at.roots.rand <- stats::predict(t.sq.polynomials[[1+x]], real.roots.temp) / stats::predict(sigma.hat.sq.polynomials[[1+x]], real.roots.temp)
+                                      valid.roots <- real.roots[[x]]
                                       
-                                      valid.real.roots <- real.roots.temp[abs(values.at.roots.test - values.at.roots.rand) < 1e-5]
+                                      first <- valid.roots[1] - 999
+                                      middle <- (valid.roots[-1] + valid.roots[-length(valid.roots)])/2
+                                      last <- valid.roots[length(valid.roots)] + 999
                                       
-                                      test.values <- c(valid.real.roots[1] - 1,
-                                                       (valid.real.roots[-1] + valid.real.roots[-length(valid.real.roots)])/2,
-                                                       valid.real.roots[length(valid.real.roots)] + 1)
+                                      test.values <- c(first, middle, last)
                                       
-                                      values.at.test.vals.test <- stats::predict(t.sq.polynomials[[1]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1]], test.values)
-                                      values.at.test.vals.rand <- stats::predict(t.sq.polynomials[[1+x]], test.values) / stats::predict(sigma.hat.sq.polynomials[[1+x]], test.values)
+                                      values.at.test.vals.test <- stats::predict(t.num.polynomials[[1]], test.values) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], test.values))
+                                      values.at.test.vals.rand <- stats::predict(t.num.polynomials[[1+x]], test.values) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], test.values))
                                       
-                                      return(data.frame(beta0.start = c(-Inf, valid.real.roots),
-                                                        beta0.end = c(valid.real.roots, Inf),
-                                                        test.stat.smaller = values.at.test.vals.test < values.at.test.vals.rand))
-                                    },
-                                    simplify = FALSE)
+                                      if(side == "both"){
+                                        return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                          beta0.end = c(valid.roots, Inf),
+                                                          test.stat.smaller = abs(values.at.test.vals.test) < abs(values.at.test.vals.rand)))
+                                      } else if(side == "left"){
+                                        return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                          beta0.end = c(valid.roots, Inf),
+                                                          test.stat.smaller = values.at.test.vals.test < values.at.test.vals.rand))
+                                      } else{
+                                        return(data.frame(beta0.start = c(-Inf, valid.roots),
+                                                          beta0.end = c(valid.roots, Inf),
+                                                          test.stat.smaller = values.at.test.vals.test > values.at.test.vals.rand))
+                                      }
+                                      
+                                    })
       
       intersect.data <- do.call('rbind', intersect.data.list)
       
-      beta0 <- c(intersect.data$beta0.start, intersect.data$beta0.end) |>
+      beta0 <- c(intersect.data$beta0.start, 
+                 intersect.data$beta0.end) |>
         unique() |>
         sort()
       
@@ -276,9 +362,6 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
       pvals.df <- pvalCalculator.V2(intersect.data.final, 
                                     intersect.data, 
                                     nPerms = ncol(permIndices))
-    } else{
-      cli::cli_abort('Currently, only `side = "both"` is supported when `denominator = "noX1".')
-    }
   } else{
     cli::cli_abort("Inputted value into `denominator` parameter is not recognized.")
   }
@@ -294,10 +377,17 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
   Q.Z.temp.dot.Y.temp <- t(Q.Z.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices)) # Y.temp.permuted
   
   if(studentize == TRUE){
-    eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
-                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
-                               ncol = ncol(permIndices))
+    if(ncol(X2.temp) == 0){
+      eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                             build_GX(X1.temp, GX.indices),
+                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                 ncol = ncol(permIndices))
+    } else{
+      eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                 ncol = ncol(permIndices))
+    }
     
     # nBlocks! x 1 matrix
     Sigma.hat.inverse <- apply(eps_hat.permuted,
@@ -369,25 +459,23 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
   return(pvals.df)
 }
 
-exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize){
+exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize, beta.null.matrix){
   
   n <- nrow(Y.temp)
   
-  Q.Z.temp.dot.Y.temp <- apply(permIndices,
-                               MARGIN = 2,
-                               FUN = function(x){
-                                 t(Q.Z.temp) %*% Y.temp[x, drop = FALSE]
-                               },
-                               simplify = FALSE) |>
-    simplify2array() |>
-    array(dim = c(ncol(Q.Z.temp), ncol(Y.temp), ncol(permIndices)))
-  
- if(studentize == TRUE){
-    eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
-                                           build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
-                                         model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
-                               ncol = ncol(permIndices))
-    
+  if(studentize == TRUE){
+    if(ncol(X2.temp) == 0){
+      eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                             build_GX(X1.temp, GX.indices),
+                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                 ncol = ncol(permIndices))
+    } else{
+      eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                                             build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                           model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
+                                 ncol = ncol(permIndices))
+    }  
+      
     # nBlocks! x 1 matrix
     Sigma.hat.inverse <- apply(eps_hat.permuted,
                                MARGIN = 2,
@@ -407,20 +495,65 @@ exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, 
                                        ncol(permIndices)))
   }
   
-  randomization.stats <- sapply(1:ncol(permIndices),
-                                FUN = function(i) {
-                                  t(matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
-                                           nrow = ncol(Q.Z.temp),
-                                           ncol = ncol(Y.temp))) %*% 
-                                    Sigma.hat.inverse[,,i] %*%
-                                    matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
-                                           nrow = ncol(Q.Z.temp),
-                                           ncol = ncol(Y.temp))
-                                })
-  
-  pval <- mean(randomization.stats[1] <= randomization.stats)
-  
-  return(pval)
+  if(!is.atomic(beta.null.matrix) && 
+     length(beta.null.matrix) > 1 && 
+     !is.null(dim(beta.null.matrix)) &&
+     nrow(beta.null.matrix) == 1 &&
+     all(c(as.matrix(beta.null.matrix)) == 0)){
+    
+    Q.Z.temp.dot.Y.temp <- apply(permIndices,
+                                 MARGIN = 2,
+                                 FUN = function(x){
+                                   t(Q.Z.temp) %*% Y.temp[x, drop = FALSE]
+                                 },
+                                 simplify = FALSE) |>
+      simplify2array()
+    
+    randomization.stats <- sapply(1:ncol(permIndices),
+                                  FUN = function(i) {
+                                    t(matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+                                             nrow = ncol(Q.Z.temp),
+                                             ncol = ncol(Y.temp))) %*% 
+                                      Sigma.hat.inverse[,,i] %*%
+                                      matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+                                             nrow = ncol(Q.Z.temp),
+                                             ncol = ncol(Y.temp))
+                                  })
+    
+    p.value <- mean(randomization.stats[1] <= randomization.stats)
+    
+    result <- cbind(beta.null.matrix,
+                    p.value) |>
+      data.frame() 
+    
+  } else{
+    
+    Q.Z.temp.dot.X1.Y.temp <- apply(permIndices,
+                                    MARGIN = 2,
+                                    FUN = function(x){
+                                      t(Q.Z.temp) %*% cbind(X1.temp, Y.temp)[x,, drop = FALSE]
+                                    },
+                                    simplify = FALSE) |>
+      simplify2array() |>
+      array(dim = c(ncol(Q.Z.temp), ncol(X1.temp) + ncol(Y.temp), ncol(permIndices)))
+    
+    beta.null.matrix <- cbind(as.matrix(beta.null.matrix), 1)
+    
+    randomization.stats <- get.wald.randomization.stats(Q.Z.temp.dot.X1.Y.temp, 
+                                                        Sigma.hat.inverse, 
+                                                        beta.null.matrix)
+    
+    p.value <- apply(randomization.stats[,1] <= randomization.stats,
+                     MARGIN = 1,
+                     mean)
+    
+    result <- cbind(beta.null.matrix[,-ncol(beta.null.matrix), drop = FALSE],
+                    p.value) |>
+      data.frame() 
+    
+  }
+
+  return(result)
 }
 
 
@@ -581,3 +714,141 @@ pvalCalculator.V2 <- function(line.data.final, line.data, nPerms){
   
   return(line.data.final)
 }
+
+
+# find_CI <- function(df, var, alpha = 0.05) {
+#   # 1) Filter out points where p.value <= alpha
+#   df_accepted <- df[df$p.value > alpha, ]
+#   
+#   # 2) If nothing remains, the entire interval is "accepted" => (-Inf, Inf).
+#   if(nrow(df_accepted) == 0) {
+#     return(c(-Inf, Inf))
+#   }
+#   
+#   # 3) Identify the range of the *entire* grid for the variable
+#   var_all_min <- min(df[[var]])
+#   var_all_max <- max(df[[var]])
+#   
+#   # 4) Among the accepted points, get the min and max for that variable
+#   var_acc_min <- min(df_accepted[[var]])
+#   var_acc_max <- max(df_accepted[[var]])
+#   
+#   # 5) Decide if the lower bound is -Inf or the actual min
+#   #    - If the accepted min is the same as the absolute min of the entire grid,
+#   #      we interpret that as going to -Inf on that side.
+#   ci_lower <- if(var_acc_min == var_all_min) -Inf else var_acc_min
+#   
+#   # 6) Similarly for the upper bound
+#   ci_upper <- if(var_acc_max == var_all_max) Inf else var_acc_max
+#   
+#   # 7) Return the confidence interval
+#   c(ci_lower, ci_upper)
+# }
+
+
+##### EXTRACT THE REAL ROOTS FROM COMPLEX ROOTS
+# Function to perform polynomial division returning quotient and remainder
+poly_div <- function(f, g) {
+  f_coef <- coef(f)
+  g_coef <- coef(g)
+  
+  # If degree of f < degree of g, quotient = 0, remainder = f
+  if (length(f_coef) < length(g_coef)) {
+    return(list(quotient = polynomial(0), remainder = f))
+  }
+  
+  q_coef <- rep(0, length(f_coef) - length(g_coef) + 1)
+  r_coef <- f_coef
+  deg_g <- length(g_coef) - 1
+  
+  for (i in seq_along(q_coef)) {
+    q_coef[i] <- r_coef[1]/g_coef[1]
+    for (j in seq_along(g_coef)) {
+      r_coef[j] <- r_coef[j] - q_coef[i] * g_coef[j]
+    }
+    r_coef <- r_coef[-1]
+  }
+  
+  q <- polynomial(q_coef)
+  r <- if (length(r_coef) == 0) polynomial(0) else polynomial(r_coef)
+  list(quotient = q, remainder = r)
+}
+
+# Construct the Sturm sequence
+sturm_sequence <- function(p) {
+  seq_list <- list(p, stats::deriv(p))
+  i <- 2
+  repeat {
+    division <- poly_div(seq_list[[i-1]], seq_list[[i]])
+    next_poly <- -division$remainder
+    if (all(coef(next_poly) == 0)) break
+    seq_list[[i+1]] <- next_poly
+    i <- i + 1
+  }
+  seq_list
+}
+
+# Sign changes count function
+sign_changes <- function(seq, x) {
+  vals <- sapply(seq, function(poly) predict(poly, x))
+  # Remove zero evaluations
+  vals <- vals[vals != 0]
+  if (length(vals) < 2) return(0)
+  sum(diff(sign(vals)) != 0)
+}
+
+# Counting number of real roots in an interval [a,b]
+real_roots_in_interval <- function(seq, a, b) {
+  sign_changes_a <- sign_changes(seq, a)
+  sign_changes_b <- sign_changes(seq, b)
+  sign_changes_a - sign_changes_b
+}
+
+# Compute Cauchy's bound
+cauchy_bound <- function(p) {
+  coefs <- coef(p)
+  # Leading coefficient (highest degree term)
+  a_n <- coefs[length(coefs)]
+  # Exclude the leading coefficient for computing the max ratio
+  other_coefs <- coefs[-length(coefs)]
+  M <- 1 + max(abs(other_coefs / a_n))
+  M
+}
+
+# Isolate and approximate the roots
+# We will scan the interval [-M, M] in smaller steps and find subintervals containing a single root
+isolate.real.roots <- function(polynomial, real.root_count) {
+  
+  all.roots <- solve(polynomial)
+  all.roots.im <- Im(all.roots)
+  
+  real.roots.im <- all.roots.im |>
+    abs() |>
+    sort() |>
+    utils::head(real.root_count)
+  
+  real.roots <- all.roots[which(abs(all.roots.im) %in% real.roots.im)] |>
+    Re()
+  
+  return(real.roots)
+  
+}
+
+# Alternative method to find real roots
+# Idea is to divide cauchy bounds up into little chunks, then use Sturm's Theorem
+# To find how many roots there are in that little interval. If it is non-zero, use 
+# uniroot() to locate the root.
+# isolate_and_find_roots <- function(seq, p, lower, upper, n_intervals = 1000) {
+#   xs <- seq(lower, upper, length.out = n_intervals + 1)
+#   found_roots <- numeric(0)
+#   for (i in seq_len(n_intervals)) {
+#     count <- real_roots_in_interval(seq, xs[i], xs[i+1])
+#     if (count == 1) {
+#       # Exactly one root in (xs[i], xs[i+1])
+#       # Use uniroot to find it
+#       root <- uniroot(function(x) predict(p, x), interval = c(xs[i], xs[i+1]))$root
+#       found_roots <- c(found_roots, root)
+#     }
+#   }
+#   unique(found_roots)
+# }

@@ -134,7 +134,7 @@ exactt <- function(model,
   
   X.assign <- attr(X, "assign")
   
-  summaryTableIvreg <- coef(ivregObject)
+  beta.hats <- coef(ivregObject)
   
   gaArgs <- list(seed = seed, ...)
   
@@ -207,7 +207,7 @@ exactt <- function(model,
     
     exacttIV <- !colnames(X)[i] %in% exogenous.var
     
-    beta_hat <- summaryTableIvreg[i]
+    beta.hats.i <- beta.hats[i]
     
     Y.temp <- as.matrix(Y.use)
     X1.temp <- X.use[,i, drop = FALSE]
@@ -304,13 +304,19 @@ exactt <- function(model,
     }
     
     if(exacttIV){
-      Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
+      if(ncol(X2.temp) == 0){
+        Q.Z.temp <- Z.temp
+      } else{
+        Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(nrow = nrow(Z.temp))
+      }
       
       Q.X1.Z.List[[colnames(X)[i]]] <- Q.Z.temp
     } else{
-      if(is.null(Q.X1)){
+      if(ncol(X2.temp) == 0){
+        Q.X1.temp <- X1.temp
+      } else if(is.null(Q.X1)){
         Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
                                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
           matrix(ncol = ncol(X1.temp))
@@ -335,7 +341,7 @@ exactt <- function(model,
     ci.lower.index <- min(which(pvals.df$pvals > alpha))
     ci.upper.index <- max(which(pvals.df$pvals > alpha))
     
-    summaryTableList[[i]] <- matrix(data = c(beta_hat,
+    summaryTableList[[i]] <- matrix(data = c(beta.hats.i,
                                              max(pvals.df$pvals[pvalBeta0.index]),
                                              pvals.df$beta0.start[ci.lower.index], 
                                              pvals.df$beta0.end[ci.upper.index]),
@@ -374,12 +380,17 @@ exactt <- function(model,
 #'
 #' @param model A formula specifying the model.
 #' @param data A data frame or matrix containing the variables used in the model.
+#' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
 #' @param variables Optional; a character vector of predictor names to test.
 #'        If NULL, all predictors in the model are tested.
+#' @param beta0 If 0, test whether the variables of interest are equal to the zero vector.
+#'        If NULL, creates a grid of beta0 values (for confidence intervals) and tests the variables of interest.
 #' @param nBlocks The number of blocks to use for block permutations.
 #' @param nPerms Optional; the number of permutations to perform.
 #'        If NULL or greater than the number of possible permutations, all permutations are used.
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
+#' @param optimize Logical indicating whether to optimize the ordering of the data.
+#' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -415,11 +426,14 @@ exactt <- function(model,
 #' @export
 exactt.wald <- function(model,
                         data,
+                        alpha = 0.05,
                         variables = NULL,
+                        beta0 = c(0, NULL),
                         nBlocks = 5,
                         nPerms = NULL,
                         studentize = TRUE,
-                        #seed = 31740,
+                        optimize = FALSE,
+                        seed = 31740,
                         ...) {
 
   call <- match.call(expand.dots = TRUE)
@@ -476,24 +490,25 @@ exactt.wald <- function(model,
   Y <- matrix(ivregObject$y)
   X <- ivregObject$x$regressors
 
-  Y.use <- Y#[1:n,, drop = FALSE]
-  X.use <- X#[1:n,, drop = FALSE]
+  Y.use <- Y
+  X.use <- X
 
   Z.var <- names(ivregObject$instruments)
 
   if(!is.null(Z.var)){
     IV <- TRUE
     Z <- ivregObject$x$instruments[,Z.var]
-    Z.use <- Z#[1:n,, drop = FALSE]
+    Z.use <- Z
   } else{
     IV <- FALSE
   }
 
   X.assign <- attr(X, "assign")
 
-  summaryTableIvreg <- coef(ivregObject)
-
-  #gaArgs <- list(seed = seed, ...)
+  beta.hats <- coef(ivregObject)
+  se <- sqrt(diag(ivregObject$cov.unscaled * ivregObject$sigma^2))
+  
+  gaArgs <- list(seed = seed, ...)
 
   if(is.null(variables)){
     variables <- X.assign[which(X.assign != 0)]
@@ -514,154 +529,218 @@ exactt.wald <- function(model,
 
   GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
 
-  
-  #if(optimize){
-  #  cli::cli_warn("Optimizing the ordering of the data is not yet supported for the Exact Wald-test.")
-  #}
-  # if(optimize){ # Case 1: don't optimize
-  #   if("type" %in% names(gaArgs)){
-  #     cli::cli_warn("Custom 'type' value is ignored in this function.")
-  #     gaArgs$type <- NULL
-  #   }
-  #   if("fitness" %in% names(gaArgs)){
-  #     cli::cli_warn("Custom 'fitness' value is ignored in this function.")
-  #     gaArgs$fitness <- NULL
-  #   }
-  #   if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
-  #     cli::cli_warn("Custom 'lower' and 'upper' values are ignored in this function.")
-  #     gaArgs$lower <- NULL
-  #     gaArgs$upper <- NULL
-  #   }
-  #   if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
-  #     cli::cli_warn("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
-  #   }
-  # 
-  #   gaArgs$type <- "permutation"
-  #   gaArgs$fitness <- function(permutation){ fitness_function(permutation = permutation,
-  #                                                             X1.temp = X1.temp,
-  #                                                             X2.temp = X2.temp,
-  #                                                             Z.temp = Z.temp,
-  #                                                             blockIndexMatrix = blockIndexMatrix,
-  #                                                             GX.indices = GX.indices,
-  #                                                             permIndices = permIndices) }
-  #   gaArgs$lower <- rep(1, data.n)
-  #   gaArgs$upper <- rep(data.n, data.n)
-  #   gaArgs$crossover = "gaperm_oxCrossover_R"
-  # }
+  if(optimize){ # Case 1: don't optimize
+    if("type" %in% names(gaArgs)){
+      cli::cli_warn("Custom 'type' value is ignored in this function.")
+      gaArgs$type <- NULL
+    }
+    if("fitness" %in% names(gaArgs)){
+      cli::cli_warn("Custom 'fitness' value is ignored in this function.")
+      gaArgs$fitness <- NULL
+    }
+    if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
+      cli::cli_warn("Custom 'lower' and 'upper' values are ignored in this function.")
+      gaArgs$lower <- NULL
+      gaArgs$upper <- NULL
+    }
+    if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
+      cli::cli_warn("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
+    }
+
+    gaArgs$type <- "permutation"
+    gaArgs$fitness <- function(permutation){ fitness_function(permutation = permutation,
+                                                              X1.temp = X1.temp,
+                                                              X2.temp = X2.temp,
+                                                              Z.temp = Z.temp,
+                                                              blockIndexMatrix = blockIndexMatrix,
+                                                              GX.indices = GX.indices,
+                                                              permIndices = permIndices) }
+    gaArgs$lower <- rep(1, data.n)
+    gaArgs$upper <- rep(data.n, data.n)
+    gaArgs$crossover = "gaperm_oxCrossover_R"
+  }
 
   summaryTableList <- vector("list")
   detailedList <- vector("list")
-  #gaResultsList <- vector("list")
-
-  #for(i in seq_along(attr(X, "assign"))){
-
-   # if(assign[i] == 0 | !assign[i] %in% variables){
-   #   next
-   # }
-
-    i <- which(X.assign %in% variables)
-    
-    # Change this to be based on the formula, if they include another |
-    exacttIV <- any(!colnames(X)[i] %in% exogenous.var)
+  gaResultsList <- vector("list")
+  Q.X1.Z.List <- vector("list")
   
-    beta_hat <- summaryTableIvreg[i]
+  i <- which(X.assign %in% variables)
+  
+  # Change this to be based on the formula, if they include another |
+  exacttIV <- any(!colnames(X)[i] %in% exogenous.var)
 
-    Y.temp <- as.matrix(Y.use)
-    X1.temp <- X.use[,i, drop = FALSE]
-    X2.temp <- X.use[,-i, drop = FALSE]
+  beta.hats.i <- beta.hats[i]
+  se.i <- se[i]
+  
+  if(is.null(beta0)){
+    beta0 <- lapply(1:length(beta.hats.i),
+                        function(x){
+                          precisionToUse <- ifelse(se.i[x] > 0, 
+                                                   yes = floor(log(se.i[x], base = 10)) - 1, 
+                                                   no = -1)
+                          
+                          return(round(beta.hats.i[x], 
+                                       -precisionToUse) + 
+                                   seq(-30*(10^(precisionToUse+1)), 
+                                       30*(10^(precisionToUse+1)), 
+                                       10^precisionToUse)
+                                 )
+                        })
+    
+    names(beta0) <- names(beta.hats.i)
+    
+    beta0 <- do.call('expand.grid', beta0) |>
+      rbind(0)
+  } else if(beta0 == 0){
+    beta0 <- matrix(0, 
+                        nrow = 1, 
+                        ncol = length(beta.hats.i),
+                        dimnames = list(NULL, names(beta.hats.i))) |>
+      data.frame()
+  } else{
+    cli::cli_abort("The `beta0` parameter currently only supports '0' or 'NULL'.")
+  }
+  
+  Y.temp <- as.matrix(Y.use)
+  X1.temp <- X.use[,i, drop = FALSE]
+  X2.temp <- X.use[,-i, drop = FALSE]
 
-    if(exacttIV){
-      Z.temp <- Z.use
+  if(exacttIV){
+    Z.temp <- Z.use
+  }
+
+  if(optimize){
+    
+    X1.temp <- scale(X1.temp, center = FALSE, scale = TRUE)
+
+    if(!exacttIV){
+      Z.temp <- NULL
     }
 
-    # if(optimize){
-    # 
-    #   if(!exacttIV){
-    #     Z.temp <- NULL
-    #   }
-    # 
-    #   if(!is.null(gaArgs$parallel) && gaArgs$parallel == TRUE){
-    # 
-    #     ogParArg <- gaArgs$parallel
-    # 
-    #     if(gaArgs$parallel == TRUE){
-    #       numCores <- parallel::detectCores()
-    #     } else if(is.numeric(gaArgs$parallel) && gaArgs$parallel >= 2){
-    #       numCores <- gaArgs$parallel
-    #     }
-    # 
-    #     # Create the appropriate cluster
-    #     if (.Platform$OS.type == "windows") {
-    #       # Use socket cluster on Windows or if forking is not desired
-    #       cl <- parallel::makeCluster(numCores, type = "PSOCK")
-    # 
-    #       # Export variables and functions only if using a socket cluster
-    #       parallel::clusterExport(cl, varlist = c("X1.temp",
-    #                                               "X2.temp",
-    #                                               "Z.temp",
-    #                                               "blockIndexMatrix",
-    #                                               "permIndices",
-    #                                               "GX.indices",
-    #                                               "blockPermutations",
-    #                                               "n",
-    #                                               "fitness_function",
-    #                                               "build_GX",
-    #                                               "build_GX.indices",
-    #                                               "block_permute"),
-    #                               envir = environment())
-    #       parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
-    #       parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
-    #       parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
-    #       parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
-    #     } else {
-    #       # Unix-based system and forking is enabled
-    #       cl <- parallel::makeCluster(numCores, type = "FORK")
-    #     }
-    # 
-    #     # Register the parallel backend
-    #     doParallel::registerDoParallel(cl, cores = numCores)
-    # 
-    #     gaArgs$parallel <- cl
-    #   } else{
-    #     ogParArg <- FALSE
-    #   }
-    # 
-    #   cli::cli_alert_success("Optimizing ordering for Wald test.")
-    #   gaResults <- do.call(GA::ga, gaArgs)
-    # 
-    #   # Close cluster if parallel is true
-    #   if(!is.null(gaArgs$parallel) && ogParArg != FALSE){
-    #     parallel::stopCluster(cl)
-    #     gaArgs$parallel <- ogParArg
-    #   }
-    # 
-    #   Y.temp <- Y.temp[gaResults@solution[1,],, drop = FALSE]
-    #   X1.temp <- X1.temp[gaResults@solution[1,],, drop = FALSE]
-    #   X2.temp <- X2.temp[gaResults@solution[1,],, drop = FALSE]
-    # 
-    #   if(exacttIV){
-    #     Z.temp <- Z.temp[gaResults@solution[1,],, drop = FALSE]
-    #   }
-    # }
+    if(!is.null(gaArgs$parallel) && gaArgs$parallel == TRUE){
+
+      ogParArg <- gaArgs$parallel
+
+      if(gaArgs$parallel == TRUE){
+        numCores <- parallel::detectCores()
+      } else if(is.numeric(gaArgs$parallel) && gaArgs$parallel >= 2){
+        numCores <- gaArgs$parallel
+      }
+
+      # Create the appropriate cluster
+      if (.Platform$OS.type == "windows") {
+        # Use socket cluster on Windows or if forking is not desired
+        cl <- parallel::makeCluster(numCores, type = "PSOCK")
+
+        # Export variables and functions only if using a socket cluster
+        parallel::clusterExport(cl, varlist = c("X1.temp",
+                                                "X2.temp",
+                                                "Z.temp",
+                                                "blockIndexMatrix",
+                                                "permIndices",
+                                                "GX.indices",
+                                                "blockPermutations",
+                                                "n",
+                                                "fitness_function",
+                                                "build_GX",
+                                                "build_GX.indices",
+                                                "block_permute"),
+                                envir = environment())
+        parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
+        parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
+        parallel::clusterCall(cl, library, package = "combinat", character.only = TRUE)
+        parallel::clusterCall(cl, library, package = "dplyr", character.only = TRUE)
+      } else {
+        # Unix-based system and forking is enabled
+        cl <- parallel::makeCluster(numCores, type = "FORK")
+      }
+
+      # Register the parallel backend
+      doParallel::registerDoParallel(cl, cores = numCores)
+
+      gaArgs$parallel <- cl
+    } else{
+      ogParArg <- FALSE
+    }
+
+    cli::cli_alert_success("Optimizing ordering for Wald test.")
+    gaResults <- do.call(GA::ga, gaArgs)
+
+    # Close cluster if parallel is true
+    if(!is.null(gaArgs$parallel) && ogParArg != FALSE){
+      parallel::stopCluster(cl)
+      gaArgs$parallel <- ogParArg
+    }
+
+    Y.temp <- Y.temp[gaResults@solution[1,],, drop = FALSE]
+    X1.temp <- X.use[,i, drop = FALSE][gaResults@solution[1,],, drop = FALSE]
+    X2.temp <- X2.temp[gaResults@solution[1,],, drop = FALSE]
 
     if(exacttIV){
+      Z.temp <- Z.temp[gaResults@solution[1,],, drop = FALSE]
+    }
+  }
+
+  if(exacttIV){
+    if(ncol(X2.temp) == 0){
+      Q.Z.temp <- Z.temp
+    } else{ 
       Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(nrow = nrow(Z.temp))
+    }
+    
+    Q.X1.Z.List <- Q.Z.temp
+  } else{
+    if(ncol(X2.temp) == 0){
+      Q.X1.temp <- X1.temp
     } else{
       Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices),
                              model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
         matrix(ncol = ncol(X1.temp))
     }
-
-    pval <- exactt.pval.wald(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize)
     
-    # if(exacttIV){
-    #   pvals.df <- exactt.pval.wald.iv(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.Z.temp, studentize)
-    # } else{
-    #   pvals.df <- exactt.pval.wald.reg(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize)
-    # }
+    Q.X1.Z.List <- Q.X1.temp
+  }
 
-  return(pval)
+  p.values <- exactt.pval.wald(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, beta.null.matrix = beta0)
+  
+  for(x in seq_along(i)){
+    
+    temp.p.value.lower <- tryCatch(min(subset(p.values, p.values$p.value > alpha)[,x]),
+                                   warning = function(w) -Inf)
+    
+    temp.p.value.upper <- tryCatch(max(subset(p.values, p.values$p.value > alpha)[,x]),
+                                   warning = function(w) Inf)
+    
+    summaryTableList[[x]] <- matrix(data = c(beta.hats.i[x], temp.p.value.lower, temp.p.value.upper),
+                                    nrow = 1, 
+                                    ncol = 3, 
+                                    dimnames = list(names(beta.hats.i)[x], 
+                                                    c("Estimate",
+                                                      "Lower Bound",
+                                                      "Upper Bound"))
+                                    )
+  }
+  
+  result <- structure(list(call = call,
+                           summary = do.call('rbind', summaryTableList),
+                           detailed = p.values,
+                           gaResults = gaResultsList,
+                           ivregResults = ivregObject),
+                      class = "exactt.wald")
+  
+  if(length(gaResultsList) > 0){
+    result$gaResults <- gaResultsList
+  } 
+  
+  if(exacttIV){
+    result$Q.Z <- Q.X1.Z.List
+  } else{
+    result$Q.X1 <- Q.X1.Z.List
+  }
+  
+  return(result)
 }
 

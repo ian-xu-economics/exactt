@@ -27,73 +27,75 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep
   permIndices.use <- permIndices[1:n,, drop = FALSE]
 
   X1.temp.permuted <- X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
-  # Don't want to store X2.temp.permuted for RAM
-  # X2.temp.permuted <- X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
   
-  if(is.null(Z.temp) && ncol(X1.temp) == 1){
-    gFF <- stats::lm(X1.temp.permuted ~ 
-                       0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
-                                    GX.indices.use,
-                                    indep.X2.index),
-                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-      matrix(nrow = 1) %*%
-      matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
-      as.numeric()
-
+  if(is.null(Z.temp)){
+    Z.temp.permuted <- X1.temp.permuted
   } else{
-    #if(!is.null(Z.temp)){
-      # Don't want to store Z.temp.permuted for RAM
-      # Z.temp.permuted <- Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
-      
-      gFF <- lm(Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
-                  0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
-                               GX.indices.use),
-                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-        matrix(ncol = ncol(Z.temp)) |>
-        t() %*%
-        matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
-        apply(MARGIN = 2,
-              function(x){
-                sum(x^2)
-              })
-    #} else{
-      #gFF <- lm(X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
-      #            0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
-      #                         GX.indices.use),
-      #          model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-      #  matrix(ncol = ncol(X1.temp)) |>
-      #  t() %*%
-      #  matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
-      #  apply(MARGIN = 2,
-      #        function(x){
-      #          sum(x^2)
-      #        })
-      
-      
-      # conics <- lm(X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE] ~ 
-      #      0 + build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
-      #                   GX.indices.use),
-      #    model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-      #   matrix(ncol = ncol(X1.temp)) |>
-      #   t() %*%
-      #   matrix(X1.temp.permuted[permIndices.use,], nrow = n) |>
-      #   array(dim = c(ncol(X1.temp), ncol(X1.temp), 120)) |>
-      #   apply(MARGIN = 3,
-      #         function(x){
-      #           t(x) %*% x
-      #         },
-      #         simplify = FALSE) |>
-      #   simplify2array()
-      # 
-      # return(apply(conics[,,-1],
-      #              MARGIN = 3,
-      #              function(x){
-      #                eigen(conics[,,1] - x)$values > 0
-      #              }) |>
-      #          sum())
-    
-    #}
+    Z.temp.permuted <- Z.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
   }
   
-  return(gFF[1] - mean(gFF[-1]))
+  if(ncol(X1.temp.permuted) == 1){
+    if(ncol(X2.temp) == 0){
+      gFF <- matrix(Z.temp.permuted, nrow = 1) %*%
+        matrix(X1.temp.permuted[permIndices.use,], nrow = n)
+    } else{
+      gFF <- stats::lm(Z.temp.permuted ~ 0 + 
+                         build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+                                  GX.indices.use,
+                                  indep.X2.index),
+                       model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+        matrix(ncol = nrow(Z.temp.permuted), byrow = TRUE) %*%
+        matrix(X1.temp.permuted[permIndices.use,], nrow = n)
+    }
+    
+    if(nrow(gFF) != 1){
+      gFF <- apply(gFF,
+                   MARGIN = 2,
+                   function(x){
+                     crossprod(x)
+                   })
+    } else{
+      gFF <- as.numeric(gFF)
+    }
+    
+    return(gFF[1] - mean(gFF[-1]))
+  } else{
+    if(ncol(X2.temp) == 0){
+      gFF <- apply(permIndices.use,
+                   MARGIN = 2,
+                   FUN = function(x){
+                     t(Z.temp.permuted) %*%
+                       X1.temp.permuted[x,, drop = FALSE]
+                   },
+                   simplify = FALSE) |>
+        simplify2array()
+    } else{
+      gFF <- apply(permIndices.use,
+                   MARGIN = 2,
+                   FUN = function(x){
+                     stats::lm(Z.temp.permuted ~ 0 + 
+                                 build_GX(X2.temp[permutation,, drop = FALSE][1:n,, drop = FALSE], 
+                                          GX.indices.use,
+                                          indep.X2.index),
+                               model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+                       t() %*%
+                       X1.temp.permuted[x,, drop = FALSE]
+                   },
+                   simplify = FALSE) |>
+        simplify2array()
+    }
+    
+    gFF.eigenvalues <- apply(gFF,
+                             MARGIN = 3,
+                             function(x){
+                               eigen(crossprod(x))$values
+                             }) 
+    
+    if(!is.matrix(gFF.eigenvalues)){
+      gFF.eigenvalues <- matrix(gFF.eigenvalues, nrow = 1)
+    }
+    
+    # L2 norm of [Xi - mean(Xi)] across i
+    return(sqrt(sum((gFF.eigenvalues[,1] - apply(gFF.eigenvalues, MARGIN = 1, mean))^2)))
+  }
 }
