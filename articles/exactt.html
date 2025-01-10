@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
       </span>
     </div>
 
@@ -87,10 +87,10 @@ confidence interval.</p>
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be
-installed using the <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> function:</p>
+installed using the <code>remotes::install_github()</code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
@@ -108,7 +108,7 @@ and the BibTeX entry for referencing:</p>
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 3.2.2</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'exactt' | Version 4.0.0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -158,10 +158,11 @@ parameters, then by default:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.1</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Exact t-Test (Marginally Valid Tests)</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  P-value  Lower Bound  Upper Bound</span></span>
@@ -184,10 +185,11 @@ set <code>variables = 1</code> for <code>dose</code>, and set
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.2</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Exact t-Test (Marginally Valid Tests)</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1, variables = 1)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  P-value  Lower Bound  Upper Bound</span></span>
@@ -214,10 +216,11 @@ categorical variable to explore its discrete impact on tooth length:</p>
 <span></span>
 <span><span class="va">exactt.3</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Exact t-Test (Marginally Valid Tests)</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate  P-value  Lower Bound  Upper Bound</span></span>
@@ -268,11 +271,12 @@ with <code>seed</code> for reproducibility:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exactt.4</span>, digits <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Exact t-Test (Marginally Valid Tests)</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, </span></span>
 <span><span class="co">#&gt;     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = FALSE, </span></span>
 <span><span class="co">#&gt;     maxiter = 5)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate    P-value  Lower Bound  Upper Bound</span></span>
@@ -341,12 +345,13 @@ to enhance statistical power.</p>
 <span></span>
 <span><span class="va">exactt.iv</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Exact t-Test (Marginally Valid Tests)</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Call:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>exactt(model = lwage ~ educ + exper + expersq | exper + expersq + </span></span>
 <span><span class="co">#&gt;     motheduc + fatheduc, data = wooldridge::mroz, variables = 1, </span></span>
 <span><span class="co">#&gt;     optimize = TRUE, seed = 31740, parallel = FALSE, maxiter = 10, </span></span>
 <span><span class="co">#&gt;     monitor = TRUE)</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  P-value  Lower Bound  Upper Bound</span></span>
