@@ -69,6 +69,7 @@ exactt <- function(model,
   
   # Evaluate the arguments
   call$alpha <- eval(call$alpha, envir = parent.frame())
+  call$model <- eval(call$model, envir = parent.frame())
   
   ####### Do checks #######
   
@@ -80,7 +81,7 @@ exactt <- function(model,
   }
   
   if(!is.numeric(alpha) || length(alpha) != 1 || alpha <= 0 || alpha >= 1){
-    stop("The 'alpha' parameter must be provided.")
+    stop("The 'alpha' parameter must be numeric, have length one, and between 0 and 1.")
   }
   
   ivregObject <- ivreg::ivreg(model,
@@ -456,7 +457,7 @@ exactt.wald <- function(model,
   }
   
   if(!is.numeric(alpha) || length(alpha) != 1 || alpha <= 0 || alpha >= 1){
-    stop("The 'alpha' parameter must be provided.")
+    stop("The 'alpha' parameter must be numeric, have length one, and between 0 and 1.")
   }
 
   ivregObject <- ivreg::ivreg(model,
