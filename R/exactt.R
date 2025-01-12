@@ -79,6 +79,10 @@ exactt <- function(model,
     stop("The 'model' parameter must be a formula with a LHS.")
   }
   
+  if(!is.numeric(alpha) || length(alpha) != 1 || alpha <= 0 || alpha >= 1){
+    stop("The 'alpha' parameter must be provided.")
+  }
+  
   ivregObject <- ivreg::ivreg(model,
                               data = data,
                               model = TRUE,
@@ -440,7 +444,8 @@ exactt.wald <- function(model,
 
   # Evaluate the arguments
   call$alpha <- eval(call$alpha, envir = parent.frame())
-
+  call$model <- eval(call$model, envir = parent.frame())
+  
   ####### Do checks #######
 
   # Check if `model` provided and is formula with LHS
@@ -448,6 +453,10 @@ exactt.wald <- function(model,
     stop("The 'model' parameter must be provided.")
   } else if(!rlang::is_formula(model, lhs = TRUE)){
     stop("The 'model' parameter must be a formula with a LHS.")
+  }
+  
+  if(!is.numeric(alpha) || length(alpha) != 1 || alpha <= 0 || alpha >= 1){
+    stop("The 'alpha' parameter must be provided.")
   }
 
   ivregObject <- ivreg::ivreg(model,
