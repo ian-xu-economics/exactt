@@ -18,6 +18,7 @@ exactt(
   seed = 31740,
   denominator = "GX1",
   Q.X1 = NULL,
+  root.tolerance = 1e-09,
   ...
 )
 }
@@ -50,6 +51,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{denominator}{Character argument indicating how to calculate epsilon hat.}
 
 \item{Q.X1}{Use custom QX1 value.}
+
+\item{root.tolerance}{Tolerance for determining real and extraneous roots (when denominator = "X1" or "noX1").}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

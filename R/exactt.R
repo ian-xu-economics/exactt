@@ -22,6 +22,7 @@
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
 #' @param Q.X1 Use custom QX1 value.
+#' @param root.tolerance Tolerance for determining real and extraneous roots (when denominator = "X1" or "noX1").
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -334,7 +335,7 @@ exactt <- function(model,
     }
     
     if(exacttIV){
-      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize, root.tolerance)
+      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize)
     } else{
       pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator, root.tolerance)
     }

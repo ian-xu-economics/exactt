@@ -10,6 +10,7 @@
 #' @param studentize A boolean indicating whether to studentize the randomization statistics
 #' @param side A character to indicate the side of the test.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
+#' @param root.tolerance Tolerance for determining real and extraneous roots (when denominator = "X1" or "noX1").
 #'
 #' @importFrom polynom polynomial
 #' @importFrom stats predict coefficients lm

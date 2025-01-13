@@ -14,7 +14,8 @@ exactt.pval.new.reg(
   Q.X1.temp,
   studentize,
   side,
-  denominator
+  denominator,
+  root.tolerance
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ exactt.pval.new.reg(
 \item{side}{A character to indicate the side of the test.}
 
 \item{denominator}{Character argument indicating how to calculate epsilon hat.}
+
+\item{root.tolerance}{Tolerance for determining real and extraneous roots (when denominator = "X1" or "noX1").}
 }
 \description{
 Calculate p-values for two sided case.
