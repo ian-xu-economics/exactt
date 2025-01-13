@@ -63,6 +63,7 @@ exactt <- function(model,
                    seed = 31740,
                    denominator = "GX1",
                    Q.X1 = NULL,
+                   root.tolerance = 1e-9,
                    ...) {
   
   call <- match.call(expand.dots = TRUE)
@@ -333,9 +334,9 @@ exactt <- function(model,
     }
     
     if(exacttIV){
-      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize)
+      pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize, root.tolerance)
     } else{
-      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator)
+      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator, root.tolerance)
     }
     
     attr(pvals.df, "assign") = X.assign[i]

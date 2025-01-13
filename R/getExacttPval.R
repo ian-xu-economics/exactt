@@ -14,7 +14,7 @@
 #' @importFrom polynom polynomial
 #' @importFrom stats predict coefficients lm
 #' @importFrom cli cli_abort
-exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side, denominator){
+exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side, denominator, root.tolerance){
   
   n <- nrow(Y.temp)
   
@@ -168,7 +168,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                              return(check.roots.1)
                            } else{
                              check.roots.2 <- check.roots.1[abs(stats::predict(t.num.polynomials[[1]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], check.roots.1)) -
-                                                                   stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-10]
+                                                                   stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < root.tolerance]
                            
                              return(check.roots.2)
                            }
@@ -307,7 +307,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                return(check.roots.1)
                              } else{
                                check.roots.2 <- check.roots.1[abs(stats::predict(t.num.polynomials[[1]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], check.roots.1)) -
-                                                                    stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-9]
+                                                                    stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < root.tolerance]
                                
                                return(check.roots.2)
                              }
