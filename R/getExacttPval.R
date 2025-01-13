@@ -307,7 +307,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                return(check.roots.1)
                              } else{
                                check.roots.2 <- check.roots.1[abs(stats::predict(t.num.polynomials[[1]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1]], check.roots.1)) -
-                                                                    stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-10]
+                                                                    stats::predict(t.num.polynomials[[1+x]], check.roots.1) / sqrt(stats::predict(sigma.hat.sq.polynomials[[1+x]], check.roots.1))) < 1e-9]
                                
                                return(check.roots.2)
                              }
@@ -701,10 +701,8 @@ pvalCalculator.V2 <- function(line.data.final, line.data, nPerms){
                      x[2] <- x[1] + 1 
                    }
                    
-                   count <- sum(line.data$test.stat.smaller[
-                     line.data$beta0.start < mean(x) & 
-                       line.data$beta0.end > mean(x)
-                   ])
+                   count <- sum(line.data$test.stat.smaller[line.data$beta0.start < mean(x) & 
+                                                              line.data$beta0.end > mean(x)])
                    
                    pvalues <- (count+1)/nPerms
                    return(pvalues)
