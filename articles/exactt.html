@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">exactt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.3</span>
       </span>
     </div>
 
@@ -87,10 +87,10 @@ confidence interval.</p>
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The <code>exactt</code> package is hosted on GitHub at <a href="https://github.com/ian-xu-economics/exactt/" class="external-link uri">https://github.com/ian-xu-economics/exactt/</a>. It can be
-installed using the <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> function:</p>
+installed using the <code>remotes::install_github()</code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ian-xu-economics/exactt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
@@ -107,8 +107,7 @@ and the BibTeX entry for referencing:</p>
 <p>After installing <code>exactt</code>, we can attach the package to
 our session using the base <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Package 'exactt' | Version 4.0.2</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ian-xu-economics/exactt" class="external-link">"exactt"</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-usage-regular-case">Example Usage: Regular Case<a class="anchor" aria-label="anchor" href="#example-usage-regular-case"></a>
@@ -166,8 +165,8 @@ parameters, then by default:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>        Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; dose      9.7636  0.07500       3.3177      16.0120</span></span>
-<span><span class="co">#&gt; suppVC   -3.7000  0.26667     -10.9840       7.6065</span></span></code></pre></div>
+<span><span class="co">#&gt; dose     9.76357  0.07500      3.31768     16.01241</span></span>
+<span><span class="co">#&gt; suppVC  -3.70000  0.26667    -10.98448      7.60653</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="focusing-on-specific-variables">Focusing on Specific Variables<a class="anchor" aria-label="anchor" href="#focusing-on-specific-variables"></a>
@@ -193,7 +192,7 @@ set <code>variables = 1</code> for <code>dose</code>, and set
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; dose    9.7636    0.075       3.3177       16.012</span></span></code></pre></div>
+<span><span class="co">#&gt; dose   9.76357    0.075      3.31768     16.01241</span></span></code></pre></div>
 <p>This creates a 90% confidence interval for <code>dose</code> only. It
 is equivalent to the case where <code>variables = NULL</code> (all
 variables are of interest) because these confidence intervals are
@@ -224,9 +223,9 @@ categorical variable to explore its discrete impact on tooth length:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; as.factor(dose)1      9.13   0.0750         -Inf          Inf</span></span>
-<span><span class="co">#&gt; as.factor(dose)2     15.50   0.2167          -64        29.71</span></span>
-<span><span class="co">#&gt; suppVC               -3.70   0.9500         -Inf          Inf</span></span></code></pre></div>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.07500         -Inf          Inf</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.21667          -64     29.71429</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.95000         -Inf          Inf</span></span></code></pre></div>
 <p>The 90% confidence intervals when <code>dose</code> equals “2” and
 <code>supp</code> equals “VC” is not informative due to suboptimal data
 ordering, which can diminish the statistical power of the test. This
@@ -279,10 +278,10 @@ with <code>seed</code> for reproducibility:</p>
 <span><span class="co">#&gt;     maxiter = 5)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate    P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; as.factor(dose)1     9.130  0.0083333       4.4410      12.0620</span></span>
-<span><span class="co">#&gt; as.factor(dose)2    15.495  0.0083333      14.3080      16.9730</span></span>
-<span><span class="co">#&gt; suppVC              -3.700  0.0166670      -6.6167      -3.5955</span></span></code></pre></div>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>                  Estimate  P-value  Lower Bound  Upper Bound</span></span>
+<span><span class="co">#&gt; as.factor(dose)1     9.130  0.00833      4.44096     12.06245</span></span>
+<span><span class="co">#&gt; as.factor(dose)2    15.495  0.00833     14.30794     16.97312</span></span>
+<span><span class="co">#&gt; suppVC              -3.700  0.01667     -6.61671     -3.59551</span></span></code></pre></div>
 <p>Note that by optimizing the data ordering, <code><a href="../reference/exactt.html">exactt()</a></code> is
 now able to construct informative 90% confidence intervals for each
 category of <code>dose</code> and <code>supp</code> when they equal “2”
@@ -355,7 +354,7 @@ to enhance statistical power.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; Summary:</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>      Estimate  P-value  Lower Bound  Upper Bound</span></span>
-<span><span class="co">#&gt; educ    0.0614   0.1833     -0.04061       0.1368</span></span></code></pre></div>
+<span><span class="co">#&gt; educ    0.0614  0.18333     -0.04061      0.13679</span></span></code></pre></div>
 </div>
   </div>
 
