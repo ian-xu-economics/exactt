@@ -1,7 +1,7 @@
 Package: exactt
 Type: Package
 Title: Implement the Exact t-Test
-Version: 4.0.2
+Version: 4.0.3
 Authors@R: c(
     person(given   = "Guillaume",
            family  = "Pouliot",
@@ -38,6 +38,7 @@ Imports:
     ivreg,
     Matrix,
     MASS,
+    methods,
     parallel,
     polynom,
     rlang,

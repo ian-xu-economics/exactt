@@ -4,7 +4,7 @@
 \alias{print.exactt}
 \title{Print Method for Objects of Class 'exactt'}
 \usage{
-\method{print}{exactt}(x, digits = 4, ...)
+\method{print}{exactt}(x, digits = 5, ...)
 }
 \arguments{
 \item{x}{An object of class 'exactt', typically containing at least a 'call' and a 'summary' component.

@@ -47,7 +47,10 @@ startupMessage <- function(){
 #' @param pkg The package name.
 #' @noRd
 .onAttach <- function(lib, pkg) {
-  packageStartupMessage(startupMessage())
+  # Only show startup message in truly interactive sessions (i.e. not during R CMD check)
+  if (interactive() && Sys.getenv("R_TESTS") == "") {
+    packageStartupMessage(startupMessage())
+  }
 }
 
 

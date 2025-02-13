@@ -17,7 +17,7 @@
 #'
 #' @method print exactt
 #' @export
-print.exactt = function(x, digits = 4, ...){
+print.exactt = function(x, digits = 5, ...){
   
   dots <- list(...)
   
@@ -28,7 +28,7 @@ print.exactt = function(x, digits = 4, ...){
         paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n", sep = "")
   }
   cat(cli::style_bold(cli::col_blue("\nSummary:\n")))
-  print.default(signif(x$summary, digits),
+  print.default(round(x$summary, digits),
                 print.gap = 2L, quote = FALSE)
 }
 

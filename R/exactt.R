@@ -72,6 +72,7 @@ exactt <- function(model,
   # Evaluate the arguments
   call$alpha <- eval(call$alpha, envir = parent.frame())
   call$model <- eval(call$model, envir = parent.frame())
+  call$side <- eval(call$side, envir = parent.frame())
   
   ####### Do checks #######
   
@@ -164,7 +165,9 @@ exactt <- function(model,
                            c(blockIndexMatrix[, x], n.remainder.indices)
                          })
   } else{
-    permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
+    permIndices <- cbind(1:n, 
+                         unique(replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])),
+                                MARGIN = 2))
   }
   
   GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
@@ -203,6 +206,7 @@ exactt <- function(model,
   
   summaryTableList <- vector("list")
   detailedList <- vector("list")
+  geometryList <- vector("list")
   gaResultsList <- vector("list")
   Q.X1.Z.List <- vector("list")
   
@@ -328,7 +332,7 @@ exactt <- function(model,
                                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
           matrix(ncol = ncol(X1.temp))
       } else{
-        Q.X1.temp <- Q.X1
+        Q.X1.temp <- matrix(Q.X1)
       }
       
       Q.X1.Z.List[[colnames(X)[i]]] <- Q.X1.temp
@@ -337,7 +341,11 @@ exactt <- function(model,
     if(exacttIV){
       pvals.df <- exactt.pval.new.iv(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize)
     } else{
-      pvals.df <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator, root.tolerance)
+      exactt.pval.reg <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator, root.tolerance)
+      
+      pvals.df <- exactt.pval.reg$pvals.df
+      geometryList[[colnames(X)[i]]] <- list(line.data.num = exactt.pval.reg$line.data.num,
+                                             line.data.denom.sq = exactt.pval.reg$line.data.denom.sq)
     }
     
     attr(pvals.df, "assign") = X.assign[i]
@@ -358,8 +366,7 @@ exactt <- function(model,
                                                     c("Estimate", 
                                                       "P-value",
                                                       "Lower Bound",
-                                                      "Upper Bound")
-                                                    )
+                                                      "Upper Bound"))
                                     )
   }
 
@@ -367,7 +374,8 @@ exactt <- function(model,
                            summary = do.call('rbind', summaryTableList),
                            detailed = detailedList,
                            gaResults = gaResultsList,
-                           ivregResults = ivregObject),
+                           ivregResults = ivregObject,
+                           geometry = geometryList),
                       class = "exactt")
   
   if(length(gaResultsList) > 0){
@@ -536,7 +544,9 @@ exactt.wald <- function(model,
                            c(blockIndexMatrix[, x], n.remainder.indices)
                          })
   } else{
-    permIndices <- cbind(1:n, replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])))
+    permIndices <- cbind(1:n, 
+                         unique(replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])),
+                                MARGIN = 2))
   }
 
   GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)

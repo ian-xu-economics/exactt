@@ -24,14 +24,14 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
     if(studentize == TRUE){
       if(ncol(X2.temp) == 0){
         sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
-                            matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                            matrix(stats::lm(matrix(Y.temp[c(permIndices)], ncol = ncol(permIndices)) ~ 
                                                build_GX(X1.temp, GX.indices),
                                              model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                    ncol = ncol(permIndices))^2)
       } else{
         # 1 x nPerms matrix
         sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
-                            matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+                            matrix(stats::lm(matrix(Y.temp[c(permIndices)], ncol = ncol(permIndices)) ~ 
                                                build_GX(X1.temp, GX.indices) + build_GX(X2.temp, GX.indices, indep.X2.index),
                                              model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                    ncol = ncol(permIndices))^2)
@@ -39,20 +39,23 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
     } else{
       sigma.hat <- 1
     }
-  
-    m <- -c(t(Q.X1.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices))/sigma.hat)
-    b <- c(t(Q.X1.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices))/sigma.hat)
+    
+    line.data.num <- data.frame(b = as.numeric(t(Q.X1.temp) %*% matrix(Y.temp[c(permIndices)], ncol = ncol(permIndices))/sigma.hat),
+                                m = as.numeric(-t(Q.X1.temp) %*% matrix(X1.temp[permIndices,], ncol = ncol(permIndices))/sigma.hat))
+    
+    sigma.hat.sq.polynomials <- NULL
     
     if(side == "both"){
-      line.data <- data.frame(a = abs(m[-1]), h = b[-1]/m[-1])
+      line.data <- data.frame(a = abs(line.data.num$m[-1]), 
+                              h = line.data.num$b[-1]/line.data.num$m[-1])
       
-      a.identity <- abs(m[1])
-      h.identity <- b[1]/m[1]
+      a.identity <- abs(line.data.num$m[1])
+      h.identity <- line.data.num$b[1]/line.data.num$m[1]
     } else{
-      line.data <- data.frame(m = m[-1], b = b[-1])
+      line.data <- data.frame(m = line.data.num$m[-1], b = line.data.num$b[-1])
       
-      m.identity <- m[1]
-      b.identity <- b[1]
+      m.identity <- line.data.num$m[1]
+      b.identity <- line.data.num$b[1]
     }
     
     if(side == "both"){
@@ -82,7 +85,7 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
   } else if(denominator == "X1"){ # Denominator = X1
     
     if(ncol(X2.temp) == 0){
-      Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
+      Q.X1.GX2.dot.Y.temp.permuted <- matrix(stats::lm(matrix(Y.temp[c(permIndices)], ncol = ncol(permIndices)) ~ 
                                                          X1.temp,
                                                        model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
                                              ncol = ncol(permIndices))
@@ -117,16 +120,20 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                            polynom::polynomial()
                                        })
     
-    t.num.polynomials <- apply(permIndices,
-                               MARGIN = 2,
+    line.data.num <- apply(permIndices,
+                           MARGIN = 2,
+                           function(x){
+                             c(b = t(Q.X1.temp) %*% Y.temp[x,],
+                               m = -t(Q.X1.temp) %*% X1.temp[x,]) 
+                           }) |>
+      t() |>
+      data.frame()
+    
+    t.num.polynomials <- apply(line.data.num,
+                               MARGIN = 1,
                                function(x){
-                                 c(t(Q.X1.temp) %*%
-                                     Y.temp[x,],
-                                   -t(Q.X1.temp) %*%
-                                     X1.temp[x,]
-                                 ) |>
-                                   polynom::polynomial()
-                               }, 
+                                 polynom::polynomial(x)
+                               },
                                simplify = FALSE)
     
     check.polynomials <- lapply(2:ncol(permIndices),
@@ -256,16 +263,20 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
                                              polynom::polynomial()
                                          })
       
-      t.num.polynomials <- apply(permIndices,
-                                 MARGIN = 2,
+      line.data.num <- apply(permIndices,
+                             MARGIN = 2,
+                             function(x){
+                               c(b = t(Q.X1.temp) %*% Y.temp[x,],
+                                 m = -t(Q.X1.temp) %*% X1.temp[x,]) 
+                             }) |>
+        t() |>
+        data.frame()
+      
+      t.num.polynomials <- apply(line.data.num,
+                                 MARGIN = 1,
                                  function(x){
-                                   c(t(Q.X1.temp) %*%
-                                       Y.temp[x,],
-                                     -t(Q.X1.temp) %*%
-                                       X1.temp[x,]
-                                   ) |>
-                                     polynom::polynomial()
-                                 }, 
+                                   polynom::polynomial(x)
+                                 },
                                  simplify = FALSE)
       
       check.polynomials <- lapply(2:ncol(permIndices),
@@ -367,7 +378,9 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
     cli::cli_abort("Inputted value into `denominator` parameter is not recognized.")
   }
   
-  return(pvals.df)
+  return(list(pvals.df = pvals.df,
+              line.data.num = line.data.num,
+              line.data.denom.sq = sigma.hat.sq.polynomials))
 }
 
 exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.Z.temp, studentize){
