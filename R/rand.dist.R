@@ -1,6 +1,6 @@
 rand.dist <- function(exactt.object, beta0, variable.name = NULL){
   
-  if(methods::is(exactt.object, "exactt")){
+  if(!methods::is(exactt.object, "exactt")){
    stop('"exactt.object" must be of class "exactt".')
   }
   
