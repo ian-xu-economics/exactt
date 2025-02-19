@@ -36,8 +36,7 @@ build_GX.indices <- function(blockIndexMatrix, n.remainder.indices){
 #'
 #' @param nBlocks The number of blocks to use for block permutations.
 #'
-#' @return A matrix containing (nBlocks - 1) * (nBlocks - 3) columns from S1,
-#' nBlocks - 1 from S2 and nBlocks - 2 from S3+.
+#' @return A matrix containing nBlocks*(nBlocks - 2) + 2 columns.
 generate_block_permutations <- function(nBlocks){
   
   if(nBlocks == 2){

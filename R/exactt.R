@@ -22,6 +22,7 @@
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param denominator Character argument indicating how to calculate epsilon hat.
 #' @param Q.X1 Use custom QX1 value.
+#' @param GX.indices Indices for max rank GX. Used for warm start.
 #' @param root.tolerance Tolerance for determining real and extraneous roots (when denominator = "X1" or "noX1").
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
@@ -64,6 +65,7 @@ exactt <- function(model,
                    seed = 31740,
                    denominator = "GX1",
                    Q.X1 = NULL,
+                   GX.indices = NULL,
                    root.tolerance = 1e-9,
                    ...) {
   
@@ -170,7 +172,17 @@ exactt <- function(model,
                                 MARGIN = 2))
   }
   
-  GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+  if(!is.null(GX.indices)){
+    if(ncol(GX.indices) != nBlocks * (nBlocks - 2) + 2){
+      cli::cli_warn("Number of columns in `GX.indices` is not nBlocks * (nBlocks - 2) + 2. Recalculating GX.indices now.")
+      GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+    } else if(nrow(GX.indices) != data.n){
+      cli::cli_warn("Number of rows in `GX.indices` does not match number of rows in data. Recalculating GX.indices now.")
+      GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+    }
+  } else{
+    GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+  }
   
   if(optimize){ # Case 1: don't optimize
     if("type" %in% names(gaArgs)){
@@ -314,28 +326,38 @@ exactt <- function(model,
       gaResultsList[[colnames(X)[i]]] <- gaResults
     }
     
-    if(exacttIV){
-      if(ncol(X2.temp) == 0){
-        Q.Z.temp <- Z.temp
+    if(!is.null(Q.X1)){
+      if(exacttIV){
+        Q.Z.temp <- Q.X1
       } else{
-        Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
-                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-        matrix(nrow = nrow(Z.temp))
+        Q.X1.temp <- Q.X1
       }
-      
-      Q.X1.Z.List[[colnames(X)[i]]] <- Q.Z.temp
     } else{
-      if(ncol(X2.temp) == 0){
-        Q.X1.temp <- X1.temp
-      } else if(is.null(Q.X1)){
-        Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
-                               model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
-          matrix(ncol = ncol(X1.temp))
+      if(exacttIV){
+        if(ncol(X2.temp) == 0){
+          Q.Z.temp <- Z.temp
+        } else if(ncol(X2.temp) == 1 && 
+                  all(X2.temp == 1)){
+          Q.Z.temp <- Z.temp - mean(Z.temp)
+        } else{
+          Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+            matrix(nrow = nrow(Z.temp))
+        }
+        Q.X1.Z.List[[colnames(X)[i]]] <- Q.Z.temp
       } else{
-        Q.X1.temp <- matrix(Q.X1)
+        if(ncol(X2.temp) == 0){
+          Q.X1.temp <- X1.temp
+        } else if(ncol(X2.temp) == 1 && 
+                  all(X2.temp == 1)){
+          Q.X1.temp <- X1.temp - mean(X1.temp)
+        } else{
+          Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices, indep.X2.index),
+                                 model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
+            matrix(ncol = ncol(X1.temp))
+        }
+        Q.X1.Z.List[[colnames(X)[i]]] <- Q.X1.temp
       }
-      
-      Q.X1.Z.List[[colnames(X)[i]]] <- Q.X1.temp
     }
     
     if(exacttIV){
@@ -375,7 +397,8 @@ exactt <- function(model,
                            detailed = detailedList,
                            gaResults = gaResultsList,
                            ivregResults = ivregObject,
-                           geometry = geometryList),
+                           geometry = geometryList,
+                           GX.indices = GX.indices),
                       class = "exactt")
   
   if(length(gaResultsList) > 0){
@@ -406,6 +429,7 @@ exactt <- function(model,
 #' @param studentize Logical indicating whether to use studentized residuals for the test.
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
+#' @param GX.indices Indices for max rank GX. Used for warm start.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -449,6 +473,7 @@ exactt.wald <- function(model,
                         studentize = TRUE,
                         optimize = FALSE,
                         seed = 31740,
+                        GX.indices,
                         ...) {
 
   call <- match.call(expand.dots = TRUE)
@@ -549,7 +574,17 @@ exactt.wald <- function(model,
                                 MARGIN = 2))
   }
 
-  GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+  if(!is.null(GX.indices)){
+    if(ncol(GX.indices) != nBlocks * (nBlocks - 2) + 2){
+      cli::cli_warn("Number of columns in `GX.indices` is not nBlocks * (nBlocks - 2) + 2. Recalculating GX.indices now.")
+      GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+    } else if(nrow(GX.indices) != data.n){
+      cli::cli_warn("Number of rows in `GX.indices` does not match number of rows in data. Recalculating GX.indices now.")
+      GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+    }
+  } else{
+    GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+  }
 
   if(optimize){ # Case 1: don't optimize
     if("type" %in% names(gaArgs)){
@@ -750,7 +785,8 @@ exactt.wald <- function(model,
                            summary = do.call('rbind', summaryTableList),
                            detailed = p.values,
                            gaResults = gaResultsList,
-                           ivregResults = ivregObject),
+                           ivregResults = ivregObject,
+                           GX.indices = GX.indices),
                       class = "exactt.wald")
   
   if(length(gaResultsList) > 0){

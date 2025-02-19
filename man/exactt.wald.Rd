@@ -15,6 +15,7 @@ exactt.wald(
   studentize = TRUE,
   optimize = FALSE,
   seed = 31740,
+  GX.indices,
   ...
 )
 }
@@ -41,6 +42,8 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
+
+\item{GX.indices}{Indices for max rank GX. Used for warm start.}
 
 \item{...}{Additional arguments passed to \code{GA::ga()} for optimizing power.
 This can include parameters like \code{popSize}, \code{maxiter}, \code{parallel}, etc.,

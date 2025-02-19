@@ -10,8 +10,7 @@ generate_block_permutations(nBlocks)
 \item{nBlocks}{The number of blocks to use for block permutations.}
 }
 \value{
-A matrix containing (nBlocks - 1) * (nBlocks - 3) columns from S1,
-nBlocks - 1 from S2 and nBlocks - 2 from S3+.
+A matrix containing nBlocks*(nBlocks - 2) + 2 columns.
 }
 \description{
 Create block permutations from "An Exact t-Test".
