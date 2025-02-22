@@ -172,18 +172,23 @@ exactt <- function(model,
                                 MARGIN = 2))
   }
   
-  if(!is.null(GX.indices)){
-    if(ncol(GX.indices) != nBlocks * (nBlocks - 2) + 2){
-      cli::cli_warn("Number of columns in `GX.indices` is not nBlocks * (nBlocks - 2) + 2. Recalculating GX.indices now.")
-      GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
-    } else if(nrow(GX.indices) != data.n){
-      cli::cli_warn("Number of rows in `GX.indices` does not match number of rows in data. Recalculating GX.indices now.")
+  if(studentize == TRUE ||
+     !((ncol(X.use) == 3 && "(Intercept)" %in% colnames(X.use)) || ncol(X.use) == 2)){
+    
+    if(!is.null(GX.indices)){
+      if(ncol(GX.indices) != nBlocks * (nBlocks - 2) + 2){
+        cli::cli_warn("Number of columns in `GX.indices` is not nBlocks * (nBlocks - 2) + 2. Recalculating GX.indices now.")
+        GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+      } else if(nrow(GX.indices) != data.n){
+        cli::cli_warn("Number of rows in `GX.indices` does not match number of rows in data. Recalculating GX.indices now.")
+        GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+      }
+    } else{
       GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
     }
-  } else{
-    GX.indices <- build_GX.indices(blockIndexMatrix, n.remainder.indices)
+    
   }
-  
+
   if(optimize){ # Case 1: don't optimize
     if("type" %in% names(gaArgs)){
       cli::cli_warn("Custom 'type' value is ignored in this function.")
@@ -397,13 +402,16 @@ exactt <- function(model,
                            detailed = detailedList,
                            gaResults = gaResultsList,
                            ivregResults = ivregObject,
-                           geometry = geometryList,
-                           GX.indices = GX.indices),
+                           geometry = geometryList),
                       class = "exactt")
   
   if(length(gaResultsList) > 0){
     result$gaResults <- gaResultsList
   } 
+  
+  if(!is.null(GX.indices)){
+    result$GX.indices <- GX.indices
+  }
   
   if(exacttIV){
     result$Q.Z <- Q.X1.Z.List

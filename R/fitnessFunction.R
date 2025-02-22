@@ -23,7 +23,10 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep
   
   n <- max(blockIndexMatrix)
   
-  GX.indices.use <- GX.indices[1:n,, drop = FALSE]
+  if(!is.null(GX.indices)){
+    GX.indices.use <- GX.indices[1:n,, drop = FALSE]
+  }
+  
   permIndices.use <- permIndices[1:n,, drop = FALSE]
 
   X1.temp.permuted <- X1.temp[permutation,, drop = FALSE][1:n,, drop = FALSE]
@@ -37,6 +40,9 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep
   if(ncol(X1.temp.permuted) == 1){
     if(ncol(X2.temp) == 0){
       gFF <- matrix(Z.temp.permuted, nrow = 1) %*%
+        matrix(X1.temp.permuted[permIndices.use,], nrow = n)
+    } else if(ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp)){
+      gFF <- matrix(Z.temp.permuted - mean(Z.temp.permuted), nrow = 1) %*%
         matrix(X1.temp.permuted[permIndices.use,], nrow = n)
     } else{
       gFF <- stats::lm(Z.temp.permuted ~ 0 + 
@@ -65,6 +71,19 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep
                    MARGIN = 2,
                    FUN = function(x){
                      t(Z.temp.permuted) %*%
+                       X1.temp.permuted[x,, drop = FALSE]
+                   },
+                   simplify = FALSE) |>
+        simplify2array()
+    } else if(ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp)){
+      demeaned.Z.temp.permuted <- apply(Z.temp.permuted,
+                                        MARGIN = 2,
+                                        function(x) scale(x, center = TRUE, scale = FALSE))
+      
+      gFF <- apply(permIndices.use,
+                   MARGIN = 2,
+                   FUN = function(x){
+                     t(demeaned.Z.temp.permuted) %*%
                        X1.temp.permuted[x,, drop = FALSE]
                    },
                    simplify = FALSE) |>

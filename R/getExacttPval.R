@@ -22,7 +22,8 @@ exactt.pval.new.reg <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permIn
   if(denominator == "GX1" || studentize == FALSE){
     # We no longer store X1.temp.permuted, Y.temp.permuted, or eps_hat.permuted; it is a RAM nightmare. 
     if(studentize == TRUE){
-      if(ncol(X2.temp) == 0){
+      if(ncol(X2.temp) == 0 || 
+         (ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp))){
         sigma.hat <- sqrt(t(Q.X1.temp^2) %*% 
                             matrix(stats::lm(matrix(Y.temp[c(permIndices)], ncol = ncol(permIndices)) ~ 
                                                build_GX(X1.temp, GX.indices),
@@ -391,7 +392,8 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
   Q.Z.temp.dot.Y.temp <- t(Q.Z.temp) %*% matrix(Y.temp[permIndices], ncol = ncol(permIndices)) # Y.temp.permuted
   
   if(studentize == TRUE){
-    if(ncol(X2.temp) == 0){
+    if(ncol(X2.temp) == 0 ||
+       (ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp))){
       eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
                                              build_GX(X1.temp, GX.indices),
                                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
@@ -478,7 +480,8 @@ exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, 
   n <- nrow(Y.temp)
   
   if(studentize == TRUE){
-    if(ncol(X2.temp) == 0){
+    if(ncol(X2.temp) == 0 ||
+       (ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp))){
       eps_hat.permuted <- matrix(stats::lm(matrix(Y.temp[permIndices], ncol = ncol(permIndices)) ~ 
                                              build_GX(X1.temp, GX.indices),
                                            model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals,
