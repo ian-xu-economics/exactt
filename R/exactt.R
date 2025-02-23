@@ -172,8 +172,13 @@ exactt <- function(model,
                                 MARGIN = 2))
   }
   
+  
+  # If studentize is true, construct GX.indices
+  # IF there are 3 or more columns in X.use, construct X.use
+  # If there are 2 columns in X.use & neither of the column names is equal to "(Intercept)", construct X.use
   if(studentize == TRUE ||
-     !((ncol(X.use) == 3 && "(Intercept)" %in% colnames(X.use)) || ncol(X.use) == 2)){
+     ncol(X.use) >= 3 || 
+     (ncol(X.use) == 2 && !"(Intercept)" %in% colnames(X.use))){
     
     if(!is.null(GX.indices)){
       if(ncol(GX.indices) != nBlocks * (nBlocks - 2) + 2){
