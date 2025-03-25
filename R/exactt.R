@@ -58,7 +58,7 @@ exactt <- function(model,
                    alpha = 0.05,
                    variables = NULL,
                    beta0 = NULL,
-                   nBlocks = 5,
+                   nBlocks = NULL,
                    nPerms = NULL,
                    studentize = TRUE,
                    optimize = FALSE,
@@ -105,19 +105,6 @@ exactt <- function(model,
   data <- ivregObject$model
   
   data.n <- nrow(data)
-  n <- floor(data.n/nBlocks)*nBlocks
-  n.remainder.indices <- utils::tail(1:data.n, data.n - n)
-  
-  # Construct matrix of block indices
-  blockSize <- n/nBlocks
-  blockIndexMatrix <- matrix(1:n, 
-                             nrow = blockSize, 
-                             ncol = nBlocks, 
-                             byrow = FALSE)
-  
-  regressors <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-1]
-  Y.var <- regressors[1]
-  X.var <- regressors[-1]
   
   endogenous.var <- names(ivregObject$endogenous)
   exogenous.var <- names(ivregObject$exogenous)
@@ -126,25 +113,53 @@ exactt <- function(model,
     exogenous.var <- exogenous.var[-1]
   }
   
-  Y <- matrix(ivregObject$y)
-  X <- ivregObject$x$regressors
-  
-  Y.use <- Y#[1:n,, drop = FALSE]
-  X.use <- X#[1:n,, drop = FALSE]
+  Y.use <- matrix(ivregObject$y)
+  X.use <- ivregObject$x$regressors
   
   Z.var <- names(ivregObject$instruments)
   
   if(!is.null(Z.var)){
     IV <- TRUE
-    Z <- ivregObject$x$instruments[,Z.var]
-    Z.use <- Z#[1:n,, drop = FALSE]
+    Z.use <- ivregObject$x$instruments[,Z.var]
   } else{
     IV <- FALSE
   }
   
-  X.assign <- attr(X, "assign")
+  X.assign <- attr(X.use, "assign")
   
   beta.hats <- coef(ivregObject)
+  
+  if(is.null(nBlocks)){
+    p2 <- ncol(X.use) - 1  
+    
+    if(data.n < 400*sqrt(p2)){
+      nBlocks <- 5
+    } else if(data.n < 1000*sqrt(p2)){
+      nBlocks <- 6
+    } else if(data.n < 1850*sqrt(p2)){
+      nBlocks <- 7
+    } else if(data.n < 3000*sqrt(p2)){
+      nBlocks <- 8
+    } else if(data.n < 4500*sqrt(p2)){
+      nBlocks <- 9
+    } else if(data.n < 6000*sqrt(p2)){
+      nBlocks <- 10
+    } else{
+      nBlocks <- 11
+    }
+  }
+  
+  n <- floor(data.n/nBlocks)*nBlocks
+  n.remainder.indices <- utils::tail(1:data.n, data.n - n)
+  
+  # Construct matrix of block indices
+  blockSize <- n/nBlocks
+  blockIndexMatrix <- matrix(1:n,
+                             nrow = blockSize,
+                             ncol = nBlocks,
+                             byrow = FALSE)
+  
+  X.var <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-(1:2)]
   
   gaArgs <- list(seed = seed, ...)
   
@@ -166,6 +181,8 @@ exactt <- function(model,
                          function(x){
                            c(blockIndexMatrix[, x], n.remainder.indices)
                          })
+    
+    nPerms <- factorial(nBlocks)
   } else{
     permIndices <- cbind(1:n, 
                          unique(replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])),
@@ -238,7 +255,7 @@ exactt <- function(model,
       next
     } 
     
-    exacttIV <- !colnames(X)[i] %in% exogenous.var
+    exacttIV <- !colnames(X.use)[i] %in% exogenous.var
     
     beta.hats.i <- beta.hats[i]
     
@@ -316,7 +333,7 @@ exactt <- function(model,
         ogParArg <- FALSE
       }
       
-      cli::cli_alert_success("Optimizing ordering for `{colnames(X)[i]}`.")
+      cli::cli_alert_success("Optimizing ordering for `{colnames(X.use)[i]}`.")
       gaResults <- do.call(GA::ga, gaArgs)
       
       # Close cluster if parallel is true
@@ -333,7 +350,7 @@ exactt <- function(model,
         Z.temp <- Z.temp[gaResults@solution[1,],, drop = FALSE]
       }
       
-      gaResultsList[[colnames(X)[i]]] <- gaResults
+      gaResultsList[[colnames(X.use)[i]]] <- gaResults
     }
     
     if(!is.null(Q.X1)){
@@ -354,7 +371,7 @@ exactt <- function(model,
                                 model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
             matrix(nrow = nrow(Z.temp))
         }
-        Q.X1.Z.List[[colnames(X)[i]]] <- Q.Z.temp
+        Q.X1.Z.List[[colnames(X.use)[i]]] <- Q.Z.temp
       } else{
         if(ncol(X2.temp) == 0){
           Q.X1.temp <- X1.temp
@@ -366,7 +383,7 @@ exactt <- function(model,
                                  model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
             matrix(ncol = ncol(X1.temp))
         }
-        Q.X1.Z.List[[colnames(X)[i]]] <- Q.X1.temp
+        Q.X1.Z.List[[colnames(X.use)[i]]] <- Q.X1.temp
       }
     }
     
@@ -376,12 +393,12 @@ exactt <- function(model,
       exactt.pval.reg <- exactt.pval.new.reg(Y.temp, X1.temp, X2.temp, indep.X2.index, permIndices, GX.indices, Q.X1.temp, studentize, side = side, denominator, root.tolerance)
       
       pvals.df <- exactt.pval.reg$pvals.df
-      geometryList[[colnames(X)[i]]] <- list(line.data.num = exactt.pval.reg$line.data.num,
-                                             line.data.denom.sq = exactt.pval.reg$line.data.denom.sq)
+      geometryList[[colnames(X.use)[i]]] <- list(line.data.num = exactt.pval.reg$line.data.num,
+                                                 line.data.denom.sq = exactt.pval.reg$line.data.denom.sq)
     }
     
     attr(pvals.df, "assign") = X.assign[i]
-    detailedList[[colnames(X)[i]]] <- pvals.df
+    detailedList[[colnames(X.use)[i]]] <- pvals.df
     
     pvalBeta0.index <- which(0 >= pvals.df$beta0.start & 0 <= pvals.df$beta0.end)
     
@@ -394,7 +411,7 @@ exactt <- function(model,
                                              pvals.df$beta0.end[ci.upper.index]),
                                     nrow = 1, 
                                     ncol = 4, 
-                                    dimnames = list(colnames(X)[i], 
+                                    dimnames = list(colnames(X.use)[i], 
                                                     c("Estimate", 
                                                       "P-value",
                                                       "Lower Bound",
@@ -404,6 +421,7 @@ exactt <- function(model,
 
   result <- structure(list(call = call,
                            summary = do.call('rbind', summaryTableList),
+                           nBlocks = nBlocks,
                            detailed = detailedList,
                            gaResults = gaResultsList,
                            ivregResults = ivregObject,
@@ -432,8 +450,7 @@ exactt <- function(model,
 #' @param model A formula specifying the model.
 #' @param data A data frame or matrix containing the variables used in the model.
 #' @param alpha The significance level used for the hypothesis tests; defaults to 0.05.
-#' @param variables Optional; a character vector of predictor names to test.
-#'        If NULL, all predictors in the model are tested.
+#' @param variables Indices of variables of interest.
 #' @param beta0 If 0, test whether the variables of interest are equal to the zero vector.
 #'        If NULL, creates a grid of beta0 values (for confidence intervals) and tests the variables of interest.
 #' @param nBlocks The number of blocks to use for block permutations.
@@ -443,6 +460,8 @@ exactt <- function(model,
 #' @param optimize Logical indicating whether to optimize the ordering of the data.
 #' @param seed Seed used when optimizing using `GA::ga()`. Default is 31740.
 #' @param GX.indices Indices for max rank GX. Used for warm start.
+#' @param confidence.intervals Do you want exact confidence intervals?
+#' @param gurobi.params Parameters to pass through to `gurobi::gurobi()`.
 #' @param ... Additional arguments passed to `GA::ga()` for optimizing power. 
 #' This can include parameters like `popSize`, `maxiter`, `parallel`, etc., 
 #' that are used to configure the genetic algorithm. Note that when sample size is large
@@ -481,12 +500,17 @@ exactt.wald <- function(model,
                         alpha = 0.05,
                         variables = NULL,
                         beta0 = c(0, NULL),
-                        nBlocks = 5,
+                        nBlocks = NULL,
                         nPerms = NULL,
                         studentize = TRUE,
                         optimize = FALSE,
                         seed = 31740,
-                        GX.indices,
+                        confidence.intervals = TRUE,
+                        gurobi.params = list(FeasibilityTol = 1e-9,
+                                             OptimalityTol = 1e-9,
+                                             IntFeasTol = 1e-9,
+                                             OutputFlag = 0),
+                        GX.indices = NULL,
                         ...) {
 
   call <- match.call(expand.dots = TRUE)
@@ -504,7 +528,7 @@ exactt.wald <- function(model,
     stop("The 'model' parameter must be a formula with a LHS.")
   }
   
-  if(!is.numeric(alpha) || length(alpha) != 1 || alpha <= 0 || alpha >= 1){
+  if(!is.numeric(alpha) || length(alpha) != 1 || alpha < 0 || alpha > 1){
     stop("The 'alpha' parameter must be numeric, have length one, and between 0 and 1.")
   }
 
@@ -524,19 +548,6 @@ exactt.wald <- function(model,
   data <- ivregObject$model
 
   data.n <- nrow(data)
-  n <- floor(data.n/nBlocks)*nBlocks
-  n.remainder.indices <- utils::tail(1:data.n, data.n - n)
-
-  # Construct matrix of block indices
-  blockSize <- n/nBlocks
-  blockIndexMatrix <- matrix(1:n,
-                             nrow = blockSize,
-                             ncol = nBlocks,
-                             byrow = FALSE)
-
-  regressors <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-1]
-  Y.var <- regressors[1]
-  X.var <- regressors[-1]
 
   endogenous.var <- names(ivregObject$endogenous)
   exogenous.var <- names(ivregObject$exogenous)
@@ -545,32 +556,58 @@ exactt.wald <- function(model,
     exogenous.var <- exogenous.var[-1]
   }
 
-  Y <- matrix(ivregObject$y)
-  X <- ivregObject$x$regressors
-
-  Y.use <- Y
-  X.use <- X
+  Y.use <- matrix(ivregObject$y)
+  X.use <- ivregObject$x$regressors
 
   Z.var <- names(ivregObject$instruments)
 
   if(!is.null(Z.var)){
     IV <- TRUE
-    Z <- ivregObject$x$instruments[,Z.var]
-    Z.use <- Z
+    Z.use <- ivregObject$x$instruments[,Z.var]
   } else{
     IV <- FALSE
   }
 
-  X.assign <- attr(X, "assign")
+  X.assign <- attr(X.use, "assign")
 
   beta.hats <- coef(ivregObject)
   se <- sqrt(diag(ivregObject$cov.unscaled * ivregObject$sigma^2))
   
-  gaArgs <- list(seed = seed, ...)
-
   if(is.null(variables)){
     variables <- X.assign[which(X.assign != 0)]
   }
+  
+  if(is.null(nBlocks)){
+    p2 <- ncol(X.use) - length(variables)  
+    
+    if(data.n < 400*sqrt(p2)){
+      nBlocks <- 5
+    } else if(data.n < 1000*sqrt(p2)){
+      nBlocks <- 6
+    } else if(data.n < 1850*sqrt(p2)){
+      nBlocks <- 7
+    } else if(data.n < 3000*sqrt(p2)){
+      nBlocks <- 8
+    } else if(data.n < 4500*sqrt(p2)){
+      nBlocks <- 9
+    } else if(data.n < 6000*sqrt(p2)){
+      nBlocks <- 10
+    } else{
+      nBlocks <- 11
+    }
+  }
+  
+  n <- floor(data.n/nBlocks)*nBlocks
+  n.remainder.indices <- utils::tail(1:data.n, data.n - n)
+  
+  # Construct matrix of block indices
+  blockSize <- n/nBlocks
+  blockIndexMatrix <- matrix(1:n,
+                             nrow = blockSize,
+                             ncol = nBlocks,
+                             byrow = FALSE)
+  
+  gaArgs <- list(seed = seed, ...)
 
   # If `nPerms` is unspecified or greater than the number of possible permutations, then use all possible permutations.
   # When number of possible permutations is bigger than MG, then we need to randomly sample.
@@ -581,6 +618,8 @@ exactt.wald <- function(model,
                          function(x){
                            c(blockIndexMatrix[, x], n.remainder.indices)
                          })
+    
+    nPerms <- factorial(nBlocks)
   } else{
     permIndices <- cbind(1:n, 
                          unique(replicate(nPerms, c(blockIndexMatrix[, sample(1:nBlocks)])),
@@ -638,35 +677,36 @@ exactt.wald <- function(model,
   i <- which(X.assign %in% variables)
   
   # Change this to be based on the formula, if they include another |
-  exacttIV <- any(!colnames(X)[i] %in% exogenous.var)
+  exacttIV <- any(!colnames(X.use)[i] %in% exogenous.var)
 
   beta.hats.i <- beta.hats[i]
   se.i <- se[i]
   
   if(is.null(beta0)){
-    beta0 <- lapply(1:length(beta.hats.i),
-                        function(x){
-                          precisionToUse <- ifelse(se.i[x] > 0, 
-                                                   yes = floor(log(se.i[x], base = 10)) - 1, 
-                                                   no = -1)
-                          
-                          return(round(beta.hats.i[x], 
-                                       -precisionToUse) + 
-                                   seq(-30*(10^(precisionToUse+1)), 
-                                       30*(10^(precisionToUse+1)), 
-                                       10^precisionToUse)
-                                 )
-                        })
-    
-    names(beta0) <- names(beta.hats.i)
-    
-    beta0 <- do.call('expand.grid', beta0) |>
+    beta0.matrix <- lapply(1:length(beta.hats.i),
+                           function(x){
+                             precisionToUse <- ifelse(se.i[x] > 0,
+                                                      yes = floor(log(se.i[x], base = 10)) - 1,
+                                                      no = -1)
+  
+                             return(round(beta.hats.i[x],
+                                          -precisionToUse) +
+                                      seq(-30*(10^(precisionToUse+1)),
+                                           30*(10^(precisionToUse+1)),
+                                          10^precisionToUse)
+                                    )
+                           })
+
+    names(beta0.matrix) <- names(beta.hats.i)
+
+    beta0.matrix <- do.call('expand.grid', beta0.matrix) |>
       rbind(0)
-  } else if(beta0 == 0){
-    beta0 <- matrix(0, 
-                        nrow = 1, 
-                        ncol = length(beta.hats.i),
-                        dimnames = list(NULL, names(beta.hats.i))) |>
+  } else
+  if(beta0 == 0){
+    beta0.matrix <- matrix(0, 
+                           nrow = 1, 
+                           ncol = length(beta.hats.i),
+                           dimnames = list(NULL, names(beta.hats.i))) |>
       data.frame()
   } else{
     cli::cli_abort("The `beta0` parameter currently only supports '0' or 'NULL'.")
@@ -755,6 +795,10 @@ exactt.wald <- function(model,
   if(exacttIV){
     if(ncol(X2.temp) == 0){
       Q.Z.temp <- Z.temp
+    } else if(ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp)){
+      Q.Z.temp <- apply(Z.temp,
+                        MARGIN = 2,
+                        function(x) scale(x, center = TRUE))
     } else{ 
       Q.Z.temp <- stats::lm(Z.temp ~ 0 + build_GX(X2.temp, GX.indices),
                             model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
@@ -765,6 +809,10 @@ exactt.wald <- function(model,
   } else{
     if(ncol(X2.temp) == 0){
       Q.X1.temp <- X1.temp
+    } else if(ncol(X2.temp) == 1 && "(Intercept)" %in% colnames(X2.temp)){
+      Q.X1.temp <- apply(X1.temp,
+                         MARGIN = 2,
+                         function(x) scale(x, center = TRUE))
     } else{
       Q.X1.temp <- stats::lm(X1.temp ~ 0 + build_GX(X2.temp, GX.indices),
                              model = FALSE, x = FALSE, y = FALSE, qr = FALSE)$residuals |>
@@ -774,33 +822,64 @@ exactt.wald <- function(model,
     Q.X1.Z.List <- Q.X1.temp
   }
 
-  p.values <- exactt.pval.wald(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, beta.null.matrix = beta0)
-  
-  for(x in seq_along(i)){
-    
-    temp.p.value.lower <- tryCatch(min(subset(p.values, p.values$p.value > alpha)[,x]),
-                                   warning = function(w) -Inf)
-    
-    temp.p.value.upper <- tryCatch(max(subset(p.values, p.values$p.value > alpha)[,x]),
-                                   warning = function(w) Inf)
-    
-    summaryTableList[[x]] <- matrix(data = c(beta.hats.i[x], temp.p.value.lower, temp.p.value.upper),
-                                    nrow = 1, 
-                                    ncol = 3, 
-                                    dimnames = list(names(beta.hats.i)[x], 
-                                                    c("Estimate",
-                                                      "Lower Bound",
-                                                      "Upper Bound"))
-                                    )
-  }
+  p.values.and.extra <- exactt.pval.wald(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, Q.X1.temp, studentize, beta.null.matrix = beta0.matrix)
+  p.values <- p.values.and.extra$p.values
   
   result <- structure(list(call = call,
-                           summary = do.call('rbind', summaryTableList),
+                           nBlocks = nBlocks,
                            detailed = p.values,
                            gaResults = gaResultsList,
                            ivregResults = ivregObject,
+                           omega.g = p.values.and.extra$omega.g,
                            GX.indices = GX.indices),
                       class = "exactt.wald")
+  
+  if(confidence.intervals){
+    
+    if(alpha >= 1/nPerms & alpha < 1){
+      # Create exact projected confidence intervals using Gurobi
+      conf.ints <- exact.wald.projected.confidence.intervals(omega.g = p.values.and.extra$omega.g,
+                                                             gurobi.params = gurobi.params,
+                                                             X1.names = names(beta.hats.i),
+                                                             alpha = alpha)
+      
+      summaryTable <- matrix(data = cbind(beta.hats.i, conf.ints$confidence.intervals),
+                             nrow = length(beta.hats.i), 
+                             ncol = 3, 
+                             dimnames = list(names(beta.hats.i), 
+                                             c("Estimate",
+                                               "Lower Bound",
+                                               "Upper Bound")))
+      
+      result$gurobi.results <- conf.ints$gurobi.results
+    } else if(alpha < 1/nPerms){
+      cli::cli_warn("'alpha' is less than 1/nPerms. Confidence interval bounds will be [-Inf, Inf].")
+      
+      summaryTable <- matrix(data = cbind(beta.hats.i, -Inf, Inf),
+                             nrow = length(beta.hats.i), 
+                             ncol = 3, 
+                             dimnames = list(names(beta.hats.i), 
+                                             c("Estimate",
+                                               "Lower Bound",
+                                               "Upper Bound")))
+    } else{
+      cli::cli_warn("'alpha' is equal to 1. Confidence interval is empty set because we reject everywhere.")
+      
+      summaryTable <- matrix(data = beta.hats.i,
+                             nrow = length(beta.hats.i), 
+                             ncol = 1, 
+                             dimnames = list(names(beta.hats.i), 
+                                             "Estimate"))
+    }
+  } else{
+    summaryTable <- matrix(data = beta.hats.i,
+                           nrow = length(beta.hats.i), 
+                           ncol = 1, 
+                           dimnames = list(names(beta.hats.i), 
+                                           "Estimate"))
+  }
+  
+  result$summary.table <- summaryTable
   
   if(length(gaResultsList) > 0){
     result$gaResults <- gaResultsList

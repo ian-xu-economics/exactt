@@ -512,65 +512,83 @@ exactt.pval.wald <- function(Y.temp, X1.temp, X2.temp, permIndices, GX.indices, 
                                        ncol(permIndices)))
   }
   
-  if(!is.atomic(beta.null.matrix) && 
-     length(beta.null.matrix) > 1 && 
-     !is.null(dim(beta.null.matrix)) &&
-     nrow(beta.null.matrix) == 1 &&
-     all(c(as.matrix(beta.null.matrix)) == 0)){
+  # Previous code when beta0 = 0 vector. Didn't need to calculate (QZ)gX1 since 
+  # would just be multiplied by 0 anyways.
+  #
+  # if(!is.atomic(beta.null.matrix) && 
+  #    length(beta.null.matrix) > 1 && 
+  #    !is.null(dim(beta.null.matrix)) &&
+  #    nrow(beta.null.matrix) == 1 &&
+  #    all(c(as.matrix(beta.null.matrix)) == 0)){
+  #   
+  #   Q.Z.temp.dot.Y.temp <- apply(permIndices,
+  #                                MARGIN = 2,
+  #                                FUN = function(x){
+  #                                  t(Q.Z.temp) %*% Y.temp[x, drop = FALSE]
+  #                                },
+  #                                simplify = FALSE) |>
+  #     simplify2array()
+  #   
+  #   randomization.stats <- sapply(1:ncol(permIndices),
+  #                                 FUN = function(i) {
+  #                                   t(matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+  #                                            nrow = ncol(Q.Z.temp),
+  #                                            ncol = ncol(Y.temp))) %*% 
+  #                                     Sigma.hat.inverse[,,i] %*%
+  #                                     matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
+  #                                            nrow = ncol(Q.Z.temp),
+  #                                            ncol = ncol(Y.temp))
+  #                                 })
+  #   
+  #   p.values <- cbind(beta.null.matrix,
+  #                   mean(randomization.stats[1] <= randomization.stats)) |>
+  #     data.frame() 
+  #   
+  #   final.result <- list(p.values = p.values,
+  #                        Q.Z.temp.dot.Y.temp = Q.Z.temp.dot.Y.temp,
+  #                        Sigma.hat.inverse = Sigma.hat.inverse)
+  #   
+  # } else{
     
-    Q.Z.temp.dot.Y.temp <- apply(permIndices,
-                                 MARGIN = 2,
-                                 FUN = function(x){
-                                   t(Q.Z.temp) %*% Y.temp[x, drop = FALSE]
-                                 },
-                                 simplify = FALSE) |>
-      simplify2array()
+  Q.Z.temp.dot.X1.Y.temp <- apply(permIndices,
+                                  MARGIN = 2,
+                                  FUN = function(x){
+                                    t(Q.Z.temp) %*% cbind(X1.temp, Y.temp)[x,, drop = FALSE]
+                                  },
+                                  simplify = FALSE) |>
+    simplify2array() |>
+    array(dim = c(ncol(Q.Z.temp), ncol(X1.temp) + ncol(Y.temp), ncol(permIndices)))
+  
+  beta.null.matrix <- cbind(as.matrix(beta.null.matrix), 1)
+  
+  omega.g <- lapply(1:dim(Q.Z.temp.dot.X1.Y.temp)[3],
+                    function(x){
+                      temp <- t(Q.Z.temp.dot.X1.Y.temp[,,x]) %*% 
+                        Sigma.hat.inverse[,,x] %*% 
+                        Q.Z.temp.dot.X1.Y.temp[,,x]
+                      
+                      temp[ ,ncol(temp)] <- -temp[ ,ncol(temp)]
+                      temp[nrow(temp), ] <- -temp[nrow(temp), ]
+                      
+                      return(temp)
+                    }) |>
+    simplify2array()
+  
+  randomization.stats <- get.wald.randomization.stats(omega.g, 
+                                                      beta.null.matrix)
+  
+  p.values <- cbind(beta.null.matrix[,-ncol(beta.null.matrix), drop = FALSE],
+                    "p.value" = apply(randomization.stats[,1] <= randomization.stats,
+                                      MARGIN = 1,
+                                      mean)) |>
+    data.frame() 
+  
+  final.result <- list(p.values = p.values,
+                       omega.g = omega.g)
     
-    randomization.stats <- sapply(1:ncol(permIndices),
-                                  FUN = function(i) {
-                                    t(matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
-                                             nrow = ncol(Q.Z.temp),
-                                             ncol = ncol(Y.temp))) %*% 
-                                      Sigma.hat.inverse[,,i] %*%
-                                      matrix(Q.Z.temp.dot.Y.temp[,,i, drop = FALSE],
-                                             nrow = ncol(Q.Z.temp),
-                                             ncol = ncol(Y.temp))
-                                  })
-    
-    p.value <- mean(randomization.stats[1] <= randomization.stats)
-    
-    result <- cbind(beta.null.matrix,
-                    p.value) |>
-      data.frame() 
-    
-  } else{
-    
-    Q.Z.temp.dot.X1.Y.temp <- apply(permIndices,
-                                    MARGIN = 2,
-                                    FUN = function(x){
-                                      t(Q.Z.temp) %*% cbind(X1.temp, Y.temp)[x,, drop = FALSE]
-                                    },
-                                    simplify = FALSE) |>
-      simplify2array() |>
-      array(dim = c(ncol(Q.Z.temp), ncol(X1.temp) + ncol(Y.temp), ncol(permIndices)))
-    
-    beta.null.matrix <- cbind(as.matrix(beta.null.matrix), 1)
-    
-    randomization.stats <- get.wald.randomization.stats(Q.Z.temp.dot.X1.Y.temp, 
-                                                        Sigma.hat.inverse, 
-                                                        beta.null.matrix)
-    
-    p.value <- apply(randomization.stats[,1] <= randomization.stats,
-                     MARGIN = 1,
-                     mean)
-    
-    result <- cbind(beta.null.matrix[,-ncol(beta.null.matrix), drop = FALSE],
-                    p.value) |>
-      data.frame() 
-    
-  }
+  # }
 
-  return(result)
+  return(final.result)
 }
 
 

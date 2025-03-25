@@ -11,7 +11,7 @@ exactt(
   alpha = 0.05,
   variables = NULL,
   beta0 = NULL,
-  nBlocks = 5,
+  nBlocks = NULL,
   nPerms = NULL,
   studentize = TRUE,
   optimize = FALSE,

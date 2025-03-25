@@ -64,7 +64,7 @@ print.exactt.wald = function(x, digits = 4, ...){
   }
   
   cat(cli::style_bold(cli::col_blue("\nP-Value: ")))
-  cat(x$detailed[which(rowSums(x$detailed[, names(x$detailed) != "p.value"] == 0) == (ncol(x$detailed) - 1)), "p.value"], "\n")
+  cat(x$detailed[which(rowSums(x$detailed[, names(x$detailed) != "p.value", drop = FALSE] == 0) == (ncol(x$detailed) - 1)), "p.value"], "\n")
     
   cat(cli::style_bold(cli::col_blue("\nSummary:\n")))
   print.default(signif(x$summary, digits),

@@ -37,39 +37,19 @@ getHadamardCombinations <- function(tensor){
   
 }
 
-get.wald.randomization.stats <- function(Q.Z.temp.dot.X1.Y.temp, Sigma.hat.inverse, beta.null.matrix){
-  
-  numSlices <- dim(Sigma.hat.inverse)[3]
+get.wald.randomization.stats <- function(omega.g, beta.null.matrix){
   
   # Generate combinations of matrix indices
-  allCombos = as.matrix(expand.grid(1:ncol(Q.Z.temp.dot.X1.Y.temp), 1:ncol(Q.Z.temp.dot.X1.Y.temp)))
+  allCombos = as.matrix(expand.grid(1:nrow(omega.g), 1:nrow(omega.g)))
   
   # We treat 12 and 21 the same, so we only include those where the first column is <= the second
   allCombos = allCombos[allCombos[,1] <= allCombos[,2],, drop = FALSE]
   
-  # Compute Hadamard products for each combination
-  # Order is 11, 12, 22, 13, 23, 33, 14, 24, 34, 44,...
-  randomization.coefficients <- sapply(1:dim(Q.Z.temp.dot.X1.Y.temp)[3],
-                                       function(x){ 
-                                         apply(allCombos,
-                                               MARGIN = 1,
-                                               function(indices){
-                                                 
-                                                 slice <- Q.Z.temp.dot.X1.Y.temp[,,x]
-                                                 
-                                                 result.temp <- t(slice[,indices[1], drop = FALSE]) %*% 
-                                                   Sigma.hat.inverse[,,x] %*% 
-                                                   slice[,indices[2], drop = FALSE] |>
-                                                   as.numeric()
-                                                
-                                                 if(indices[1] != indices[2] && indices[2] == 3){
-                                                   return(-result.temp)
-                                                 } else{
-                                                   return(result.temp)
-                                                 }
-                                               })
-                                       }
-                                       )
+  randomization.coefficients <- apply(omega.g,
+                                      MARGIN = 3,
+                                      function(x){
+                                        x[upper.tri(x, diag = TRUE)]
+                                      })
   
   beta.null.transformed.matrix <- apply(allCombos,
                                         MARGIN = 1,

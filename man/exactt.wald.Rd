@@ -10,12 +10,15 @@ exactt.wald(
   alpha = 0.05,
   variables = NULL,
   beta0 = c(0, NULL),
-  nBlocks = 5,
+  nBlocks = NULL,
   nPerms = NULL,
   studentize = TRUE,
   optimize = FALSE,
   seed = 31740,
-  GX.indices,
+  confidence.intervals = TRUE,
+  gurobi.params = list(FeasibilityTol = 1e-09, OptimalityTol = 1e-09, IntFeasTol = 1e-09,
+    OutputFlag = 0),
+  GX.indices = NULL,
   ...
 )
 }
@@ -26,8 +29,7 @@ exactt.wald(
 
 \item{alpha}{The significance level used for the hypothesis tests; defaults to 0.05.}
 
-\item{variables}{Optional; a character vector of predictor names to test.
-If NULL, all predictors in the model are tested.}
+\item{variables}{Indices of variables of interest.}
 
 \item{beta0}{If 0, test whether the variables of interest are equal to the zero vector.
 If NULL, creates a grid of beta0 values (for confidence intervals) and tests the variables of interest.}
@@ -42,6 +44,10 @@ If NULL or greater than the number of possible permutations, all permutations ar
 \item{optimize}{Logical indicating whether to optimize the ordering of the data.}
 
 \item{seed}{Seed used when optimizing using \code{GA::ga()}. Default is 31740.}
+
+\item{confidence.intervals}{Do you want exact confidence intervals?}
+
+\item{gurobi.params}{Parameters to pass through to \code{gurobi::gurobi()}.}
 
 \item{GX.indices}{Indices for max rank GX. Used for warm start.}
 
