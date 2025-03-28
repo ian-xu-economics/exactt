@@ -50,7 +50,6 @@ using the base `library()` function:
 
 ``` r
 library("exactt")
-#> Package 'exactt' | Version 3.0.2
 ```
 
 ## Example Usage: Regular Case
@@ -97,15 +96,16 @@ exactt.1 <- exactt(model = len ~ dose + supp,
 
 print(exactt.1, digits = 5)
 #> 
+#> Exact t-Test (Marginally Valid Tests)
+#> 
 #> Call:
 #> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
 #>     alpha = 0.1)
 #> 
-#> 
 #> Summary:
 #>         Estimate  P-value  Lower Bound  Upper Bound
-#> dose      9.7636  0.07500       3.3177      16.0120
-#> suppVC   -3.7000  0.26667     -10.9840       7.6065
+#> dose     9.76357  0.07500      3.31768     16.01241
+#> suppVC  -3.70000  0.25833    -10.98448      7.60653
 ```
 
 ## Focusing on Specific Variables
@@ -123,14 +123,15 @@ exactt.2 <- exactt(model = len ~ dose + supp,
 
 print(exactt.2, digits = 5)
 #> 
+#> Exact t-Test (Marginally Valid Tests)
+#> 
 #> Call:
 #> exactt(model = len ~ dose + supp, data = datasets::ToothGrowth, 
 #>     alpha = 0.1, variables = 1)
 #> 
-#> 
 #> Summary:
 #>       Estimate  P-value  Lower Bound  Upper Bound
-#> dose    9.7636    0.075       3.3177       16.012
+#> dose   9.76357    0.075      3.31768     16.01241
 ```
 
 This creates a 90% confidence interval for `dose` only. It is equivalent
@@ -154,16 +155,17 @@ exactt.3 <- exactt(model = len ~ as.factor(dose) + supp,
 
 exactt.3
 #> 
+#> Exact t-Test (Marginally Valid Tests)
+#> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
 #>     alpha = 0.1)
 #> 
-#> 
 #> Summary:
 #>                   Estimate  P-value  Lower Bound  Upper Bound
-#> as.factor(dose)1      9.13   0.0500        5.644        19.12
-#> as.factor(dose)2     15.49   0.6583         -Inf          Inf
-#> suppVC               -3.70   0.4333         -Inf          Inf
+#> as.factor(dose)1     9.130    0.050      5.64353     19.12271
+#> as.factor(dose)2    15.495    0.425         -Inf          Inf
+#> suppVC              -3.700    0.450         -Inf          Inf
 ```
 
 The 90% confidence intervals when `dose` equals “2” and `supp` equals
@@ -204,23 +206,21 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
 #> ✔ Optimizing ordering for `as.factor(dose)1`.
 #> ✔ Optimizing ordering for `as.factor(dose)2`.
 #> ✔ Optimizing ordering for `suppVC`.
-```
-
-``` r
 
 print(exactt.4, digits = 5)
+#> 
+#> Exact t-Test (Marginally Valid Tests)
 #> 
 #> Call:
 #> exactt(model = len ~ as.factor(dose) + supp, data = datasets::ToothGrowth, 
 #>     alpha = 0.1, optimize = TRUE, seed = 2024, parallel = FALSE, 
 #>     maxiter = 5)
 #> 
-#> 
 #> Summary:
-#>                   Estimate    P-value  Lower Bound  Upper Bound
-#> as.factor(dose)1     9.130  0.0083333       4.4410      12.0620
-#> as.factor(dose)2    15.495  0.0083333      14.3080      16.9730
-#> suppVC              -3.700  0.0166670      -6.6167      -3.5955
+#>                   Estimate  P-value  Lower Bound  Upper Bound
+#> as.factor(dose)1     9.130  0.00833      4.44096     12.06245
+#> as.factor(dose)2    15.495  0.00833     14.30794     16.97312
+#> suppVC              -3.700  0.01667     -6.61671     -3.59551
 ```
 
 Note that by optimizing the data ordering, `exactt()` is now able to
@@ -280,11 +280,10 @@ exactt.iv <- exactt(model = lwage ~ educ + exper + expersq | exper + expersq + m
 #> GA | iter = 8 | Mean = 2722396 | Best = 3167506
 #> GA | iter = 9 | Mean = 2742183 | Best = 3167506
 #> GA | iter = 10 | Mean = 2693768 | Best = 3167506
-```
-
-``` r
 
 exactt.iv
+#> 
+#> Exact t-Test (Marginally Valid Tests)
 #> 
 #> Call:
 #> exactt(model = lwage ~ educ + exper + expersq | exper + expersq + 
@@ -292,8 +291,7 @@ exactt.iv
 #>     optimize = TRUE, seed = 31740, parallel = FALSE, maxiter = 10, 
 #>     monitor = TRUE)
 #> 
-#> 
 #> Summary:
 #>       Estimate  P-value  Lower Bound  Upper Bound
-#> educ    0.0614   0.1833     -0.04061       0.1368
+#> educ    0.0614  0.18333     -0.04061      0.13679
 ```
