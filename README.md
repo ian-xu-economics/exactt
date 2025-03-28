@@ -1,11 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# exactt <img src="man/figures/package-sticker.png" align="right" style="float:right; height:120px;"/>
+# exactt <img src="man/figures/package-sticker.png" align="right" style="float:right; height:250px;"/>
 
 <!-- badges: start -->
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/exactt)](https://CRAN.R-project.org/package=exactt)
-[![R CMD Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml)
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/exactt)](https://CRAN.R-project.org/package=exactt)
+<!-- [![R CMD Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml)
 [![Website](https://github.com/ian-xu-economics/exactt/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/pkgdown.yaml)
 [![Test coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml)
 [![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt) -->
