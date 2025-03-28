@@ -4,15 +4,11 @@
 # exactt <img src="man/figures/package-sticker.png" align="right" style="float:right; height:120px;"/>
 
 <!-- badges: start -->
-
-[![CRAN
-status](https://www.r-pkg.org/badges/version/exactt)](https://CRAN.R-project.org/package=exactt)
-[![R CMD
-Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml)
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/exactt)](https://CRAN.R-project.org/package=exactt)
+[![R CMD Check](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/R-CMD-check.yaml)
 [![Website](https://github.com/ian-xu-economics/exactt/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/pkgdown.yaml)
-[![Test
-coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml)
-[![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt)
+[![Test coverage](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ian-xu-economics/exactt/actions/workflows/test-coverage.yaml)
+[![codecov](https://codecov.io/gh/ian-xu-economics/exactt/branch/main/graph/badge.svg)](https://codecov.io/gh/ian-xu-economics/exactt) -->
 <!-- badges: end -->
 
 ## Introduction
