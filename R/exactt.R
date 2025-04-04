@@ -161,7 +161,7 @@ exactt <- function(model,
   
   X.var <- as.character(unlist(attr(ivregObject$terms$regressors, "variables")))[-(1:2)]
   
-  gaArgs <- list(seed = seed, ...)
+  ga.params <- list(seed = seed, ...)
   
   if(is.null(variables)){
     variables.construct <- 1:length(X.var)
@@ -212,25 +212,25 @@ exactt <- function(model,
   }
 
   if(optimize){ # Case 1: don't optimize
-    if("type" %in% names(gaArgs)){
+    if("type" %in% names(ga.params)){
       cli::cli_warn("Custom 'type' value is ignored in this function.")
-      gaArgs$type <- NULL
+      ga.params$type <- NULL
     } 
-    if("fitness" %in% names(gaArgs)){
+    if("fitness" %in% names(ga.params)){
       cli::cli_warn("Custom 'fitness' value is ignored in this function.")
-      gaArgs$fitness <- NULL
+      ga.params$fitness <- NULL
     } 
-    if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
+    if ("lower" %in% names(ga.params) || "upper" %in% names(ga.params)) {
       cli::cli_warn("Custom 'lower' and 'upper' values are ignored in this function.")
-      gaArgs$lower <- NULL
-      gaArgs$upper <- NULL
+      ga.params$lower <- NULL
+      ga.params$upper <- NULL
     }
-    if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
+    if("crossover" %in% names(ga.params) && ga.params$crossover != "gaperm_oxCrossover_R"){
       cli::cli_warn("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
     }
     
-    gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ fitness_function(permutation = permutation, 
+    ga.params$type <- "permutation"
+    ga.params$fitness <- function(permutation){ fitness_function(permutation = permutation, 
                                                               X1.temp = X1.temp, 
                                                               X2.temp = X2.temp, 
                                                               Z.temp = Z.temp, 
@@ -238,9 +238,9 @@ exactt <- function(model,
                                                               blockIndexMatrix = blockIndexMatrix, 
                                                               GX.indices = GX.indices, 
                                                               permIndices = permIndices) }
-    gaArgs$lower <- rep(1, data.n)
-    gaArgs$upper <- rep(data.n, data.n)
-    gaArgs$crossover = "gaperm_oxCrossover_R"
+    ga.params$lower <- rep(1, data.n)
+    ga.params$upper <- rep(data.n, data.n)
+    ga.params$crossover = "gaperm_oxCrossover_R"
   }
   
   summaryTableList <- vector("list")
@@ -286,14 +286,14 @@ exactt <- function(model,
         Z.temp <- NULL
       } 
       
-      if(!is.null(gaArgs$parallel) && gaArgs$parallel == TRUE){
+      if(!is.null(ga.params$parallel) && ga.params$parallel == TRUE){
         
-        ogParArg <- gaArgs$parallel
+        ogParArg <- ga.params$parallel
         
-        if(gaArgs$parallel == TRUE){
+        if(ga.params$parallel == TRUE){
           numCores <- parallel::detectCores()
-        } else if(is.numeric(gaArgs$parallel) && gaArgs$parallel >= 2){
-          numCores <- gaArgs$parallel
+        } else if(is.numeric(ga.params$parallel) && ga.params$parallel >= 2){
+          numCores <- ga.params$parallel
         }
         
         # Create the appropriate cluster
@@ -328,18 +328,18 @@ exactt <- function(model,
         # Register the parallel backend
         doParallel::registerDoParallel(cl, cores = numCores)
        
-        gaArgs$parallel <- cl
+        ga.params$parallel <- cl
       } else{
         ogParArg <- FALSE
       }
       
       cli::cli_alert_success("Optimizing ordering for `{colnames(X.use)[i]}`.")
-      gaResults <- do.call(GA::ga, gaArgs)
+      gaResults <- do.call(GA::ga, ga.params)
       
       # Close cluster if parallel is true
-      if(!is.null(gaArgs$parallel) && ogParArg != FALSE){
+      if(!is.null(ga.params$parallel) && ogParArg != FALSE){
         parallel::stopCluster(cl)
-        gaArgs$parallel <- ogParArg
+        ga.params$parallel <- ogParArg
       }
       
       Y.temp <- Y.temp[gaResults@solution[1,],, drop = FALSE]
@@ -503,15 +503,16 @@ exactt.wald <- function(model,
                         nBlocks = NULL,
                         nPerms = NULL,
                         studentize = TRUE,
-                        optimize = FALSE,
-                        seed = 31740,
                         confidence.intervals = TRUE,
+                        optimize = FALSE,
+                        ga.params = list(seed = 31740,
+                                         parallel = TRUE,
+                                         monitor = TRUE),
                         gurobi.params = list(FeasibilityTol = 1e-9,
                                              OptimalityTol = 1e-9,
                                              IntFeasTol = 1e-9,
                                              OutputFlag = 0),
-                        GX.indices = NULL,
-                        ...) {
+                        GX.indices = NULL) {
 
   call <- match.call(expand.dots = TRUE)
 
@@ -607,8 +608,6 @@ exactt.wald <- function(model,
                              ncol = nBlocks,
                              byrow = FALSE)
   
-  gaArgs <- list(seed = seed, ...)
-
   # If `nPerms` is unspecified or greater than the number of possible permutations, then use all possible permutations.
   # When number of possible permutations is bigger than MG, then we need to randomly sample.
   if(is.null(nPerms) || nPerms >= factorial(nBlocks)){
@@ -639,34 +638,34 @@ exactt.wald <- function(model,
   }
 
   if(optimize){ # Case 1: don't optimize
-    if("type" %in% names(gaArgs)){
+    if("type" %in% names(ga.params)){
       cli::cli_warn("Custom 'type' value is ignored in this function.")
-      gaArgs$type <- NULL
+      ga.params$type <- NULL
     }
-    if("fitness" %in% names(gaArgs)){
+    if("fitness" %in% names(ga.params)){
       cli::cli_warn("Custom 'fitness' value is ignored in this function.")
-      gaArgs$fitness <- NULL
+      ga.params$fitness <- NULL
     }
-    if ("lower" %in% names(gaArgs) || "upper" %in% names(gaArgs)) {
+    if ("lower" %in% names(ga.params) || "upper" %in% names(ga.params)) {
       cli::cli_warn("Custom 'lower' and 'upper' values are ignored in this function.")
-      gaArgs$lower <- NULL
-      gaArgs$upper <- NULL
+      ga.params$lower <- NULL
+      ga.params$upper <- NULL
     }
-    if("crossover" %in% names(gaArgs) && gaArgs$crossover != "gaperm_oxCrossover_R"){
+    if("crossover" %in% names(ga.params) && ga.params$crossover != "gaperm_oxCrossover_R"){
       cli::cli_warn("'crossover' is restricted to 'gaperm_oxCrossover_R' due to Rcpp issues.")
     }
 
-    gaArgs$type <- "permutation"
-    gaArgs$fitness <- function(permutation){ fitness_function(permutation = permutation,
+    ga.params$type <- "permutation"
+    ga.params$fitness <- function(permutation){ fitness_function(permutation = permutation,
                                                               X1.temp = X1.temp,
                                                               X2.temp = X2.temp,
                                                               Z.temp = Z.temp,
                                                               blockIndexMatrix = blockIndexMatrix,
                                                               GX.indices = GX.indices,
                                                               permIndices = permIndices) }
-    gaArgs$lower <- rep(1, data.n)
-    gaArgs$upper <- rep(data.n, data.n)
-    gaArgs$crossover = "gaperm_oxCrossover_R"
+    ga.params$lower <- rep(1, data.n)
+    ga.params$upper <- rep(data.n, data.n)
+    ga.params$crossover = "gaperm_oxCrossover_R"
   }
 
   summaryTableList <- vector("list")
@@ -728,14 +727,14 @@ exactt.wald <- function(model,
       Z.temp <- NULL
     }
 
-    if(!is.null(gaArgs$parallel) && gaArgs$parallel == TRUE){
+    if(!is.null(ga.params$parallel) && ga.params$parallel == TRUE){
 
-      ogParArg <- gaArgs$parallel
+      ogParArg <- ga.params$parallel
 
-      if(gaArgs$parallel == TRUE){
+      if(ga.params$parallel == TRUE){
         numCores <- parallel::detectCores()
-      } else if(is.numeric(gaArgs$parallel) && gaArgs$parallel >= 2){
-        numCores <- gaArgs$parallel
+      } else if(is.numeric(ga.params$parallel) && ga.params$parallel >= 2){
+        numCores <- ga.params$parallel
       }
 
       # Create the appropriate cluster
@@ -769,18 +768,18 @@ exactt.wald <- function(model,
       # Register the parallel backend
       doParallel::registerDoParallel(cl, cores = numCores)
 
-      gaArgs$parallel <- cl
+      ga.params$parallel <- cl
     } else{
       ogParArg <- FALSE
     }
 
     cli::cli_alert_success("Optimizing ordering for Wald test.")
-    gaResults <- do.call(GA::ga, gaArgs)
+    gaResults <- do.call(GA::ga, ga.params)
 
     # Close cluster if parallel is true
-    if(!is.null(gaArgs$parallel) && ogParArg != FALSE){
+    if(!is.null(ga.params$parallel) && ogParArg != FALSE){
       parallel::stopCluster(cl)
-      gaArgs$parallel <- ogParArg
+      ga.params$parallel <- ogParArg
     }
 
     Y.temp <- Y.temp[gaResults@solution[1,],, drop = FALSE]

@@ -1,5 +1,5 @@
 ---
-title: "exactt"
+title: "exactt: Randomization-Based Inference in Multivariate Linear Regression"
 output: 
   rmarkdown::html_vignette:
     self_contained: yes
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment  = "#>")
 
 ## Introduction
 
-The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.
+The `exactt` package implements randomization-based inference in multivariate linear regression as described in Pouliot (2025). This package supports the construction of both marginally valid $1-\alpha$ confidence intervals and jointly valid $1-\alpha$ projected confidence intervals. This package also incorporates the fast computation techniques developed in Xu (2025).
 
 ## Installation
 
@@ -42,12 +42,12 @@ library("exactt")
 
 ## Example Usage: Regular Case
 
-To compute the $(1-\alpha)$ confidence interval, use the `exactt()` function. Here's an example looking at the effect of vitamin C on tooth growth in guinea pigs using data from `datasets::ToothGrowth`. We'll investigate the relationship between `supp` (orange juice (OJ) or ascorbic acid (VC)) and `dose` (dose in milligrams/day) on `len` (tooth length). 
+To compute marginally valid $(1-\alpha)$ confidence intervals, use the `exactt()` function. Here's an example looking at the effect of vitamin C on tooth growth in guinea pigs using data from `datasets::ToothGrowth`. We'll investigate the relationship between `supp` (orange juice (OJ) or ascorbic acid (VC)) and `dose` (dose in milligrams/day) on `len` (tooth length). 
 ```{r}
 summary(datasets::ToothGrowth)
 ```
 
-Suppose our model is $len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp} \times supp_i + \varepsilon_i$. We can create a 90% confidence interval by plugging in standard formula notation into `exactt()`. The level of significance (alpha) equals 0.1 here, but if we choose not to specify any additional parameters, then by default:
+Suppose our model is $len_i = \beta_0 + \beta_{dose} \times dose_i + \beta_{supp} \times supp_i + \varepsilon_i$. We can create a 90% confidence interval by plugging in standard formula notation into `exactt()`. The level of significance (`alpha`) equals 0.1 here, but if we choose not to specify any additional parameters, then by default:
 
 * The number of blocks used equals 5 (`nBlocks = 5`).
 * The confidence interval is constructed for all variables (`variables = NULL`).
