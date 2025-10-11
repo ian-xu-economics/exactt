@@ -313,8 +313,7 @@ exactt <- function(model,
                                                   "n",
                                                   "fitness_function", 
                                                   "build_GX", 
-                                                  "build_GX.indices", 
-                                                  "block_permute"), 
+                                                  "build_GX.indices"), 
                                   envir = environment())
           parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
           parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
@@ -754,8 +753,7 @@ exactt.wald <- function(model,
                                                 "n",
                                                 "fitness_function",
                                                 "build_GX",
-                                                "build_GX.indices",
-                                                "block_permute"),
+                                                "build_GX.indices"),
                                 envir = environment())
         parallel::clusterCall(cl, library, package = "Matrix", character.only = TRUE)
         parallel::clusterCall(cl, library, package = "MASS", character.only = TRUE)
