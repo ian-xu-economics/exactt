@@ -7,7 +7,7 @@ bibentry(
     person(given = "Guillaume", family = "Pouliot"),
     person(given = "Ian", family = "Xu", email = "ianxu@uchicago.edu")
   ),
-  year    = "2024",
+  year    = "2025",
   note    = "R package version 1.0.0",
   url     = "https://github.com/ian-xu-economics/exactt"
 )
