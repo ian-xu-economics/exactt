@@ -37,39 +37,6 @@ getHadamardCombinations <- function(tensor){
   
 }
 
-get.wald.randomization.stats <- function(omega.g, beta.null.matrix){
-  
-  # Generate combinations of matrix indices
-  allCombos = as.matrix(expand.grid(1:nrow(omega.g), 1:nrow(omega.g)))
-  
-  # We treat 12 and 21 the same, so we only include those where the first column is <= the second
-  allCombos = allCombos[allCombos[,1] <= allCombos[,2],, drop = FALSE]
-  
-  randomization.coefficients <- apply(omega.g,
-                                      MARGIN = 3,
-                                      function(x){
-                                        x[upper.tri(x, diag = TRUE)]
-                                      })
-  
-  beta.null.transformed.matrix <- apply(allCombos,
-                                        MARGIN = 1,
-                                        function(indices){
-                                          result.temp <- beta.null.matrix[,indices[1], drop = FALSE]*
-                                            beta.null.matrix[,indices[2], drop = FALSE]
-                                          
-                                          if(indices[1] != indices[2]){
-                                            return(2*result.temp)
-                                          } else{
-                                            return(result.temp)
-                                          }
-                                        })
-  
-  randomization.stats <- beta.null.transformed.matrix %*% randomization.coefficients
-  
-  return(randomization.stats)
-}
-
-
 lastInd <- function(tensor, num_dims, index){
   
   # Create index lists for the two subsetting operations
