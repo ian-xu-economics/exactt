@@ -456,8 +456,8 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
                           intersectLeft = NA,
                           intersectRight = NA)
   
-  intersect.plus <- suppressWarnings((-b.diff + sqrt(discriminant))/(2*a.diff))
-  intersect.minus <- suppressWarnings((-b.diff - sqrt(discriminant))/(2*a.diff))
+  intersect.plus <- suppressWarnings((-b.diff + sqrt(line.data$discriminant))/(2*a.diff))
+  intersect.minus <- suppressWarnings((-b.diff - sqrt(line.data$discriminant))/(2*a.diff))
   
   intersections <- cbind(intersect.plus, 
                          intersect.minus) |> 
@@ -465,7 +465,7 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
     unlist() |>
     matrix(byrow = TRUE, ncol = 2)
   
-  line.data[discriminant > 0, c("intersectLeft", "intersectRight")] <- intersections
+  line.data[line.data$discriminant > 0, c("intersectLeft", "intersectRight")] <- intersections
   
   pvals.df <- pvalCalculator(line.data, check.identity = NULL, intercept = NULL, iv = TRUE, side = "both")
   
