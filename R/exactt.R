@@ -117,6 +117,7 @@ exactt <- function(model,
   X.use <- ivregObject$x$regressors
   
   Z.var <- names(ivregObject$instruments)
+  Z.var <- Z.var[Z.var != "(Intercept)"]
   
   if(!is.null(Z.var)){
     IV <- TRUE

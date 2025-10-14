@@ -445,22 +445,19 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
   b.identity <- b[1]
   c.identity <- c[1]
   
-  a.component <- a.identity - a[-1]
-  b.component <- b.identity - b[-1]
-  c.component <- c.identity - c[-1]
+  a.diff <- a.identity - a[-1]
+  b.diff <- b.identity - b[-1]
+  c.diff <- c.identity - c[-1]
   
-  discriminant <- b.component^2 - 4*a.component*c.component
+  line.data <- data.frame(a.diff, 
+                          b.diff, 
+                          c.diff,
+                          discriminant = b.diff^2 - 4*a.diff*c.diff,
+                          intersectLeft = NA,
+                          intersectRight = NA)
   
-  intersect.data <- data.frame(a.component,
-                               b.component,
-                               c.component,
-                               discriminant,
-                               intersectLeft = NA,
-                               intersectRight = NA)
-  
-  intersect.plus <- suppressWarnings((-b.component + sqrt(discriminant))/(2*a.component))
-  
-  intersect.minus <- suppressWarnings((-b.component - sqrt(discriminant))/(2*a.component))
+  intersect.plus <- suppressWarnings((-b.diff + sqrt(discriminant))/(2*a.diff))
+  intersect.minus <- suppressWarnings((-b.diff - sqrt(discriminant))/(2*a.diff))
   
   intersections <- cbind(intersect.plus, 
                          intersect.minus) |> 
@@ -468,9 +465,9 @@ exactt.pval.new.iv <- function(Y.temp, X1.temp, X2.temp, indep.X2.index, permInd
     unlist() |>
     matrix(byrow = TRUE, ncol = 2)
   
-  intersect.data[discriminant > 0, c("intersectLeft", "intersectRight")] <- intersections
+  line.data[discriminant > 0, c("intersectLeft", "intersectRight")] <- intersections
   
-  pvals.df <- pvalCalculator(intersect.data, check.identity = a.identity, intercept = NULL, iv = TRUE, side = "both")
+  pvals.df <- pvalCalculator(line.data, check.identity = NULL, intercept = NULL, iv = TRUE, side = "both")
   
   return(pvals.df)
 }
@@ -488,26 +485,43 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
   
   nPerms <- nrow(line.data) + 1
   
-  if(iv){
-    intersectLeft <- line.data$intersectLeft[line.data$discriminant >= 0]
-    intersectRight <- line.data$intersectRight[line.data$discriminant >= 0]
+  if(iv){ # Code doesn't handle case with only 1 intercept.
+    filtered.line.data <- subset(line.data, 
+                                 discriminant >= 0 &
+                                   (a.diff != 0 | b.diff != 0 | c.diff != 0))
     
-    beta0 <- c(intersectLeft, intersectRight) |>
-      sort()
+    filtered.line.data.long <- stats::reshape(filtered.line.data,
+                                              varying = c("intersectLeft", "intersectRight"),
+                                              v.names = "beta0",
+                                              timevar = "type",
+                                              times = c("left", "right"),
+                                              direction = "long")
     
-    count_matrix <- outer(beta0, intersectLeft, `>=`) & outer(beta0, intersectRight, `<=`)
+    rownames(filtered.line.data.long) <- NULL
+    filtered.line.data.long$id <- NULL
+    filtered.line.data.long <- filtered.line.data.long[order(filtered.line.data.long$beta0), ]
+    filtered.line.data.long <- filtered.line.data.long[!is.infinite(filtered.line.data.long$beta0), ]
     
-    growth_condition <- !check.identity > line.data$a.component[line.data$discriminant >= 0]
+    # Don't need to worry about non-intersection here because determinant is >= 0
+    slope.intersect.booleans <- ifelse(test = (filtered.line.data.long$a.diff > 0 & 
+                                                 filtered.line.data.long$type == "left") |
+                                         (filtered.line.data.long$a.diff < 0 & 
+                                            filtered.line.data.long$type == "right") | 
+                                         (filtered.line.data.long$a.diff == 0 &
+                                            filtered.line.data.long$b.diff > 0),
+                                       yes = 1,
+                                       no = -1)
     
-    count_matrix[, growth_condition] <- !count_matrix[, growth_condition]
+    starter.count <- 1 + 
+      sum(line.data$discriminant < 0 & 
+            line.data$c.diff < 0) + 
+      sum(line.data$a.diff == 0 & 
+            line.data$b.diff == 0 & 
+            line.data$c.diff == 0)
     
-    pvals <- (apply(count_matrix, MARGIN = 1, sum) + 1)/nPerms
-    
-    pvals.df <- data.frame(beta0.start = c(-Inf, beta0),
-                           beta0.end = c(beta0, Inf),
-                           pvals = c(sum(growth_condition, 1)/nPerms, 
-                                     pvals[-length(pvals)/2], 
-                                     sum(growth_condition, 1)/nPerms))
+    pvals.df <- data.frame(beta0.start = c(-Inf, filtered.line.data.long$beta0),
+                           beta0.end = c(filtered.line.data.long$beta0, Inf),
+                           pvals = cumsum(c(starter.count, slope.intersect.booleans))/nPerms)
   } else{
     if(side == "both"){
       NaN.index <- which(is.nan(line.data$intersectLeft) | 
@@ -600,7 +614,6 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
                              pvals = counts/nPerms) 
     }
   }
-  
   
   pvals.df <- pvals.df[pvals.df$beta0.start != pvals.df$beta0.end, ]
   rownames(pvals.df) = NULL
