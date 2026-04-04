@@ -487,8 +487,8 @@ pvalCalculator <- function(line.data, check.identity, intercept, iv, side){
   
   if(iv){ # Code doesn't handle case with only 1 intercept.
     filtered.line.data <- subset(line.data, 
-                                 discriminant >= 0 &
-                                   (a.diff != 0 | b.diff != 0 | c.diff != 0))
+                                 line.data$discriminant >= 0 &
+                                   (line.data$a.diff != 0 | line.data$b.diff != 0 | line.data$c.diff != 0))
     
     filtered.line.data.long <- stats::reshape(filtered.line.data,
                                               varying = c("intersectLeft", "intersectRight"),

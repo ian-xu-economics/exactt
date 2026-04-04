@@ -1,0 +1,4 @@
+"","prob.rejection.normal","prob.rejection.skewed","prob.rejection.heteroskedastic"
+"exact.t",0.1,0.1,0.1
+"classical.t",0.1,0.15,0.33
+"robust.t",0.14,0.01,0.11

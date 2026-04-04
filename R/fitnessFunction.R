@@ -118,3 +118,4 @@ fitness_function <- function(permutation, X1.temp, X2.temp, Z.temp = NULL, indep
     return(sqrt(sum((gFF.eigenvalues[,1] - apply(gFF.eigenvalues, MARGIN = 1, mean))^2)))
   }
 }
+
