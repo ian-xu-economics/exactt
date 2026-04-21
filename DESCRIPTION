@@ -1,7 +1,7 @@
 Package: exactt
 Type: Package
 Title: Implement the Exact t-Test
-Version: 4.1.0
+Version: 0.1.0
 Authors@R: c(
     person(given   = "Guillaume",
            family  = "Pouliot",
@@ -9,10 +9,9 @@ Authors@R: c(
     person(given   = "Ian",
            family  = "Xu",
            role    = c("aut", "cre"),
-           email   = "ianxu@uchicago.edu"))
+           email   = "ix23@cornell.edu"))
 URL: https://github.com/ian-xu-economics/exactt
-Description: A paragraph providing a full description of the project (on 
-    several lines...)
+Description: The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2026). Importantly, inverting such a test produces a marginally valid confidence interval. 
 BugReports: https://github.com/ian-xu-economics/exactt/issues
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
@@ -33,7 +32,6 @@ Imports:
     doRNG,
     Formula,
     GA,
-    gurobi,
     graphics,
     grDevices,
     ivreg,

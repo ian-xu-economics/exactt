@@ -5,7 +5,7 @@
 \alias{exactt-package}
 \title{exactt: Implement the Exact t-Test}
 \description{
-A paragraph providing a full description of the project (on several lines...)
+The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2026). Importantly, inverting such a test produces a marginally valid confidence interval.
 }
 \seealso{
 Useful links:
@@ -16,7 +16,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ian Xu \email{ianxu@uchicago.edu}
+\strong{Maintainer}: Ian Xu \email{ix23@cornell.edu}
 
 Authors:
 \itemize{

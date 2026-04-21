@@ -16,7 +16,9 @@ knitr::opts_chunk$set(collapse = TRUE, comment  = "#>")
 
 ## Introduction
 
-The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2023). Importantly, inverting such a test produces a marginally valid confidence interval.
+**Status:** Beta — API may change.
+
+The `exactt` package tests whether a slope coefficient is equal to some null value using the novel method described in Pouliot (2026). Importantly, inverting such a test produces a marginally valid confidence interval.
 
 ## Installation
 
