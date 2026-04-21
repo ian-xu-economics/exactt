@@ -1,13 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<div style="float:right; margin-top:15px;">
-
-<img src="man/figures/package-sticker.png" height="250px"/>
-
-</div>
-
-# exactt
+# exactt<br><img src="man/figures/package-sticker.png" align="right" height="250" />
 
 <!-- badges: start -->
 
@@ -206,8 +200,23 @@ exactt.4 <- exactt(model = len ~ as.factor(dose) + supp,
                    maxiter = 5,
                    seed = 2024)
 #> ✔ Optimizing ordering for `as.factor(dose)1`.
+#> GA | iter = 1 | Mean = 2.992124 | Best = 4.942080
+#> GA | iter = 2 | Mean = 2.918368 | Best = 4.993976
+#> GA | iter = 3 | Mean = 2.854717 | Best = 4.993976
+#> GA | iter = 4 | Mean = 2.905434 | Best = 4.993976
+#> GA | iter = 5 | Mean = 3.110752 | Best = 5.467331
 #> ✔ Optimizing ordering for `as.factor(dose)2`.
+#> GA | iter = 1 | Mean = 2.799936 | Best = 5.007930
+#> GA | iter = 2 | Mean = 3.156939 | Best = 5.007930
+#> GA | iter = 3 | Mean = 2.964938 | Best = 5.007930
+#> GA | iter = 4 | Mean = 3.108858 | Best = 5.007930
+#> GA | iter = 5 | Mean = 3.297772 | Best = 5.701716
 #> ✔ Optimizing ordering for `suppVC`.
+#> GA | iter = 1 | Mean = 4.164565 | Best = 6.068181
+#> GA | iter = 2 | Mean = 4.346684 | Best = 7.411765
+#> GA | iter = 3 | Mean = 4.343094 | Best = 7.411765
+#> GA | iter = 4 | Mean = 4.590258 | Best = 7.411765
+#> GA | iter = 5 | Mean = 4.449291 | Best = 7.411765
 
 print(exactt.4, digits = 5)
 #> 

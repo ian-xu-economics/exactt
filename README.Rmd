@@ -16,11 +16,7 @@ knitr::opts_chunk$set(collapse  = TRUE,
 
 
 
-<div style="float:right; margin-top:15px;">
-  <img src="man/figures/package-sticker.png" height="250px"/>
-</div>
-
-# exactt
+# exactt<br><img src="man/figures/package-sticker.png" align="right" height="250" />
 
 <!-- badges: start -->
 ![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange)
