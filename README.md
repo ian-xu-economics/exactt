@@ -9,14 +9,17 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange)
 <!-- badges: end -->
 
-## Introduction
-
 **Status:** Beta — API may change.
 
 The `exactt` package tests whether a slope coefficient is equal to some
-null value using the novel method described in Pouliot (2026).
-Importantly, inverting such a test produces a marginally valid
-confidence interval.
+null value in multivariate linear regression using the novel method
+described in Pouliot (2026). The package also inverts such a test to
+produce marginally valid confidence intervals.
+
+## Authors
+
+- Guillaume Pouliot (<guillaume.pouliot@rice.edu>)
+- Ian Xu (<ix23@cornell.edu>)
 
 ## Installation
 
